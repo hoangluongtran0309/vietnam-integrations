@@ -42,4 +42,50 @@
       <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-einvoice-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
     </dependencies>
   </dependencyManagement>
+
+  <!-- The BOM does not inherit the parent, so it needs its own release profile.
+       Keep plugin versions and configuration in sync with the parent pom.xml. -->
+  <properties>
+    <central-publishing.version>0.11.0</central-publishing.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals><goal>sign</goal></goals>
+              </execution>
+            </executions>
+            <configuration>
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

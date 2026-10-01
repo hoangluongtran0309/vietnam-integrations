@@ -10,6 +10,7 @@
 - E-invoice: domain model, `EInvoiceProvider` SPI, `EInvoiceService`.
 
 ### Changed
+- Build với Spring Boot 4.1.1 (trước đó 4.0.1).
 - Zalo OA starter: `vietnam.zalo-oa.enabled=false` giờ thực sự tắt auto-configuration.
 - Zalo OA starter: `vietnam.zalo-oa.token-store=jdbc` báo lỗi rõ ràng khi khởi động (chưa implement)
   thay vì âm thầm dùng in-memory; bean `ZaloTokenStore` do người dùng tự định nghĩa vẫn được ưu tiên.

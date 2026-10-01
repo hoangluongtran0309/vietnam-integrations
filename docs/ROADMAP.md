@@ -12,15 +12,15 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 
 ## Phase 0 — Nền móng (tuần 1)
 
-- [ ] Tạo repo GitHub `vietnam-integrations`, push scaffold này
-- [ ] Chạy `./mvnw verify` lần đầu, sửa mọi lỗi compile/test (scaffold chưa được build bằng Maven thật)
-- [ ] Bump `spring-boot.version` và `central-publishing.version` lên bản mới nhất
-- [ ] Đăng ký tài khoản [Central Portal](https://central.sonatype.com), verify namespace `io.github.hoangluongtran0309`
-- [ ] Tạo GPG key, publish public key lên keyserver, thêm secrets vào GitHub (xem [RELEASING.md](RELEASING.md))
+- [x] Tạo repo GitHub `vietnam-integrations`, push scaffold này
+- [x] Chạy `./mvnw verify` lần đầu, sửa mọi lỗi compile/test (scaffold chưa được build bằng Maven thật)
+- [x] Bump `spring-boot.version` (4.1.1) và `central-publishing.version` (0.11.0) lên bản mới nhất
+- [x] Đăng ký tài khoản [Central Portal](https://central.sonatype.com), verify namespace `io.github.hoangluongtran0309`
+- [x] Tạo GPG key, publish public key lên keyserver, thêm secrets vào GitHub (xem [RELEASING.md](RELEASING.md))
 - [ ] Bật CodeRabbit, branch protection cho `main`
-- [ ] Chốt namespace Maven trước 0.1.0 (xem [RELEASING.md](RELEASING.md))
+- [x] Chốt namespace Maven trước 0.1.0 (xem [RELEASING.md](RELEASING.md)) — `io.github.hoangluongtran0309`
 
-**Done khi:** CI xanh trên Java 17 và 21; publish thử một bản `0.0.1-alpha` lên Central thành công.
+**Done khi:** CI xanh trên Java 17 và 21; publish thử một bản `0.0.1-alpha` lên Central thành công. ✅ Đã publish `0.0.1-alpha` ngày 2026-10-01.
 
 ## Phase 1 — VietQR 0.1.0 (tuần 2–4)
 

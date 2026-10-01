@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Intentionally NOT inheriting vietnam-integrations-parent:
+       otherwise importing this BOM would also import the whole Spring Boot BOM. See docs/adr/0003. -->
+  <groupId>io.github.hoangluongtran0309</groupId>
+  <artifactId>vietnam-bom</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Vietnam Integrations BOM</name>
+  <description>Bill of materials for Vietnam Integrations.</description>
+  <url>https://github.com/hoangluongtran0309/vietnam-integrations</url>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>hoangluongtran0309</id>
+      <name>Hoang Luong Tran</name>
+      <url>https://hoangluongtran.dev</url>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/hoangluongtran0309/vietnam-integrations</url>
+    <connection>scm:git:https://github.com/hoangluongtran0309/vietnam-integrations.git</connection>
+  </scm>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-vietqr-core</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-vietqr-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-zalo-oa-core</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-zalo-oa-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-einvoice-core</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.hoangluongtran0309</groupId><artifactId>vietnam-einvoice-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

@@ -1,0 +1,16 @@
+language: vi-VN
+reviews:
+  profile: assertive
+  path_instructions:
+    - path: "vietnam-*-core/**"
+      instructions: |
+        Core modules MUST stay framework-agnostic: no org.springframework imports, no Jackson-specific types in
+        public API. Public types are a compatibility contract — flag any breaking change.
+    - path: "vietnam-*-spring-boot-starter/**"
+      instructions: |
+        Every @Bean must be @ConditionalOnMissingBean. Every @ConfigurationProperties field needs a Javadoc
+        comment (it becomes IDE metadata). New auto-configurations must be listed in
+        META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports and covered by an
+        ApplicationContextRunner test.
+    - path: "**/*Test.java"
+      instructions: "Prefer real payload/test vectors over mocks. External HTTP must use WireMock, never live APIs."

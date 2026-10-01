@@ -1,0 +1,5 @@
+vietnam:
+  vietqr:
+    # Replace with your own account to test with a real banking app
+    bank-bin: "970436"
+    account-number: "0123456789"

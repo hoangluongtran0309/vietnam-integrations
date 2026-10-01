@@ -177,7 +177,9 @@
             <configuration>
               <publishingServerId>central</publishingServerId>
               <autoPublish>true</autoPublish>
-              <waitUntil>published</waitUntil>
+              <!-- Return once Central has validated the bundle; publishing then completes on its own and can
+                   take longer than the plugin's polling timeout. -->
+              <waitUntil>validated</waitUntil>
               <excludeArtifacts>
                 <excludeArtifact>demo-app</excludeArtifact>
               </excludeArtifacts>

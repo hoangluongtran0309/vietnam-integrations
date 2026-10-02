@@ -30,6 +30,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [ ] Thu thập ≥ 5 payload thật (tạo từ app ngân hàng khác nhau), thêm làm test vector cho decoder
 - [ ] Quét QR sinh ra bằng ≥ 3 app ngân hàng thật, xác nhận đúng người nhận/số tiền/nội dung
 - [ ] Quyết định giới hạn độ dài `purpose` (đo thực tế trên các app)
+  - Đã làm: giới hạn cứng 95 ký tự, báo lỗi thay vì cắt; EMVCo khuyến nghị ≤ 25
+    ([ADR-0005](adr/0005-purpose-length-policy.md), trạng thái Proposed). Còn lại: đo trên app thật rồi chốt ADR.
 - [ ] Render ảnh có logo/khung tùy chọn (optional, có thể để 0.1.x)
 - [ ] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
 - [ ] Viết docs: README, trang VietQR, ví dụ

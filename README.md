@@ -12,7 +12,7 @@
 
 | Module | Trạng thái | Phiên bản mục tiêu |
 |---|---|---|
-| `vietnam-vietqr-spring-boot-starter` | 🟡 Đang phát triển — encoder/decoder đã chạy | 0.1.0 |
+| `vietnam-vietqr-spring-boot-starter` | 🟡 Code 0.1.0 xong — chờ test vector & kiểm tra bằng app ngân hàng thật | 0.1.0 |
 | `vietnam-zalo-oa-spring-boot-starter` | 🔴 Khung (interfaces, token manager) | 0.2.0 |
 | `vietnam-einvoice-spring-boot-starter` | 🔴 Khung (domain model, SPI) | 0.3.0 |
 
@@ -54,6 +54,10 @@ Xem kế hoạch chi tiết tại [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## VietQR — dùng nhanh
 
+Tài liệu đầy đủ: **[docs/vietqr](docs/vietqr/README.md)** — cấu hình, cấu trúc payload, giới hạn nội dung,
+[65 ngân hàng](docs/vietqr/banks.md), [render ảnh có màu/logo](docs/vietqr/rendering.md),
+[xác nhận thanh toán](docs/vietqr/payment-confirmation.md), bảng lỗi thường gặp.
+
 ```yaml
 vietnam:
   vietqr:
@@ -89,13 +93,15 @@ String payload = new VietQrEncoder().encode(VietQrRequest.builder()
 
 ```bash
 ./mvnw verify                          # build + test
+./mvnw -q install -DskipTests          # lần đầu: để demo app dùng được các module trong repo
 ./mvnw -Psamples -pl samples/demo-app spring-boot:run
 # mở http://localhost:8080/qr.png?amount=10000&orderId=DH1 và quét bằng app ngân hàng
+# mở http://localhost:8080/verify để có bộ QR kiểm tra thủ công (docs/vietqr/manual-verification.md)
 ```
 
 ## Đóng góp
 
-Xem [CONTRIBUTING.md](CONTRIBUTING.md). Đặc biệt cần: test vector thật từ các app ngân hàng, tài khoản sandbox của nhà cung cấp hóa đơn điện tử.
+Xem [CONTRIBUTING.md](CONTRIBUTING.md). Đặc biệt cần: [test vector thật từ các app ngân hàng](docs/vietqr/test-vectors.md), tài khoản sandbox của nhà cung cấp hóa đơn điện tử.
 
 ## Lưu ý pháp lý
 

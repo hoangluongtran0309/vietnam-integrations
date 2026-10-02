@@ -26,17 +26,8 @@ Mô hình ports & adapters:
 - Dependency nặng (ZXing, JDBC…) là `optional` và được bật bằng `@ConditionalOnClass`.
 - Exception riêng cho từng module, là unchecked: `VietQrException`, `ZaloException`, `EInvoiceException`.
 
-## VietQR payload (tham khảo nhanh)
+## VietQR payload
 
-| Tag | Ý nghĩa | Giá trị |
-|---|---|---|
-| 00 | Payload format | `01` |
-| 01 | Point of initiation | `11` tĩnh / `12` động (có số tiền) |
-| 38 | Merchant account | `00`=`A000000727`, `01`=[`00` BIN, `01` số TK], `02` service code |
-| 53 | Tiền tệ | `704` |
-| 54 | Số tiền | chỉ khi QR động |
-| 58 | Quốc gia | `VN` |
-| 62 | Additional data | `08` = nội dung chuyển khoản |
-| 63 | CRC | CRC-16/CCITT-FALSE trên toàn bộ chuỗi tính cả `6304` |
-
-Cần đối chiếu lại với đặc tả NAPAS chính thức trước khi release 0.1.0.
+Cấu trúc payload (bảng tag, ví dụ phân tích từng trường) nằm ở
+[vietqr/README.md#cấu-trúc-payload](vietqr/README.md#cấu-trúc-payload).
+Vẫn còn `TODO(v0.1): verify` với đặc tả chính thức của NAPAS (chưa được công bố công khai).

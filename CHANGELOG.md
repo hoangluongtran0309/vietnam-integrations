@@ -16,6 +16,8 @@
 - VietQR: SPI xác nhận thanh toán `PaymentConfirmation` + `PaymentConfirmationListener`
   (package `...vietqr.confirmation`; chỉ interface, adapter dự kiến 0.4). Xem ADR-0006.
 - VietQR: `RealPayloadVectorsTest` đọc test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`.
+- Docs: trang VietQR đầy đủ `docs/vietqr/` (cài đặt, cấu hình, cấu trúc payload, nội dung chuyển khoản,
+  ngân hàng, render ảnh, xác nhận thanh toán, test vector, kiểm tra thủ công, bảng lỗi, FAQ).
 - Demo app: trang `/verify` (bộ QR để quét thử bằng app ngân hàng), `POST /decode` và `POST /decode-image`
   (lấy payload từ ảnh chụp QR để làm test vector).
 - Zalo OA: `ZaloTokenStore`, `ZaloTokenManager` (single-flight refresh), webhook verifier (chưa xác nhận công thức).

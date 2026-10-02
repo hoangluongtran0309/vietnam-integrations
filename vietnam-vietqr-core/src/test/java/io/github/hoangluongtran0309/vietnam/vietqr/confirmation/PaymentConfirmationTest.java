@@ -63,6 +63,15 @@ class PaymentConfirmationTest {
     }
 
     @Test
+    void rejectsColonInProviderSoKeysCannotCollide() {
+        // Otherwise ("a:", "b") and ("a", ":b") would both produce the key "a::b".
+        assertThatThrownBy(() -> new PaymentConfirmation("a:", "b", null, "0123456789", 1, "", AT, Map.of()))
+                .isInstanceOf(VietQrException.class).hasMessage("provider must not contain ':': a:");
+        assertThat(new PaymentConfirmation("a", ":b", null, "0123456789", 1, "", AT, Map.of()).idempotencyKey())
+                .isEqualTo("a::b");
+    }
+
+    @Test
     void rejectsInvalidAmountAndBin() {
         assertThatThrownBy(() -> confirmation(null, 0, "", Map.of()))
                 .isInstanceOf(VietQrException.class).hasMessage("amount must be positive: 0");

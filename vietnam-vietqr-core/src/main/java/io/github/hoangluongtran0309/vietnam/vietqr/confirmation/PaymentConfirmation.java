@@ -10,7 +10,8 @@ import java.util.Objects;
  * An incoming transfer to the merchant's account, reported by a payment confirmation provider (a service that watches
  * the account and notifies the merchant, such as SePay or Casso).
  *
- * @param provider      identifier of the adapter that produced this confirmation, e.g. {@code "sepay"}
+ * @param provider      identifier of the adapter that produced this confirmation, e.g. {@code "sepay"}; must not
+ *                      contain {@code :} so that {@link #idempotencyKey()} stays unambiguous
  * @param transactionId the provider's unique ID for this transfer; together with {@code provider} it identifies the
  *                      transfer across redeliveries
  * @param bankBin       6-digit NAPAS BIN of the receiving account, or {@code null} if the provider does not report it
@@ -33,6 +34,9 @@ public record PaymentConfirmation(
 
     public PaymentConfirmation {
         requireText(provider, "provider");
+        if (provider.contains(":")) {
+            throw new VietQrException("provider must not contain ':': " + provider);
+        }
         requireText(transactionId, "transactionId");
         requireText(accountNumber, "accountNumber");
         Objects.requireNonNull(occurredAt, "occurredAt");
@@ -46,7 +50,10 @@ public record PaymentConfirmation(
         attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
     }
 
-    /** {@code provider:transactionId}, a key for recognizing a transfer that is delivered more than once. */
+    /**
+     * {@code provider:transactionId}, a key for recognizing a transfer that is delivered more than once. Distinct
+     * confirmations never share a key, because {@code provider} cannot contain {@code :}.
+     */
     public String idempotencyKey() {
         return provider + ":" + transactionId;
     }

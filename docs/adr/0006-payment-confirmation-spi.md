@@ -20,7 +20,8 @@
    - `PaymentConfirmationListener` (`@FunctionalInterface`): `void onPaymentConfirmed(PaymentConfirmation)`.
 2. Hợp đồng ghi trong Javadoc của listener:
    - **At-least-once**: cùng một giao dịch có thể đến nhiều lần → listener phải idempotent theo
-     `idempotencyKey()` = `provider:transactionId`.
+     `idempotencyKey()` = `provider:transactionId`. `provider` không được chứa `:` để khóa không bị trùng giữa
+     hai giao dịch khác nhau (ví dụ `("a:", "b")` và `("a", ":b")`).
    - **Chỉ tiền vào**: adapter lọc bỏ giao dịch tiền ra.
    - **Giao dịch không khớp đơn là bình thường**: ghi lại để xử lý tay, không ném exception.
    - **Ném exception = xử lý thất bại**: adapter báo lỗi cho nhà cung cấp để gửi lại (nếu nhà cung cấp hỗ trợ).

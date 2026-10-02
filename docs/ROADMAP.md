@@ -25,14 +25,32 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 
 ## Phase 1 — VietQR 0.1.0 (tuần 2–4)
 
-- [ ] Đối chiếu và bổ sung đủ danh sách BIN ngân hàng từ nguồn chính thức NAPAS/VietQR
+- [x] Đối chiếu và bổ sung đủ danh sách BIN ngân hàng từ nguồn chính thức NAPAS/VietQR — 65 mục từ `api.vietqr.io`
+  (2026-10-02), xem [vietqr/banks.md](vietqr/banks.md). Còn `TODO`: đối chiếu khi có danh sách chính thức của NAPAS.
 - [ ] Thu thập ≥ 5 payload thật (tạo từ app ngân hàng khác nhau), thêm làm test vector cho decoder
+  - Công cụ sẵn sàng, chờ dữ liệu: `RealPayloadVectorsTest` + `POST /decode-image` trong demo app,
+    xem [vietqr/test-vectors.md](vietqr/test-vectors.md).
 - [ ] Quét QR sinh ra bằng ≥ 3 app ngân hàng thật, xác nhận đúng người nhận/số tiền/nội dung
+  - Công cụ sẵn sàng, chờ dữ liệu: trang `/verify` trong demo app + bảng kết quả trong
+    [vietqr/manual-verification.md](vietqr/manual-verification.md).
 - [ ] Quyết định giới hạn độ dài `purpose` (đo thực tế trên các app)
-- [ ] Render ảnh có logo/khung tùy chọn (optional, có thể để 0.1.x)
-- [ ] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
-- [ ] Viết docs: README, trang VietQR, ví dụ
+  - Đã làm: giới hạn cứng 95 ký tự, báo lỗi thay vì cắt; EMVCo khuyến nghị ≤ 25
+    ([ADR-0005](adr/0005-purpose-length-policy.md), trạng thái Proposed). Còn lại: đo trên app thật rồi chốt ADR —
+    các mã `purpose-25` … `purpose-95` trên trang `/verify`, bảng đo trong [vietqr/manual-verification.md](vietqr/manual-verification.md).
+- [x] Render ảnh có logo/khung tùy chọn (optional, có thể để 0.1.x) — logo + màu qua `QrImageOptions`,
+  xem [vietqr/rendering.md](vietqr/rendering.md). Khung/chữ quanh mã: chưa làm (font tiếng Việt trên server headless).
+- [x] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
+  — [ADR-0006](adr/0006-payment-confirmation-spi.md), [vietqr/payment-confirmation.md](vietqr/payment-confirmation.md).
+- [x] Viết docs: README, trang VietQR, ví dụ — [vietqr/README.md](vietqr/README.md) và các trang con
 - [ ] Release 0.1.0
+  - Trước khi tag `v0.1.0`:
+    - [ ] ≥ 5 test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`, `./mvnw verify` xanh
+    - [ ] Bảng kết quả quét ≥ 3 app trong [vietqr/manual-verification.md](vietqr/manual-verification.md) đã điền
+    - [ ] ADR-0005 chuyển sang Accepted (giới hạn `purpose`)
+    - [ ] Rà các `TODO(v0.1)` còn lại: BIN NAPAS (`VietQrBank`), giới hạn `purpose` (`VietQrEncoder`),
+          đối chiếu tag với đặc tả NAPAS (`docs/vietqr/README.md`) — giải quyết hoặc ghi rõ dời sang 0.1.x
+    - [ ] `CHANGELOG.md`: đổi `[Unreleased]` thành `[0.1.0] - <ngày>` qua PR, rồi tag theo [RELEASING.md](RELEASING.md)
+    - [ ] Sau khi lên Central: làm theo README từ một project trống, đo thời gian < 5 phút
 
 **Done khi:** người lạ thêm dependency từ Central và tạo QR quét được trong < 5 phút theo README.
 

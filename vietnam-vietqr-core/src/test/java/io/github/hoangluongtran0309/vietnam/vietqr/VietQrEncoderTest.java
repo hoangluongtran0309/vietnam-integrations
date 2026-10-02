@@ -2,6 +2,8 @@ package io.github.hoangluongtran0309.vietnam.vietqr;
 
 import org.junit.jupiter.api.Test;
 
+import java.text.Normalizer;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -69,8 +71,53 @@ class VietQrEncoderTest {
     }
 
     @Test
+    void acceptsPurposeAtMaximumLength() {
+        String purpose = "A".repeat(VietQrEncoder.MAX_PURPOSE_LENGTH);
+
+        String payload = encoder.encode(withPurpose(purpose));
+
+        assertThat(decoder.decode(payload).purpose()).isEqualTo(purpose);
+    }
+
+    @Test
+    void rejectsPurposeOverMaximumLength() {
+        VietQrRequest request = withPurpose("A".repeat(VietQrEncoder.MAX_PURPOSE_LENGTH + 1));
+
+        assertThatThrownBy(() -> encoder.encode(request))
+                .isInstanceOf(VietQrException.class)
+                .hasMessage("purpose is 96 characters after normalization; the maximum is 95");
+    }
+
+    @Test
+    void measuresPurposeLengthAfterNormalization() {
+        // 95 decomposed "á" are 190 chars before normalization; the emoji and outer spaces are dropped too
+        String purpose = "  " + Normalizer.normalize("á".repeat(95), Normalizer.Form.NFD) + " \uD83C\uDF89  ";
+
+        String payload = encoder.encode(withPurpose(purpose));
+
+        assertThat(decoder.decode(payload).purpose()).isEqualTo("a".repeat(95));
+    }
+
+    @Test
+    void omitsAdditionalDataWhenPurposeIsEmptyAfterNormalization() {
+        String payload = encoder.encode(withPurpose("\uD83C\uDF89 \uD83C\uDF89"));
+
+        assertThat(payload).doesNotContain("6208");
+        assertThat(decoder.decode(payload).purpose()).isNull();
+    }
+
+    @Test
     void rejectsInvalidBin() {
         assertThatThrownBy(() -> VietQrRequest.builder().bankBin("123").accountNumber("1").build())
                 .isInstanceOf(VietQrException.class);
+    }
+
+    private static VietQrRequest withPurpose(String purpose) {
+        return VietQrRequest.builder()
+                .bank(VietQrBank.VIETCOMBANK)
+                .accountNumber("0123456789")
+                .amount(10_000)
+                .purpose(purpose)
+                .build();
     }
 }

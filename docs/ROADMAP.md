@@ -28,10 +28,15 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [x] Đối chiếu và bổ sung đủ danh sách BIN ngân hàng từ nguồn chính thức NAPAS/VietQR — 65 mục từ `api.vietqr.io`
   (2026-10-02), xem [vietqr/banks.md](vietqr/banks.md). Còn `TODO`: đối chiếu khi có danh sách chính thức của NAPAS.
 - [ ] Thu thập ≥ 5 payload thật (tạo từ app ngân hàng khác nhau), thêm làm test vector cho decoder
+  - Công cụ sẵn sàng, chờ dữ liệu: `RealPayloadVectorsTest` + `POST /decode-image` trong demo app,
+    xem [vietqr/test-vectors.md](vietqr/test-vectors.md).
 - [ ] Quét QR sinh ra bằng ≥ 3 app ngân hàng thật, xác nhận đúng người nhận/số tiền/nội dung
+  - Công cụ sẵn sàng, chờ dữ liệu: trang `/verify` trong demo app + bảng kết quả trong
+    [vietqr/manual-verification.md](vietqr/manual-verification.md).
 - [ ] Quyết định giới hạn độ dài `purpose` (đo thực tế trên các app)
   - Đã làm: giới hạn cứng 95 ký tự, báo lỗi thay vì cắt; EMVCo khuyến nghị ≤ 25
-    ([ADR-0005](adr/0005-purpose-length-policy.md), trạng thái Proposed). Còn lại: đo trên app thật rồi chốt ADR.
+    ([ADR-0005](adr/0005-purpose-length-policy.md), trạng thái Proposed). Còn lại: đo trên app thật rồi chốt ADR —
+    các mã `purpose-25` … `purpose-95` trên trang `/verify`, bảng đo trong [vietqr/manual-verification.md](vietqr/manual-verification.md).
 - [x] Render ảnh có logo/khung tùy chọn (optional, có thể để 0.1.x) — logo + màu qua `QrImageOptions`,
   xem [vietqr/rendering.md](vietqr/rendering.md). Khung/chữ quanh mã: chưa làm (font tiếng Việt trên server headless).
 - [ ] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4

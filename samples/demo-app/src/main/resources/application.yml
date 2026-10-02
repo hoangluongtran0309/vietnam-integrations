@@ -3,3 +3,10 @@ vietnam:
     # Replace with your own account to test with a real banking app
     bank-bin: "970436"
     account-number: "0123456789"
+
+spring:
+  servlet:
+    multipart:
+      # Phone screenshots uploaded to /decode-image are often larger than the 1MB default
+      max-file-size: 10MB
+      max-request-size: 10MB

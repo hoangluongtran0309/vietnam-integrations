@@ -1,0 +1,29 @@
+# Sao chép file này thành <ngan-hang>-<truong-hop>.properties. Mã hóa UTF-8.
+# Hướng dẫn chi tiết: docs/vietqr/test-vectors.md
+
+# Nguồn: app | spec | other
+source=app
+# Tên app, phiên bản, nền tảng, ngày thu thập (yyyy-MM-dd)
+app=MB Bank
+appVersion=0.0.0
+platform=Android 15
+collectedOn=2026-10-02
+# Mô tả ngắn: màn hình nào trong app, QR tĩnh hay có số tiền
+description=QR nhận tiền tĩnh từ màn hình "Nhận tiền"
+# true nếu đã thay số tài khoản và tính lại CRC (xem docs)
+masked=false
+
+# Chuỗi payload thô, nguyên văn (một dòng, không thêm khoảng trắng)
+payload=
+
+# Giá trị mong đợi sau khi decode
+expected.bankBin=
+expected.accountNumber=
+expected.dynamic=false
+# Bỏ hẳn dòng expected.amount / expected.purpose nếu payload không có số tiền / nội dung
+#expected.amount=
+#expected.purpose=
+# Tùy chọn: TO_ACCOUNT | TO_CARD
+#expected.serviceCode=TO_ACCOUNT
+# Tùy chọn: true nếu encoder của thư viện sinh ra đúng từng byte payload này
+#expected.reencodes=false

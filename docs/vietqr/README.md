@@ -5,6 +5,7 @@ Tạo và đọc mã VietQR (chuẩn NAPAS dựa trên EMVCo Merchant-Presented 
 > Trang này đang được hoàn thiện trong Phase 1. Các trang con:
 >
 > - [Danh sách ngân hàng (BIN)](banks.md)
+> - [Render ảnh QR (PNG, màu, logo)](rendering.md)
 
 ## Nội dung chuyển khoản (`purpose`)
 

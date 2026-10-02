@@ -10,6 +10,9 @@
   thêm `displayName()` và `fromShortCode(String)`; 10 hằng cũ giữ nguyên. Xem `docs/vietqr/banks.md`.
 - VietQR: `VietQrPayload.bank()` tra ngân hàng theo BIN của payload đã decode.
 - VietQR: hằng `VietQrEncoder.MAX_PURPOSE_LENGTH` (95) — độ dài tối đa của `purpose` sau chuẩn hóa.
+- VietQR: `QrImageOptions` + `QrErrorCorrection` và `QrImageRenderer.renderPng(String, QrImageOptions)`:
+  chọn kích thước, lề, mức sửa lỗi, màu, logo ở giữa. `renderPng(String, int)` giữ nguyên kết quả cũ.
+  Xem `docs/vietqr/rendering.md`.
 - Zalo OA: `ZaloTokenStore`, `ZaloTokenManager` (single-flight refresh), webhook verifier (chưa xác nhận công thức).
 - E-invoice: domain model, `EInvoiceProvider` SPI, `EInvoiceService`.
 

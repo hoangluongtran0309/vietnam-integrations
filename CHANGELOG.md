@@ -6,6 +6,9 @@
 
 ### Added
 - VietQR: encoder, decoder (kiểm CRC), chuẩn hóa nội dung tiếng Việt, render PNG, auto-configuration.
+- VietQR: `VietQrBank` mở rộng từ 10 lên 65 thành viên NAPAS (nguồn `api.vietqr.io`, chụp 2026-10-02),
+  thêm `displayName()` và `fromShortCode(String)`; 10 hằng cũ giữ nguyên. Xem `docs/vietqr/banks.md`.
+- VietQR: `VietQrPayload.bank()` tra ngân hàng theo BIN của payload đã decode.
 - Zalo OA: `ZaloTokenStore`, `ZaloTokenManager` (single-flight refresh), webhook verifier (chưa xác nhận công thức).
 - E-invoice: domain model, `EInvoiceProvider` SPI, `EInvoiceService`.
 

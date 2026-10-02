@@ -25,7 +25,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 
 ## Phase 1 — VietQR 0.1.0 (tuần 2–4)
 
-- [ ] Đối chiếu và bổ sung đủ danh sách BIN ngân hàng từ nguồn chính thức NAPAS/VietQR
+- [x] Đối chiếu và bổ sung đủ danh sách BIN ngân hàng từ nguồn chính thức NAPAS/VietQR — 65 mục từ `api.vietqr.io`
+  (2026-10-02), xem [vietqr/banks.md](vietqr/banks.md). Còn `TODO`: đối chiếu khi có danh sách chính thức của NAPAS.
 - [ ] Thu thập ≥ 5 payload thật (tạo từ app ngân hàng khác nhau), thêm làm test vector cho decoder
 - [ ] Quét QR sinh ra bằng ≥ 3 app ngân hàng thật, xác nhận đúng người nhận/số tiền/nội dung
 - [ ] Quyết định giới hạn độ dài `purpose` (đo thực tế trên các app)

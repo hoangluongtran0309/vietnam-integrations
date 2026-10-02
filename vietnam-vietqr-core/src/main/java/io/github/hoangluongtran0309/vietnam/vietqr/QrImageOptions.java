@@ -2,6 +2,7 @@ package io.github.hoangluongtran0309.vietnam.vietqr;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -15,7 +16,8 @@ import java.util.Objects;
  * @param errorCorrection error correction level; {@link QrErrorCorrection#Q} or higher when a logo is set
  * @param foreground      color of the dark modules; must be darker than {@code background}
  * @param background      color of the light modules and the quiet zone
- * @param logo            image drawn over the center of the code, or {@code null} for none
+ * @param logo            image drawn over the center of the code, or {@code null} for none; copied on the way in
+ *                        and out, so later changes to either image do not affect these options
  * @param logoScale       share of the image width the logo area may cover, up to {@value #MAX_LOGO_SCALE}
  */
 public record QrImageOptions(
@@ -53,6 +55,13 @@ public record QrImageOptions(
         if (logo != null && errorCorrection.compareTo(QrErrorCorrection.Q) < 0) {
             throw new VietQrException("a logo requires errorCorrection Q or H, but was " + errorCorrection);
         }
+        logo = logo == null ? null : copy(logo);
+    }
+
+    /** A copy of the logo, or {@code null}. */
+    @Override
+    public BufferedImage logo() {
+        return logo == null ? null : copy(logo);
     }
 
     /** Black on white, no logo, the given size. */
@@ -62,6 +71,17 @@ public record QrImageOptions(
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    private static BufferedImage copy(BufferedImage image) {
+        BufferedImage copy = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = copy.createGraphics();
+        try {
+            g.drawImage(image, 0, 0, null);
+        } finally {
+            g.dispose();
+        }
+        return copy;
     }
 
     private static int luminance(Color color) {

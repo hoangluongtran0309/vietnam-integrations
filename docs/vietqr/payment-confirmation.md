@@ -116,6 +116,8 @@ class OrderPaymentListener implements PaymentConfirmationListener {
             unmatched.save(payment);          // không khớp đơn: để người xử lý
             return;
         }
+        // Giả định Order là entity được persistence context quản lý (ví dụ JPA): thay đổi tự được lưu khi
+        // transaction commit. Nếu không, gọi thêm orders.save(order.get()) sau khi cập nhật.
         if (payment.amount() < order.get().total()) {
             order.get().markUnderpaid(payment.amount(), payment.transactionId());
         } else {

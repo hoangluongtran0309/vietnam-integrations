@@ -13,7 +13,8 @@ samples/demo-app                         Ứng dụng mẫu, không publish
 Mô hình ports & adapters:
 
 - **Domain/core**: `VietQrEncoder`, `Invoice`, `ZaloToken`… không biết tới Spring.
-- **Ports**: `ZaloTokenStore`, `ZaloOAuthClient`, `ZaloOaClient`, `EInvoiceProvider`.
+- **Ports**: `ZaloTokenStore`, `ZaloOAuthClient`, `ZaloOaClient`, `EInvoiceProvider`,
+  `PaymentConfirmationListener` (xác nhận thanh toán VietQR, [ADR-0006](adr/0006-payment-confirmation-spi.md)).
 - **Adapters**: `InMemoryZaloTokenStore`, (sắp có) `JdbcZaloTokenStore`, `vietnam-einvoice-provider-*`.
 - **Starter**: chỉ nối dây — đọc properties, tạo bean, mọi bean đều `@ConditionalOnMissingBean`.
 

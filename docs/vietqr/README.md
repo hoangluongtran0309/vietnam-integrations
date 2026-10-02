@@ -8,6 +8,7 @@ Tạo và đọc mã VietQR (chuẩn NAPAS dựa trên EMVCo Merchant-Presented 
 > - [Render ảnh QR (PNG, màu, logo)](rendering.md)
 > - [Test vector thật](test-vectors.md)
 > - [Kiểm tra thủ công bằng app ngân hàng](manual-verification.md)
+> - [Xác nhận thanh toán (`PaymentConfirmationListener`)](payment-confirmation.md)
 
 ## Nội dung chuyển khoản (`purpose`)
 

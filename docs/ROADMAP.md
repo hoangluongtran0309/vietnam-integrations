@@ -39,7 +39,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
     các mã `purpose-25` … `purpose-95` trên trang `/verify`, bảng đo trong [vietqr/manual-verification.md](vietqr/manual-verification.md).
 - [x] Render ảnh có logo/khung tùy chọn (optional, có thể để 0.1.x) — logo + màu qua `QrImageOptions`,
   xem [vietqr/rendering.md](vietqr/rendering.md). Khung/chữ quanh mã: chưa làm (font tiếng Việt trên server headless).
-- [ ] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
+- [x] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
+  — [ADR-0006](adr/0006-payment-confirmation-spi.md), [vietqr/payment-confirmation.md](vietqr/payment-confirmation.md).
 - [ ] Viết docs: README, trang VietQR, ví dụ
 - [ ] Release 0.1.0
 

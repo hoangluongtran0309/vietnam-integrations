@@ -13,6 +13,8 @@
 - VietQR: `QrImageOptions` + `QrErrorCorrection` và `QrImageRenderer.renderPng(String, QrImageOptions)`:
   chọn kích thước, lề, mức sửa lỗi, màu, logo ở giữa. `renderPng(String, int)` giữ nguyên kết quả cũ.
   Xem `docs/vietqr/rendering.md`.
+- VietQR: SPI xác nhận thanh toán `PaymentConfirmation` + `PaymentConfirmationListener`
+  (package `...vietqr.confirmation`; chỉ interface, adapter dự kiến 0.4). Xem ADR-0006.
 - VietQR: `RealPayloadVectorsTest` đọc test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`.
 - Demo app: trang `/verify` (bộ QR để quét thử bằng app ngân hàng), `POST /decode` và `POST /decode-image`
   (lấy payload từ ảnh chụp QR để làm test vector).

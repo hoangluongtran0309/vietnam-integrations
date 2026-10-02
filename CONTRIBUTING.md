@@ -33,4 +33,6 @@ Ruleset cũng chặn force push và xóa `main`. Repository admin được bypas
 ## Đóng góp được hoan nghênh nhất
 
 - **Test vector VietQR** từ app ngân hàng thật (che số tài khoản nếu cần — có thể dùng tài khoản test).
+  Quy trình và định dạng: [docs/vietqr/test-vectors.md](docs/vietqr/test-vectors.md).
+- **Kết quả quét QR** bằng app ngân hàng của bạn: [docs/vietqr/manual-verification.md](docs/vietqr/manual-verification.md).
 - **Adapter hóa đơn điện tử**: tạo module `vietnam-einvoice-provider-<tên>`, implement `EInvoiceProvider`.

@@ -17,7 +17,7 @@
 
 ## Mỗi lần release
 
-1. Cập nhật `CHANGELOG.md`.
+1. Cập nhật `CHANGELOG.md` qua PR (`main` được bảo vệ, xem [CONTRIBUTING.md](../CONTRIBUTING.md#quy-trình-pr)), merge, rồi `git pull` để tag đúng commit trên `main`.
 2. `git tag v0.1.0 && git push origin v0.1.0`
 3. Workflow `release.yml` sẽ set version theo tag, ký, và publish.
 4. Kiểm tra trên Central Portal; artifact xuất hiện trên search.maven.org sau vài phút đến vài giờ.

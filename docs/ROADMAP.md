@@ -17,7 +17,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [x] Bump `spring-boot.version` (4.1.1) và `central-publishing.version` (0.11.0) lên bản mới nhất
 - [x] Đăng ký tài khoản [Central Portal](https://central.sonatype.com), verify namespace `io.github.hoangluongtran0309`
 - [x] Tạo GPG key, publish public key lên keyserver, thêm secrets vào GitHub (xem [RELEASING.md](RELEASING.md))
-- [ ] Bật CodeRabbit, branch protection cho `main`
+- [x] Bật branch protection cho `main` — ruleset `protect-main` (xem [CONTRIBUTING.md](../CONTRIBUTING.md#quy-trình-pr))
+- [x] Bật CodeRabbit
 - [x] Chốt namespace Maven trước 0.1.0 (xem [RELEASING.md](RELEASING.md)) — `io.github.hoangluongtran0309`
 
 **Done khi:** CI xanh trên Java 17 và 21; publish thử một bản `0.0.1-alpha` lên Central thành công. ✅ Đã publish `0.0.1-alpha` ngày 2026-10-01.

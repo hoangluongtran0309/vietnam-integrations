@@ -41,8 +41,16 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
   xem [vietqr/rendering.md](vietqr/rendering.md). Khung/chữ quanh mã: chưa làm (font tiếng Việt trên server headless).
 - [x] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
   — [ADR-0006](adr/0006-payment-confirmation-spi.md), [vietqr/payment-confirmation.md](vietqr/payment-confirmation.md).
-- [ ] Viết docs: README, trang VietQR, ví dụ
+- [x] Viết docs: README, trang VietQR, ví dụ — [vietqr/README.md](vietqr/README.md) và các trang con
 - [ ] Release 0.1.0
+  - Trước khi tag `v0.1.0`:
+    - [ ] ≥ 5 test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`, `./mvnw verify` xanh
+    - [ ] Bảng kết quả quét ≥ 3 app trong [vietqr/manual-verification.md](vietqr/manual-verification.md) đã điền
+    - [ ] ADR-0005 chuyển sang Accepted (giới hạn `purpose`)
+    - [ ] Rà các `TODO(v0.1)` còn lại: BIN NAPAS (`VietQrBank`), giới hạn `purpose` (`VietQrEncoder`),
+          đối chiếu tag với đặc tả NAPAS (`docs/vietqr/README.md`) — giải quyết hoặc ghi rõ dời sang 0.1.x
+    - [ ] `CHANGELOG.md`: đổi `[Unreleased]` thành `[0.1.0] - <ngày>` qua PR, rồi tag theo [RELEASING.md](RELEASING.md)
+    - [ ] Sau khi lên Central: làm theo README từ một project trống, đo thời gian < 5 phút
 
 **Done khi:** người lạ thêm dependency từ Central và tạo QR quét được trong < 5 phút theo README.
 

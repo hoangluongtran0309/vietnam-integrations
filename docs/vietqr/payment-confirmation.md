@@ -39,7 +39,7 @@ Package: `io.github.hoangluongtran0309.vietnam.vietqr.confirmation` (module `vie
 
 | Field | Kiểu | Ý nghĩa |
 |---|---|---|
-| `provider` | `String`, bắt buộc | Adapter tạo ra bản ghi, ví dụ `"sepay"` |
+| `provider` | `String`, bắt buộc, không chứa `:` | Adapter tạo ra bản ghi, ví dụ `"sepay"` |
 | `transactionId` | `String`, bắt buộc | ID giao dịch phía nhà cung cấp |
 | `bankBin` | `String`, có thể `null` | BIN tài khoản nhận, nếu nhà cung cấp cho biết (6 chữ số) |
 | `accountNumber` | `String`, bắt buộc | Số tài khoản nhận tiền |
@@ -48,10 +48,11 @@ Package: `io.github.hoangluongtran0309.vietnam.vietqr.confirmation` (module `vie
 | `occurredAt` | `Instant`, bắt buộc | Thời điểm giao dịch theo nhà cung cấp |
 | `attributes` | `Map<String, String>`, bất biến | Dữ liệu riêng của nhà cung cấp, để log/tra soát |
 
-`idempotencyKey()` trả về `provider:transactionId`.
+`idempotencyKey()` trả về `provider:transactionId`. Vì `provider` không được chứa `:`, hai giao dịch khác nhau không
+bao giờ trùng khóa (`transactionId` thì được phép chứa `:`).
 
 Vi phạm ràng buộc khi tạo: thiếu field bắt buộc → `NullPointerException` (thông báo là tên field); chuỗi rỗng,
-`amount ≤ 0`, `bankBin` sai định dạng → `VietQrException`.
+`provider` chứa `:`, `amount ≤ 0`, `bankBin` sai định dạng → `VietQrException`.
 
 ### `PaymentConfirmationListener`
 

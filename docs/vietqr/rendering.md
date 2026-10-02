@@ -42,7 +42,8 @@ QrImageOptions options = QrImageOptions.builder()
 byte[] png = renderer.renderPng(payload, options);
 ```
 
-`QrImageOptions` là record bất biến — nên tạo **một lần** (hằng số hoặc bean) rồi dùng lại.
+`QrImageOptions` là record bất biến (logo được sao chép khi tạo và khi đọc ra, nên sửa ảnh gốc sau đó không ảnh hưởng)
+— nên tạo **một lần** (hằng số hoặc bean) rồi dùng lại.
 
 | Thuộc tính | Mặc định | Giới hạn | Ghi chú |
 |---|---|---|---|

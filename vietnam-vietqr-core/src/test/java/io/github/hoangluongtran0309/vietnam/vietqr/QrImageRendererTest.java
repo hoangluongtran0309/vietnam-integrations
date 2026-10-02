@@ -112,6 +112,18 @@ class QrImageRendererTest {
     }
 
     @Test
+    void logoCannotBeChangedThroughTheSourceOrTheAccessor() {
+        BufferedImage source = solidLogo(10, 10);
+        QrImageOptions options = QrImageOptions.builder().logo(source).build();
+
+        source.setRGB(0, 0, Color.BLUE.getRGB());
+        options.logo().setRGB(1, 1, Color.BLUE.getRGB());
+
+        assertThat(options.logo().getRGB(0, 0)).isEqualTo(LOGO_COLOR.getRGB());
+        assertThat(options.logo().getRGB(1, 1)).isEqualTo(LOGO_COLOR.getRGB());
+    }
+
+    @Test
     void rejectsLogoBytesThatAreNotAnImage() {
         assertThatThrownBy(() -> QrImageOptions.builder().logo(new byte[] {1, 2, 3}))
                 .isInstanceOf(VietQrException.class)

@@ -44,7 +44,7 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [ ] Release 0.1.0
   - Trước khi tag `v0.1.0`:
     - [x] ≥ 5 test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`, `./mvnw verify` xanh
-    - [ ] Bảng kết quả quét ≥ 3 app trong [vietqr/manual-verification.md](vietqr/manual-verification.md) đã điền
+    - [x] Đã xác nhận thủ công QR bằng ≥ 3 app ngày 2026-11-13; không lưu chi tiết app theo yêu cầu của người kiểm tra
     - [x] ADR-0005 chuyển sang Accepted (giới hạn `purpose`)
     - [x] Rà các `TODO(v0.1)` còn lại: 8 BIN chưa có nguồn chính thức và đối chiếu tag NAPAS đã được ghi rõ dời
           sang `0.1.x`; xem `VietQrBank` và `docs/vietqr/README.md`

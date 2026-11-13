@@ -187,4 +187,10 @@ nên vector vẫn có giá trị kiểm tra. Đừng che theo cách đổi độ
 
 | File | App / nguồn | Loại | Ngày | Ghi chú |
 |---|---|---|---|---|
-| _(chưa có)_ | | | | Cần ≥ 5 app khác nhau trước khi release 0.1.0 |
+| `tpbank-dynamic.properties` | TPBank 10.12.66 / iOS | QR động, 10.000 đ | 2026-11-13 | Đã che dữ liệu cá nhân và tính lại CRC |
+| `vib-static.properties` | VIB | QR tĩnh | 2026-11-13 | Đã che số tài khoản và tính lại CRC |
+| `vietinbank-static.properties` | VietinBank | QR tĩnh | 2026-11-13 | Đã che số tài khoản và tính lại CRC |
+| `mbbank-static-empty-purpose.properties` | MBBank | QR tĩnh, nội dung rỗng | 2026-11-13 | Đã che mã tài khoản và tính lại CRC |
+| `bidv-static.properties` | BIDV | QR tĩnh | 2026-11-13 | Đã che số tài khoản và tính lại CRC |
+
+Đã đạt mục tiêu Phase 1: 5 payload từ 5 app ngân hàng khác nhau.

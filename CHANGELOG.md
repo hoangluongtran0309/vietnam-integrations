@@ -24,6 +24,8 @@
 - E-invoice: domain model, `EInvoiceProvider` SPI, `EInvoiceService`.
 
 ### Changed
+- VietQR: ràng buộc `accountNumber` đổi từ 1–19 thành 5–19 ký tự chữ-số và `amount` giới hạn tối đa 13 chữ số,
+  khớp tài liệu NAPAS Core v1.2. Đây là thay đổi validation trước bản phát hành 0.1.0.
 - VietQR: `purpose` dài hơn 95 ký tự (sau chuẩn hóa) giờ báo `VietQrException` rõ ràng
   (`purpose is N characters after normalization; the maximum is 95`) thay cho lỗi TLV
   `Value of tag 62 exceeds 99 characters`. Nội dung không bao giờ bị tự cắt. Xem ADR-0005.

@@ -18,6 +18,8 @@ public record VietQrRequest(
         Long amount,
         String purpose) {
 
+    private static final long MAX_AMOUNT = 9_999_999_999_999L;
+
     public VietQrRequest {
         Objects.requireNonNull(bankBin, "bankBin");
         Objects.requireNonNull(accountNumber, "accountNumber");
@@ -25,11 +27,14 @@ public record VietQrRequest(
         if (!bankBin.matches("\\d{6}")) {
             throw new VietQrException("bankBin must be exactly 6 digits: " + bankBin);
         }
-        if (!accountNumber.matches("[0-9A-Za-z]{1,19}")) {
-            throw new VietQrException("accountNumber must be 1-19 alphanumeric characters");
+        if (!accountNumber.matches("[0-9A-Za-z]{5,19}")) {
+            throw new VietQrException("accountNumber must be 5-19 alphanumeric characters");
         }
         if (amount != null && amount <= 0) {
             throw new VietQrException("amount must be positive");
+        }
+        if (amount != null && amount > MAX_AMOUNT) {
+            throw new VietQrException("amount must contain at most 13 digits: " + amount);
         }
     }
 

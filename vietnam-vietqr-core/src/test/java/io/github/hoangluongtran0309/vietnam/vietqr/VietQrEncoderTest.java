@@ -62,7 +62,7 @@ class VietQrEncoderTest {
 
     @Test
     void rejectsTamperedPayload() {
-        String payload = encoder.encode(VietQrRequest.builder().bankBin("970415").accountNumber("1").build());
+        String payload = encoder.encode(VietQrRequest.builder().bankBin("970415").accountNumber("12345").build());
         String tampered = payload.replace("970415", "970416");
 
         assertThatThrownBy(() -> decoder.decode(tampered))
@@ -108,8 +108,37 @@ class VietQrEncoderTest {
 
     @Test
     void rejectsInvalidBin() {
-        assertThatThrownBy(() -> VietQrRequest.builder().bankBin("123").accountNumber("1").build())
+        assertThatThrownBy(() -> VietQrRequest.builder().bankBin("123").accountNumber("12345").build())
                 .isInstanceOf(VietQrException.class);
+    }
+
+    @Test
+    void rejectsAccountNumberShorterThanNapasMinimum() {
+        assertThatThrownBy(() -> VietQrRequest.builder().bankBin("970415").accountNumber("1234").build())
+                .isInstanceOf(VietQrException.class)
+                .hasMessage("accountNumber must be 5-19 alphanumeric characters");
+    }
+
+    @Test
+    void acceptsThirteenDigitAmount() {
+        VietQrRequest request = VietQrRequest.builder()
+                .bankBin("970415")
+                .accountNumber("12345")
+                .amount(9_999_999_999_999L)
+                .build();
+
+        assertThat(decoder.decode(encoder.encode(request)).amount()).isEqualTo(9_999_999_999_999L);
+    }
+
+    @Test
+    void rejectsAmountLongerThanThirteenDigits() {
+        assertThatThrownBy(() -> VietQrRequest.builder()
+                .bankBin("970415")
+                .accountNumber("12345")
+                .amount(10_000_000_000_000L)
+                .build())
+                .isInstanceOf(VietQrException.class)
+                .hasMessage("amount must contain at most 13 digits: 10000000000000");
     }
 
     private static VietQrRequest withPurpose(String purpose) {

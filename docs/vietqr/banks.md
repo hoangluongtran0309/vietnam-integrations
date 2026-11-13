@@ -10,7 +10,7 @@ không phải tra tay.
 |---|---|
 | Có bao nhiêu mục? | **65** (ngân hàng thương mại, ngân hàng số, chi nhánh ngân hàng nước ngoài, ví điện tử, công ty tài chính) |
 | Lấy từ đâu? | Danh sách công khai `https://api.vietqr.io/v2/banks`, chụp ngày **2026-10-02** |
-| Đã đối chiếu với NAPAS chưa? | **Chưa.** NAPAS không công bố danh sách BIN dạng máy đọc được. Xem [Độ tin cậy](#độ-tin-cậy-của-dữ-liệu) |
+| Đã đối chiếu với nguồn chính thức chưa? | **57/65 mục.** Xem [Độ tin cậy](#độ-tin-cậy-của-dữ-liệu) |
 | Ngân hàng không có trong enum? | Truyền BIN thô: `VietQrRequest.builder().bankBin("970xxx")` |
 | Có nên lưu `ordinal()` vào DB? | **Không.** Hằng mới được thêm dần; hãy lưu `bin()` |
 
@@ -71,8 +71,26 @@ vietnam:
 
 ## Độ tin cậy của dữ liệu
 
-- Nguồn `api.vietqr.io` do bên thứ ba (VietQR.io) vận hành, được cộng đồng dùng rộng rãi nhưng **không phải
-  danh sách chính thức của NAPAS**. Trong code vẫn để `TODO(v0.1): verify every BIN against the official NAPAS member list`.
+- Nguồn đầy đủ vẫn là `api.vietqr.io` do bên thứ ba (VietQR.io) vận hành, snapshot ngày 2026-10-02.
+- Đối chiếu ngày 2026-11-13 với hai nguồn chính thức công khai:
+  - [NAPAS Core v1.2](https://developer.napas.com.vn/files/assets/files/Techspec_NapasCore_v1.2.pdf), mục 3.2.1.3:
+    cả 55 `BEN_ID` trong tài liệu đều có trong enum.
+  - [Công văn 1589/NHNN-TT](https://sbv.gov.vn/documents/d/sbv_portal/566440) của Ngân hàng Nhà nước: danh sách
+    BIN đã cấp đến 31/12/2023 xác nhận thêm `970466` và `970467` của hai chi nhánh KEB Hana.
+- Như vậy **57/65** mục có ít nhất một nguồn chính thức công khai. Tám mục dưới đây mới chỉ được xác nhận từ
+  snapshot VietQR API và được dời sang `TODO(v0.1.x)`:
+
+| BIN | Hằng số | Tên |
+|---|---|---|
+| `533948` | `CITIBANK` | Citibank |
+| `963388` | `TIMO` | Timo |
+| `971005` | `VIETTEL_MONEY` | ViettelMoney |
+| `971011` | `VNPT_MONEY` | VNPTMoney |
+| `971025` | `MOMO` | MoMo |
+| `971133` | `PVCOMBANK_PAY` | PVcomBank Pay |
+| `977777` | `MAFC` | MAFC |
+| `999888` | `VBSP` | VBSP |
+
 - Có mặt trong enum **không đảm bảo** thành viên đó nhận chuyển khoản bằng VietQR. Cột *Chuyển khoản qua VietQR\**
   dưới đây lấy nguyên trường `transferSupported` của nguồn, chưa được kiểm chứng độc lập — khi tích hợp với một
   ngân hàng cụ thể, hãy quét thử bằng app thật (xem [manual-verification.md](manual-verification.md)).

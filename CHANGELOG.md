@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-13
+
 ### Added
 - VietQR: encoder, decoder (kiểm CRC), chuẩn hóa nội dung tiếng Việt, render PNG, auto-configuration.
 - VietQR: `VietQrBank` mở rộng từ 10 lên 65 thành viên NAPAS (nguồn `api.vietqr.io`, chụp 2026-10-02),

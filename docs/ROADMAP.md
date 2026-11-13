@@ -48,7 +48,7 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
     - [x] ADR-0005 chuyển sang Accepted (giới hạn `purpose`)
     - [x] Rà các `TODO(v0.1)` còn lại: 8 BIN chưa có nguồn chính thức và đối chiếu tag NAPAS đã được ghi rõ dời
           sang `0.1.x`; xem `VietQrBank` và `docs/vietqr/README.md`
-    - [ ] `CHANGELOG.md`: đổi `[Unreleased]` thành `[0.1.0] - <ngày>` qua PR, rồi tag theo [RELEASING.md](RELEASING.md)
+    - [x] `CHANGELOG.md`: thêm `[0.1.0] - 2026-11-13` qua PR, rồi tag theo [RELEASING.md](RELEASING.md)
     - [ ] Sau khi lên Central: làm theo README từ một project trống, đo thời gian < 5 phút
 
 **Done khi:** người lạ thêm dependency từ Central và tạo QR quét được trong < 5 phút theo README.

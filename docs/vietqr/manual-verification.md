@@ -53,6 +53,10 @@ Ký hiệu: ✅ đúng hoàn toàn · ⚠️ quét được nhưng có sai khác
 
 ### Kết quả quét
 
+Phase 1 đã được xác nhận thủ công bằng ít nhất ba app ngày 2026-11-13. Theo yêu cầu của người kiểm tra, dự án chỉ
+lưu kết luận tổng quát, không lưu tên app, phiên bản hay thông tin người kiểm tra. Bảng dưới được giữ làm template
+cho các lần kiểm tra và đóng góp cộng đồng sau này.
+
 | | App 1 | App 2 | App 3 |
 |---|---|---|---|
 | **App, phiên bản** | | | |

@@ -7,11 +7,12 @@ import java.util.Optional;
  * Vietnamese banks and other NAPAS members (digital banks, e-wallets, finance companies) with their NAPAS BINs.
  *
  * <p>Source: the public VietQR bank list at {@code https://api.vietqr.io/v2/banks}, snapshot taken 2026-10-02.
+ * Of the 65 entries, 57 have also been matched against public official NAPAS or State Bank of Vietnam lists.
  * Being listed here does not guarantee that the member accepts VietQR transfers; see {@code docs/vietqr/banks.md}.
  * New constants are appended over time, so never persist {@link #ordinal()}; store {@link #bin()} instead.
  *
- * <p>TODO(v0.1): verify every BIN against the official NAPAS member list (the current source is a third party).
- * Users can always pass a raw BIN via {@link VietQrRequest.Builder#bankBin(String)}.
+ * <p>TODO(v0.1.x): verify the eight entries absent from the public official lists when NAPAS publishes an updated
+ * beneficiary list. Users can always pass a raw BIN via {@link VietQrRequest.Builder#bankBin(String)}.
  */
 public enum VietQrBank {
 

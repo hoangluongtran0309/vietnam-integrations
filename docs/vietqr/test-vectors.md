@@ -180,8 +180,8 @@ nên vector vẫn có giá trị kiểm tra. Đừng che theo cách đổi độ
 - ✅ Payload đọc từ QR do app ngân hàng / ví điện tử sinh ra.
 - ✅ Ví dụ trong **đặc tả chính thức** (NAPAS, NHNN) — ghi rõ tài liệu, phiên bản, trang trong `description`.
 - ❌ Payload do encoder của thư viện này sinh ra.
-- ❌ Ví dụ trên blog, diễn đàn, bản sao tài liệu không rõ nguồn gốc (Scribd, Studocu…). Đặc tả VietQR của NAPAS hiện
-  không được công bố công khai, nên chưa có vector loại `spec`.
+- ❌ Ví dụ trên blog, diễn đàn, bản sao tài liệu không rõ nguồn gốc (Scribd, Studocu…). Tài liệu NAPAS Core công
+  khai mô tả API tạo QR nhưng không cung cấp payload mẫu hay ánh xạ tag thô, nên hiện chưa có vector loại `spec`.
 
 ## Vector đã có
 

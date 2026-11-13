@@ -146,9 +146,9 @@ Bean được tạo tự động — bean nào bạn tự khai báo cùng kiểu
 | Field (builder) | Bắt buộc | Ràng buộc |
 |---|---|---|
 | `bankBin(String)` / `bank(VietQrBank)` | ✅ | Đúng 6 chữ số |
-| `accountNumber(String)` | ✅ | 1–19 ký tự chữ hoặc số |
+| `accountNumber(String)` | ✅ | 5–19 ký tự chữ hoặc số |
 | `serviceCode(ServiceCode)` | | Mặc định `TO_ACCOUNT` |
-| `amount(long)` | | > 0. Không đặt → **QR tĩnh** (tag `01` = `11`); có → **QR động** (`12`) |
+| `amount(long)` | | 1–13 chữ số. Không đặt → **QR tĩnh** (tag `01` = `11`); có → **QR động** (`12`) |
 | `purpose(String)` | | Xem [Nội dung chuyển khoản](#nội-dung-chuyển-khoản-purpose) |
 
 Lỗi ràng buộc xảy ra ngay ở `build()`, trừ giới hạn độ dài `purpose` được kiểm tra lúc `encode()`.
@@ -212,8 +212,12 @@ Ví dụ phân tích một payload (lấy từ test của encoder):
 63 04 6E65                       CRC
 ```
 
-> Bảng trên dựa trên EMVCo MPM v1.1 và cách thư viện đang mã hóa. `TODO(v0.1): verify` từng tag với đặc tả chính thức
-> của NAPAS — tài liệu này chưa được công bố công khai.
+> Các tag cấp cao dựa trên EMVCo MPM v1.1. Tài liệu công khai
+> [NAPAS Core v1.2](https://developer.napas.com.vn/files/assets/files/Techspec_NapasCore_v1.2.pdf) xác nhận API tạo
+> VietQR dùng BIN 6 chữ số, tài khoản 5–19 ký tự chữ-số, số tiền tối đa 13 chữ số và nội dung tối đa 25 ký tự,
+> nhưng không công bố ánh xạ tag thô của profile NAPAS. Cấu trúc lồng trong tag `38` hiện được kiểm chứng bằng năm
+> payload thật từ TPBank, VIB, VietinBank, MBBank và BIDV. `TODO(v0.1.x)`: đối chiếu tag-by-tag khi NAPAS công bố
+> profile hoặc cấp quyền truy cập tài liệu kỹ thuật tương ứng.
 
 ## Nội dung chuyển khoản (`purpose`)
 
@@ -298,7 +302,8 @@ thông báo là tên tham số, ví dụ quên `accountNumber(...)` → `NullPoi
 | Thông báo | Nguyên nhân | Cách xử lý |
 |---|---|---|
 | `bankBin must be exactly 6 digits: 9704` | BIN sai định dạng | Tra BIN trong [banks.md](banks.md) |
-| `accountNumber must be 1-19 alphanumeric characters` | Số tài khoản có dấu cách, gạch ngang, quá dài | Bỏ ký tự phân cách |
+| `accountNumber must be 5-19 alphanumeric characters` | Số tài khoản quá ngắn, có dấu cách/gạch ngang hoặc quá dài | Kiểm tra lại và bỏ ký tự phân cách |
+| `amount must contain at most 13 digits` | Số tiền vượt độ dài NAPAS cho phép | Giảm số tiền hoặc tách giao dịch |
 | `amount must be positive` | Số tiền ≤ 0 | Muốn QR tĩnh thì đừng gọi `amount(...)` |
 | `purpose is 96 characters after normalization; the maximum is 95` | Nội dung quá dài | Rút gọn, xem [Giới hạn độ dài](#giới-hạn-độ-dài) |
 | `Default beneficiary not configured: set vietnam.vietqr.bank-bin and vietnam.vietqr.account-number` | Gọi `forAmount`/`staticQr` khi chưa cấu hình | Thêm property, hoặc dùng `generate(request)` |

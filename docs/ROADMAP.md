@@ -44,7 +44,7 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [x] Viết docs: README, trang VietQR, ví dụ — [vietqr/README.md](vietqr/README.md) và các trang con
 - [ ] Release 0.1.0
   - Trước khi tag `v0.1.0`:
-    - [ ] ≥ 5 test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`, `./mvnw verify` xanh
+    - [x] ≥ 5 test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`, `./mvnw verify` xanh
     - [ ] Bảng kết quả quét ≥ 3 app trong [vietqr/manual-verification.md](vietqr/manual-verification.md) đã điền
     - [ ] ADR-0005 chuyển sang Accepted (giới hạn `purpose`)
     - [ ] Rà các `TODO(v0.1)` còn lại: BIN NAPAS (`VietQrBank`), giới hạn `purpose` (`VietQrEncoder`),

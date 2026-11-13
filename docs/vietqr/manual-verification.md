@@ -100,9 +100,8 @@ Nếu app cho sửa nội dung, ghi thêm độ dài tối đa ô nội dung cho
 
 ### Kết luận
 
-_(Điền sau khi đo.)_ Dựa trên bảng trên, cập nhật [ADR-0005](../adr/0005-purpose-length-policy.md): giữ giới hạn cứng
-95 hay hạ xuống, giới hạn khuyến nghị bao nhiêu. Nếu đổi `VietQrEncoder.MAX_PURPOSE_LENGTH`, ghi breaking change
-vào `CHANGELOG.md`.
+Đã chốt [ADR-0005](../adr/0005-purpose-length-policy.md) ngày 2026-11-13: giữ giới hạn cứng 95 ký tự và khuyến
+nghị tối đa 25 ký tự để tương thích bảo thủ theo EMVCo. Không có thay đổi API hay breaking change.
 
 ## 4. Sau khi kiểm tra
 

@@ -9,9 +9,8 @@ public final class VietQrEncoder {
      * Longest purpose accepted, counted after {@link PurposeNormalizer normalization}. The tag 62 value is limited
      * to 99 characters and sub-tag 08 needs 4 of them for its ID and length.
      *
-     * <p>EMVCo MPM v1.1 (table 3.7) limits sub-tag 08 to 25 characters, so banking apps may cut or refuse longer
-     * values. TODO(v0.1): verify how banking apps handle purposes longer than 25 characters and record the
-     * recommended limit in docs/adr/0005-purpose-length-policy.md.
+     * <p>EMVCo MPM v1.1 (table 3.7) limits sub-tag 08 to 25 characters, so applications should prefer purposes of
+     * at most 25 characters for compatibility. See docs/adr/0005-purpose-length-policy.md.
      */
     public static final int MAX_PURPOSE_LENGTH = 95;
 

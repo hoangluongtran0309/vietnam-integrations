@@ -248,7 +248,7 @@ Nếu sau chuẩn hóa nội dung rỗng (ví dụ chỉ toàn emoji), payload s
 | Giới hạn | Giá trị | Ý nghĩa |
 |---|---|---|
 | Cứng (thư viện kiểm tra) | **95** ký tự — `VietQrEncoder.MAX_PURPOSE_LENGTH` | Dài hơn → `VietQrException`. Đây là giới hạn cấu trúc: tag `62` tối đa 99 ký tự, trừ 4 ký tự header của sub-tag `08`. |
-| Khuyến nghị | **≤ 25** ký tự | Giới hạn của sub-tag `08` trong đặc tả EMVCo MPM v1.1 (bảng 3.7). App ngân hàng có thể cắt hoặc từ chối nội dung dài hơn — đang được đo, xem [ADR-0005](../adr/0005-purpose-length-policy.md). |
+| Khuyến nghị | **≤ 25** ký tự | Giới hạn của sub-tag `08` trong đặc tả EMVCo MPM v1.1 (bảng 3.7). Đây là mức tương thích bảo thủ đã được chấp nhận trong [ADR-0005](../adr/0005-purpose-length-policy.md). |
 
 Độ dài được **đếm sau khi chuẩn hóa**, nên chữ có dấu không làm nội dung "dài hơn".
 
@@ -272,7 +272,7 @@ if (normalized != null && normalized.length() > VietQrEncoder.MAX_PURPOSE_LENGTH
 
 - **Đặt mã đơn hàng ở đầu**: `DH12345 Thanh toan` tốt hơn `Thanh toan don hang so DH12345` — nếu có app cắt nội dung
   thì mã đơn vẫn còn.
-- **Giữ ≤ 25 ký tự** cho tới khi có số liệu đo trên app thật.
+- **Giữ ≤ 25 ký tự** để tương thích bảo thủ với các app ngân hàng.
 - Mã đơn nên chỉ gồm chữ và số. Ký tự đặc biệt (`#`, `/`, `:`) vẫn được mã hóa, nhưng chưa xác nhận mọi app
   ngân hàng giữ nguyên chúng.
 - Khi đối soát, so khớp theo kiểu "nội dung **chứa** mã đơn" thay vì so bằng tuyệt đối: nội dung người nhận thấy

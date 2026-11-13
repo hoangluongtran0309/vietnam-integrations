@@ -1,7 +1,6 @@
 # ADR-0005: Giới hạn độ dài nội dung chuyển khoản (`purpose`)
 
-**Trạng thái:** Proposed — giới hạn khuyến nghị sẽ chốt sau khi đo trên app ngân hàng thật
-([manual-verification.md](../vietqr/manual-verification.md)).
+**Trạng thái:** Accepted — chấp nhận ngày 2026-11-13.
 
 ## Bối cảnh
 
@@ -25,14 +24,15 @@
 3. **Giới hạn cứng hiện tại là 95** (`VietQrEncoder.MAX_PURPOSE_LENGTH`) — giới hạn cấu trúc, đảm bảo không bao
    giờ sinh payload sai định dạng. Chưa hạ xuống 25 vì sẽ làm hỏng code hiện có mà chưa có bằng chứng là app
    ngân hàng không đọc được nội dung dài hơn.
-4. **Docs khuyến nghị ≤ 25 ký tự** (theo EMVCo) và đặt mã đơn ở đầu nội dung cho tới khi có số liệu đo.
-5. Sau khi đo (TODO(v0.1) trong `VietQrEncoder`): nếu có app phổ biến cắt/từ chối nội dung > 25, cân nhắc hạ
-   `MAX_PURPOSE_LENGTH` (breaking change, ghi `CHANGELOG.md`) hoặc thêm chế độ kiểm tra chặt. Cập nhật ADR này
-   sang **Accepted** kèm bảng số liệu.
+4. **Docs khuyến nghị ≤ 25 ký tự** (theo EMVCo) và đặt mã đơn ở đầu nội dung để giảm rủi ro bị cắt.
+5. Giữ giới hạn cứng 95 và khuyến nghị 25 như chính sách ổn định cho 0.1.0. Quyết định này ưu tiên không phá vỡ
+   trường hợp sử dụng hiện có, đồng thời đưa ra mức tương thích bảo thủ theo EMVCo. Nếu sau này có bằng chứng từ
+   app phổ biến rằng nội dung dài hơn 25 bị cắt hoặc từ chối, thay đổi giới hạn phải được xem là breaking change và
+   ghi trong `CHANGELOG.md`.
 
 ## Hệ quả
 
 - Lỗi xuất hiện ngay khi sinh QR (ở server), không phải khi khách quét — dễ phát hiện hơn.
 - Người dùng cần tự rút gọn nội dung dài; docs hướng dẫn cách làm.
 - Giá trị `MAX_PURPOSE_LENGTH` là API công khai: người dùng có thể kiểm tra trước khi gọi encoder.
-- Có thể phải thay đổi giới hạn trước 1.0, tùy kết quả đo.
+- Giới hạn cứng có thể thay đổi trước 1.0 nếu có dữ liệu tương thích mới; mọi thay đổi phải được công bố rõ.

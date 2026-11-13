@@ -5,14 +5,14 @@
 *Integrations with Vietnamese platforms for Java and Spring Boot: VietQR payment QR codes, Zalo Official Account / ZNS messaging, and e-invoices.*
 
 [![CI](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml)
-![Status](https://img.shields.io/badge/status-pre--alpha-orange)
+![Status](https://img.shields.io/badge/status-0.1.0-brightgreen)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 ## Trạng thái
 
 | Module | Trạng thái | Phiên bản mục tiêu |
 |---|---|---|
-| `vietnam-vietqr-spring-boot-starter` | 🟡 Code 0.1.0 xong — chờ test vector & kiểm tra bằng app ngân hàng thật | 0.1.0 |
+| `vietnam-vietqr-spring-boot-starter` | 🟢 Phát hành 0.1.0 | 0.1.0 |
 | `vietnam-zalo-oa-spring-boot-starter` | 🔴 Khung (interfaces, token manager) | 0.2.0 |
 | `vietnam-einvoice-spring-boot-starter` | 🔴 Khung (domain model, SPI) | 0.3.0 |
 
@@ -23,7 +23,7 @@ Xem kế hoạch chi tiết tại [docs/ROADMAP.md](docs/ROADMAP.md).
 - Java 17+
 - Spring Boot 4.x
 
-## Cài đặt (sau khi phát hành 0.1.0)
+## Cài đặt
 
 ```xml
 <dependencyManagement>

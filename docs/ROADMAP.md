@@ -41,7 +41,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [x] `PaymentConfirmationListener` SPI cho xác nhận thanh toán (SePay/Casso) — **chỉ thiết kế interface**, adapter để 0.4
   — [ADR-0006](adr/0006-payment-confirmation-spi.md), [vietqr/payment-confirmation.md](vietqr/payment-confirmation.md).
 - [x] Viết docs: README, trang VietQR, ví dụ — [vietqr/README.md](vietqr/README.md) và các trang con
-- [ ] Release 0.1.0
+- [x] Release 0.1.0 — [GitHub Release](https://github.com/hoangluongtran0309/vietnam-integrations/releases/tag/v0.1.0),
+  Maven Central ngày 2026-11-13
   - Trước khi tag `v0.1.0`:
     - [x] ≥ 5 test vector thật trong `vietnam-vietqr-core/src/test/resources/vectors/`, `./mvnw verify` xanh
     - [x] Đã xác nhận thủ công QR bằng ≥ 3 app ngày 2026-11-13; không lưu chi tiết app theo yêu cầu của người kiểm tra
@@ -49,9 +50,11 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
     - [x] Rà các `TODO(v0.1)` còn lại: 8 BIN chưa có nguồn chính thức và đối chiếu tag NAPAS đã được ghi rõ dời
           sang `0.1.x`; xem `VietQrBank` và `docs/vietqr/README.md`
     - [x] `CHANGELOG.md`: thêm `[0.1.0] - 2026-11-13` qua PR, rồi tag theo [RELEASING.md](RELEASING.md)
-    - [ ] Sau khi lên Central: làm theo README từ một project trống, đo thời gian < 5 phút
+    - [x] Sau khi lên Central: project Spring Boot trống tải dependency từ repository Maven rỗng, build và tạo/decode
+          payload thành công trong khoảng 61 giây (Java 21, 2026-11-13)
 
-**Done khi:** người lạ thêm dependency từ Central và tạo QR quét được trong < 5 phút theo README.
+**Done khi:** người lạ thêm dependency từ Central và tạo QR quét được trong < 5 phút theo README. ✅ Hoàn tất ngày
+2026-11-13.
 
 ## Phase 2 — Zalo OA 0.2.0 (tuần 5–9)
 

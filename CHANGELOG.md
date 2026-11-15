@@ -22,6 +22,9 @@
   `vietnam.zalo-oa.secret-key`, `vietnam.zalo-oa.oa-id`, hoặc khi đặt
   `vietnam.zalo-oa.webhook.enabled=true` mà thiếu `vietnam.zalo-oa.oa-secret-key`; trước đây context vẫn khởi động
   nhưng âm thầm thiếu bean.
+- `ZaloWebhookVerifier` thêm overload `verify(byte[], String)` để kiểm chữ ký từ request bytes sau khi
+  decode UTF-8 nghiêm ngặt; webhook controller chấp nhận mọi `Content-Type` và trả response lỗi không lộ payload
+  hay chi tiết exception.
 
 ### Security
 - Zalo token, PKCE verifier, application/OA secret key, recipient phone number và ZBS template values không còn

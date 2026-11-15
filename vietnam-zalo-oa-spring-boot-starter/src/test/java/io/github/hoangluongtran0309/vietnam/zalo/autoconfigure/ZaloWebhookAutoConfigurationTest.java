@@ -42,7 +42,8 @@ class ZaloWebhookAutoConfigurationTest {
     void failsFastWhenWebhookSecretIsMissing() {
         runner.withPropertyValues("vietnam.zalo-oa.webhook.enabled=true")
                 .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
-                        .hasMessageContaining("vietnam.zalo-oa.oa-secret-key"));
+                        .hasMessageContaining("vietnam.zalo-oa.oa-secret-key")
+                        .hasMessageNotContaining("app-secret"));
     }
 
     @Test

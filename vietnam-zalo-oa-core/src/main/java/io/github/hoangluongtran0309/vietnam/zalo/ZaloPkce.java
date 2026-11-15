@@ -56,4 +56,10 @@ public record ZaloPkce(String codeVerifier, String codeChallenge, String state) 
             throw new IllegalStateException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ZaloPkce[codeVerifier=" + ZaloRedaction.secret(codeVerifier)
+                + ", codeChallenge=" + codeChallenge + ", state=" + state + "]";
+    }
 }

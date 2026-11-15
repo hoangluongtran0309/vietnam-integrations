@@ -24,4 +24,11 @@ public record ZbsPhoneTemplateRequest(
             throw new IllegalArgumentException("trackingId must contain 1-48 letters, digits, '_' or '-'");
         }
     }
+
+    @Override
+    public String toString() {
+        return "ZbsPhoneTemplateRequest[phone=" + ZaloRedaction.recipient(phone)
+                + ", templateId=" + templateId + ", templateData=" + templateData.keySet()
+                + ", trackingId=" + trackingId + "]";
+    }
 }

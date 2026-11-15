@@ -23,6 +23,10 @@
   `vietnam.zalo-oa.webhook.enabled=true` mà thiếu `vietnam.zalo-oa.oa-secret-key`; trước đây context vẫn khởi động
   nhưng âm thầm thiếu bean.
 
+### Security
+- Zalo token, PKCE verifier, application/OA secret key, recipient phone number và ZBS template values không còn
+  bị lộ qua `toString()`.
+
 ## [0.1.0] - 2026-11-13
 
 ### Added

@@ -19,4 +19,11 @@ public record ZaloToken(String accessToken, String refreshToken, Instant accessT
     public boolean isAccessTokenExpired(Instant now, Duration skew) {
         return !now.plus(skew).isBefore(accessTokenExpiresAt);
     }
+
+    @Override
+    public String toString() {
+        return "ZaloToken[accessToken=" + ZaloRedaction.secret(accessToken)
+                + ", refreshToken=" + ZaloRedaction.secret(refreshToken)
+                + ", accessTokenExpiresAt=" + accessTokenExpiresAt + "]";
+    }
 }

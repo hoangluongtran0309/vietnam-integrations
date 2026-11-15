@@ -7,7 +7,7 @@ import io.github.hoangluongtran0309.vietnam.zalo.ZaloTokenStore;
 import io.github.hoangluongtran0309.vietnam.zalo.autoconfigure.ZaloOaProperties;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @RestController
-@ConditionalOnBean({ZaloOAuthClient.class, ZaloTokenStore.class})
+@ConditionalOnProperty(prefix = "vietnam.zalo-oa", name = "enabled", havingValue = "true")
 class ZaloOAuthController {
 
     private static final String VERIFIER = ZaloOAuthController.class.getName() + ".verifier";

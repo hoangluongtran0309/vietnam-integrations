@@ -7,6 +7,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,6 +45,26 @@ class ZaloTokenManagerTest {
                 .accessToken())
                 .isInstanceOf(ZaloException.class)
                 .hasMessageContaining("OAuth");
+    }
+
+    @Test
+    void refreshesOnlyOnceForConcurrentThreads() throws Exception {
+        InMemoryZaloTokenStore store = new InMemoryZaloTokenStore();
+        store.save("oa", new ZaloToken("access-1", "refresh-1", NOW.plus(Duration.ofMinutes(1))));
+        CountingOAuth oauth = new CountingOAuth();
+        ZaloTokenManager manager = new ZaloTokenManager("oa", store, oauth, clock);
+        CountDownLatch start = new CountDownLatch(1);
+        var executor = Executors.newFixedThreadPool(2);
+        try {
+            var first = executor.submit(() -> { start.await(); return manager.accessToken(); });
+            var second = executor.submit(() -> { start.await(); return manager.accessToken(); });
+            start.countDown();
+            assertThat(first.get(5, TimeUnit.SECONDS)).isEqualTo("access-new");
+            assertThat(second.get(5, TimeUnit.SECONDS)).isEqualTo("access-new");
+        } finally {
+            executor.shutdownNow();
+        }
+        assertThat(oauth.refreshCalls).hasValue(1);
     }
 
     private final class CountingOAuth implements ZaloOAuthClient {

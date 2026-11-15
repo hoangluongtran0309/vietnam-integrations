@@ -9,7 +9,8 @@ instance kia mất hiệu lực → OA mất kết nối, phải cấp quyền l
 ## Quyết định
 - Port `ZaloTokenStore`; mặc định `InMemoryZaloTokenStore` (chỉ an toàn khi chạy 1 instance).
 - `ZaloTokenManager` refresh kiểu single-flight trong JVM (lock + double-check).
-- Phase 2: `JdbcZaloTokenStore` dùng `SELECT ... FOR UPDATE` (hoặc cột version) để chỉ một instance refresh.
+- `JdbcZaloTokenStore` dùng `SELECT ... FOR UPDATE` để chỉ một instance refresh; chi tiết tại
+  [ADR-0007](0007-atomic-zalo-token-rotation.md).
 - Lưu token mới **trước** khi dùng.
 
 ## Hệ quả

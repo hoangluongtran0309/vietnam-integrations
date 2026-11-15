@@ -3,6 +3,16 @@ vietnam:
     # Replace with your own account to test with a real banking app
     bank-bin: "970436"
     account-number: "0123456789"
+  zalo-oa:
+    enabled: ${ZALO_ENABLED:false}
+    app-id: ${ZALO_APP_ID:}
+    secret-key: ${ZALO_APP_SECRET_KEY:}
+    oa-id: ${ZALO_OA_ID:}
+    oa-secret-key: ${ZALO_OA_SECRET_KEY:}
+    token-store: ${ZALO_TOKEN_STORE:memory}
+    webhook:
+      enabled: ${ZALO_WEBHOOK_ENABLED:false}
+      path: /webhooks/zalo
 
 spring:
   servlet:
@@ -10,3 +20,10 @@ spring:
       # Phone screenshots uploaded to /decode-image are often larger than the 1MB default
       max-file-size: 10MB
       max-request-size: 10MB
+
+demo:
+  zalo:
+    redirect-uri: ${ZALO_REDIRECT_URI:http://localhost:8080/zalo/oauth/callback}
+    jdbc-url: ${ZALO_JDBC_URL:}
+    jdbc-user: ${ZALO_JDBC_USER:}
+    jdbc-password: ${ZALO_JDBC_PASSWORD:}

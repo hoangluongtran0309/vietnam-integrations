@@ -50,6 +50,24 @@ vietnam:
 
 Không đưa credential vào YAML trong Git. Dùng secret manager hoặc environment variables.
 
+### Thuộc tính bắt buộc theo tính năng
+
+| Thuộc tính | OAuth/gửi tin mặc định | Có `ZaloTokenManager` tùy chỉnh | Webhook | Mặc định |
+|---|---:|---:|---:|---|
+| `vietnam.zalo-oa.enabled` | Không | Không | Không | `true` |
+| `vietnam.zalo-oa.app-id` | Có | Có | Có | — |
+| `vietnam.zalo-oa.secret-key` | Có | Có | Có | — |
+| `vietnam.zalo-oa.oa-id` | Có | Không | Có | — |
+| `vietnam.zalo-oa.oa-secret-key` | Không | Không | Có | — |
+| `vietnam.zalo-oa.token-store` | Không | Không | Không | `memory` |
+| `vietnam.zalo-oa.connect-timeout` | Không | Không | Không | `5s` |
+| `vietnam.zalo-oa.request-timeout` | Không | Không | Không | `10s` |
+| `vietnam.zalo-oa.webhook.enabled` | Không | Không | Phải đặt `true` | `false` |
+| `vietnam.zalo-oa.webhook.path` | Không | Không | Không | `/webhooks/zalo` |
+
+Starter dừng khởi động và nêu đúng tên thuộc tính khi cấu hình bắt buộc bị thiếu hoặc rỗng. Nếu ứng dụng tự cung cấp
+`ZaloTokenManager`, có thể bỏ `oa-id`; các credential còn lại vẫn được kiểm tra như trong bảng.
+
 ### PostgreSQL
 
 `JdbcZaloTokenStore` hỗ trợ PostgreSQL 14+. Áp dụng migration

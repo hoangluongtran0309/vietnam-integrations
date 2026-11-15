@@ -1,11 +1,16 @@
 package io.github.hoangluongtran0309.vietnam.zalo;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -13,7 +18,9 @@ import java.time.Duration;
 
 final class ZaloHttpSupport {
 
-    static final Gson GSON = new Gson();
+    static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(BigDecimal.class, new PlainBigDecimalTypeAdapter())
+            .create();
 
     private ZaloHttpSupport() {
     }
@@ -65,6 +72,23 @@ final class ZaloHttpSupport {
             return value.getAsInt();
         } catch (RuntimeException ignored) {
             return null;
+        }
+    }
+
+    private static final class PlainBigDecimalTypeAdapter extends TypeAdapter<BigDecimal> {
+
+        @Override
+        public void write(JsonWriter out, BigDecimal value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+            } else {
+                out.jsonValue(value.toPlainString());
+            }
+        }
+
+        @Override
+        public BigDecimal read(JsonReader in) throws IOException {
+            return new BigDecimal(in.nextString());
         }
     }
 }

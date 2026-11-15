@@ -36,12 +36,13 @@ class SensitiveToStringTest {
     @Test
     void phoneTemplateRequestShowsMaskedPhoneAndTemplateKeysOnly() {
         ZbsPhoneTemplateRequest request = new ZbsPhoneTemplateRequest(
-                "84912345123", "template-1", Map.of("customer", "private-template-value"), "tracking-1");
+                "(+84) 912.345-123", "template-1",
+                Map.of("customer", "private-template-value"), "tracking-1");
 
         assertThat(request.toString())
                 .isEqualTo("ZbsPhoneTemplateRequest[phone=84******123, templateId=template-1, "
                         + "templateData=[customer], trackingId=tracking-1]")
-                .doesNotContain("84912345123", "private-template-value");
+                .doesNotContain("84912345123", "(+84) 912.345-123", "private-template-value");
     }
 
     @Test

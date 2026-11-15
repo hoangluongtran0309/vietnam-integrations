@@ -8,6 +8,7 @@ public record ZaloConsultationTextRequest(String userId, String text, String quo
     public ZaloConsultationTextRequest {
         requireText(userId, "userId");
         requireText(text, "text");
+        // TODO(v0.2): verify whether Zalo counts code points or UTF-16 units — capture in WP-2D.1.
         if (text.length() > 2_000) {
             throw new IllegalArgumentException("text must not exceed 2000 characters");
         }

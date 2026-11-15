@@ -109,16 +109,22 @@ ZaloMessageResult result = zaloOaClient.sendConsultationText(
         new ZaloConsultationTextRequest(userId, "Xin chào"));
 ```
 
-ZBS qua số điện thoại chuẩn hóa `84...` hoặc `+84...`:
+ZBS nhận số điện thoại Việt Nam ở dạng `0` + 9 chữ số, `84` + 9 chữ số hoặc `+84` + 9 chữ số. Có thể dùng
+khoảng trắng, dấu chấm, gạch ngang và ngoặc tròn làm ký tự phân tách; thư viện luôn chuẩn hóa giá trị được lưu và
+gửi thành `84` + 9 chữ số. Validation chỉ kiểm cấu trúc, không kiểm đầu số nhà mạng.
 
 ```java
 ZaloMessageResult result = zaloZbsClient.sendTemplateByPhone(
         new ZbsPhoneTemplateRequest(
-                "84912345678",
+                "0912 345 678",
                 "template-id",
                 Map.of("order_code", "DH-123", "amount", 150000),
                 "order-DH-123"));
 ```
+
+Key trong `templateData` không được để trống. Value hỗ trợ `String`, `Boolean`, các kiểu số nguyên
+`Integer`/`Long`/`Short`/`Byte`/`BigInteger` và `BigDecimal`; không nhận `Double`, `Float` hoặc object tùy ý.
+`BigDecimal` được gửi dưới dạng số thập phân thường, không dùng ký pháp số mũ.
 
 `trackingId` dài tối đa 48 ký tự và nên duy nhất theo business operation. Client không tự retry; caller phải quyết
 định retry theo trạng thái nghiệp vụ để tránh gửi trùng.

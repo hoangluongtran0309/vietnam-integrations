@@ -1,0 +1,28 @@
+package io.github.hoangluongtran0309.vietnam.zalo.autoconfigure;
+
+import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookParser;
+import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookVerifier;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.DispatcherServlet;
+
+@AutoConfiguration(after = ZaloOaAutoConfiguration.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnClass(DispatcherServlet.class)
+@ConditionalOnProperty(prefix = "vietnam.zalo-oa", name = "webhook.enabled", havingValue = "true")
+public class ZaloWebhookAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean({ZaloWebhookVerifier.class, ZaloWebhookParser.class})
+    ZaloWebhookController zaloWebhookController(ZaloWebhookVerifier verifier, ZaloWebhookParser parser,
+                                                 ApplicationEventPublisher publisher) {
+        return new ZaloWebhookController(verifier, parser, publisher);
+    }
+}

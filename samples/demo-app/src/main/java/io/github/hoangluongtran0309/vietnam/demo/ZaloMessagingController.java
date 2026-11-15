@@ -5,7 +5,7 @@ import io.github.hoangluongtran0309.vietnam.zalo.ZaloMessageResult;
 import io.github.hoangluongtran0309.vietnam.zalo.ZaloOaClient;
 import io.github.hoangluongtran0309.vietnam.zalo.ZaloZbsClient;
 import io.github.hoangluongtran0309.vietnam.zalo.ZbsPhoneTemplateRequest;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@ConditionalOnBean({ZaloOaClient.class, ZaloZbsClient.class})
+@ConditionalOnProperty(prefix = "vietnam.zalo-oa", name = "enabled", havingValue = "true")
 class ZaloMessagingController {
 
     private final ZaloOaClient oaClient;

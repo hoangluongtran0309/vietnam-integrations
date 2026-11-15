@@ -25,6 +25,8 @@
 - `ZaloWebhookVerifier` thêm overload `verify(byte[], String)` để kiểm chữ ký từ request bytes sau khi
   decode UTF-8 nghiêm ngặt; webhook controller chấp nhận mọi `Content-Type` và trả response lỗi không lộ payload
   hay chi tiết exception.
+- `ZbsPhoneTemplateRequest` nhận số Việt Nam dạng quốc gia, nội địa và các ký tự phân tách thông dụng, sau đó luôn
+  chuẩn hóa thành `84` + 9 chữ số; `templateData` chỉ nhận scalar an toàn và ghi `BigDecimal` không dùng số mũ.
 
 ### Security
 - Zalo token, PKCE verifier, application/OA secret key, recipient phone number và ZBS template values không còn

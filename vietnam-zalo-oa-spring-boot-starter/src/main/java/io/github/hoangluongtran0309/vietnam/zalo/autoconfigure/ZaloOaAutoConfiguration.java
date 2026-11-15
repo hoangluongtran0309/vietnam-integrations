@@ -35,7 +35,7 @@ public class ZaloOaAutoConfiguration {
                 throw new ZaloException("vietnam.zalo-oa.token-store=jdbc requires a DataSource bean and the "
                         + "versioned PostgreSQL schema. Define a DataSource or provide your own ZaloTokenStore bean.");
             }
-            return new JdbcZaloTokenStore(dataSource);
+            return new JdbcZaloTokenStore(dataSource, properties.getJdbc().getLockTimeout());
         }
         return new InMemoryZaloTokenStore();
     }
@@ -112,6 +112,12 @@ public class ZaloOaAutoConfiguration {
             }
             if (properties.getAppId().isBlank()) {
                 throw new ZaloException("vietnam.zalo-oa.app-id must not be blank");
+            }
+            if (properties.getJdbc() == null || properties.getJdbc().getLockTimeout() == null
+                    || properties.getRequestTimeout() == null
+                    || properties.getJdbc().getLockTimeout().compareTo(properties.getRequestTimeout()) <= 0) {
+                throw new ZaloException("vietnam.zalo-oa.jdbc.lock-timeout must be greater than "
+                        + "vietnam.zalo-oa.request-timeout");
             }
             if (isBlank(properties.getSecretKey())) {
                 throw new ZaloException("vietnam.zalo-oa.secret-key is required when Zalo OA "

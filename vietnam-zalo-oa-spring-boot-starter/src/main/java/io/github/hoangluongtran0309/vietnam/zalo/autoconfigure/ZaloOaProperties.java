@@ -31,6 +31,9 @@ public class ZaloOaProperties {
     /** Timeout for each outbound Zalo API request. Requests are never retried automatically. */
     private Duration requestTimeout = Duration.ofSeconds(10);
 
+    /** JDBC token-store settings. */
+    private Jdbc jdbc = new Jdbc();
+
     /** Optional webhook endpoint settings. */
     private Webhook webhook = new Webhook();
 
@@ -52,6 +55,8 @@ public class ZaloOaProperties {
     public void setConnectTimeout(Duration connectTimeout) { this.connectTimeout = connectTimeout; }
     public Duration getRequestTimeout() { return requestTimeout; }
     public void setRequestTimeout(Duration requestTimeout) { this.requestTimeout = requestTimeout; }
+    public Jdbc getJdbc() { return jdbc; }
+    public void setJdbc(Jdbc jdbc) { this.jdbc = jdbc; }
     public Webhook getWebhook() { return webhook; }
     public void setWebhook(Webhook webhook) { this.webhook = webhook; }
 
@@ -61,11 +66,27 @@ public class ZaloOaProperties {
                 + ", secretKey=" + redact(secretKey) + ", oaId=" + oaId
                 + ", oaSecretKey=" + redact(oaSecretKey) + ", tokenStore=" + tokenStore
                 + ", connectTimeout=" + connectTimeout + ", requestTimeout=" + requestTimeout
-                + ", webhook=" + webhook + "]";
+                + ", jdbc=" + jdbc + ", webhook=" + webhook + "]";
     }
 
     private static String redact(String value) {
         return "<redacted:" + (value == null ? 0 : value.length()) + ">";
+    }
+
+    public static class Jdbc {
+        /**
+         * Maximum time to wait for the PostgreSQL token row lock. This must be longer than request-timeout because
+         * the instance holding the lock may wait for Zalo until its HTTP request times out.
+         */
+        private Duration lockTimeout = Duration.ofSeconds(15);
+
+        public Duration getLockTimeout() { return lockTimeout; }
+        public void setLockTimeout(Duration lockTimeout) { this.lockTimeout = lockTimeout; }
+
+        @Override
+        public String toString() {
+            return "Jdbc[lockTimeout=" + lockTimeout + "]";
+        }
     }
 
     public static class Webhook {

@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
 import java.time.Clock;
+import java.time.Duration;
 
 class ZaloOaAutoConfigurationTest {
 
@@ -107,6 +108,30 @@ class ZaloOaAutoConfigurationTest {
                         "vietnam.zalo-oa.token-store=jdbc")
                 .withBean(DataSource.class, () -> unused)
                 .run(ctx -> assertThat(ctx).getBean(ZaloTokenStore.class).isInstanceOf(JdbcZaloTokenStore.class));
+    }
+
+    @Test
+    void bindsJdbcLockTimeout() {
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa", "vietnam.zalo-oa.jdbc.lock-timeout=20s")
+                .run(ctx -> assertThat(ctx.getBean(ZaloOaProperties.class).getJdbc().getLockTimeout())
+                        .isEqualTo(Duration.ofSeconds(20)));
+    }
+
+    @Test
+    void failsFastWhenJdbcLockTimeoutIsNotGreaterThanRequestTimeout() {
+        assertInvalidLockTimeout("10s");
+        assertInvalidLockTimeout("9s");
+    }
+
+    private void assertInvalidLockTimeout(String lockTimeout) {
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa", "vietnam.zalo-oa.request-timeout=10s",
+                        "vietnam.zalo-oa.jdbc.lock-timeout=" + lockTimeout)
+                .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
+                        .isInstanceOf(ZaloException.class)
+                        .hasMessageContaining("vietnam.zalo-oa.jdbc.lock-timeout")
+                        .hasMessageContaining("vietnam.zalo-oa.request-timeout"));
     }
 
     @Test

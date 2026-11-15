@@ -2,9 +2,16 @@ package io.github.hoangluongtran0309.vietnam.zalo.autoconfigure;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ZaloOaPropertiesTest {
+
+    @Test
+    void usesFifteenSecondJdbcLockTimeoutByDefault() {
+        assertThat(new ZaloOaProperties().getJdbc().getLockTimeout()).isEqualTo(Duration.ofSeconds(15));
+    }
 
     @Test
     void toStringRedactsApplicationAndOaSecretKeys() {

@@ -40,6 +40,27 @@ class ZaloTokenManagerTest {
     }
 
     @Test
+    void refreshesAtExactlyFiveMinuteSkewBoundary() {
+        InMemoryZaloTokenStore store = new InMemoryZaloTokenStore();
+        store.save("oa", new ZaloToken("access-1", "refresh-1", NOW.plus(Duration.ofMinutes(5))));
+        CountingOAuth oauth = new CountingOAuth();
+
+        assertThat(new ZaloTokenManager("oa", store, oauth, clock).accessToken()).isEqualTo("access-new");
+        assertThat(oauth.refreshCalls).hasValue(1);
+    }
+
+    @Test
+    void keepsCachedTokenOneSecondBeyondFiveMinuteSkewBoundary() {
+        InMemoryZaloTokenStore store = new InMemoryZaloTokenStore();
+        store.save("oa", new ZaloToken("access-1", "refresh-1",
+                NOW.plus(Duration.ofMinutes(5)).plusSeconds(1)));
+        CountingOAuth oauth = new CountingOAuth();
+
+        assertThat(new ZaloTokenManager("oa", store, oauth, clock).accessToken()).isEqualTo("access-1");
+        assertThat(oauth.refreshCalls).hasValue(0);
+    }
+
+    @Test
     void failsClearlyWhenNotAuthorized() {
         assertThatThrownBy(() -> new ZaloTokenManager("oa", new InMemoryZaloTokenStore(), new CountingOAuth(), clock)
                 .accessToken())

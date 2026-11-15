@@ -29,6 +29,7 @@ class ZaloConfigurationMetadataTest {
                 "vietnam.zalo-oa.token-store",
                 "vietnam.zalo-oa.connect-timeout",
                 "vietnam.zalo-oa.request-timeout",
+                "vietnam.zalo-oa.jdbc.lock-timeout",
                 "vietnam.zalo-oa.webhook.enabled",
                 "vietnam.zalo-oa.webhook.path"
         ).forEach(property -> assertThat(metadata).contains("\"name\": \"" + property + "\""));

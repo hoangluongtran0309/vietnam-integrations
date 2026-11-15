@@ -15,7 +15,8 @@ Mô hình ports & adapters:
 - **Domain/core**: `VietQrEncoder`, `Invoice`, `ZaloToken`… không biết tới Spring.
 - **Ports**: `ZaloTokenStore`, `ZaloOAuthClient`, `ZaloOaClient`, `EInvoiceProvider`,
   `PaymentConfirmationListener` (xác nhận thanh toán VietQR, [ADR-0006](adr/0006-payment-confirmation-spi.md)).
-- **Adapters**: `InMemoryZaloTokenStore`, (sắp có) `JdbcZaloTokenStore`, `vietnam-einvoice-provider-*`.
+- **Adapters**: `InMemoryZaloTokenStore`, `JdbcZaloTokenStore`, các HTTP client Zalo dùng
+  `java.net.http.HttpClient`, `vietnam-einvoice-provider-*`.
 - **Starter**: chỉ nối dây — đọc properties, tạo bean, mọi bean đều `@ConditionalOnMissingBean`.
 
 ## Quy ước
@@ -25,6 +26,8 @@ Mô hình ports & adapters:
 - Mọi field trong `@ConfigurationProperties` có Javadoc (sinh metadata cho IDE).
 - Dependency nặng (ZXing, JDBC…) là `optional` và được bật bằng `@ConditionalOnClass`.
 - Exception riêng cho từng module, là unchecked: `VietQrException`, `ZaloException`, `EInvoiceException`.
+- Zalo core dùng Gson nội bộ để đọc/ghi JSON; public API không lộ type Gson hay Jackson. OA messaging và ZBS là
+  hai port riêng vì dùng endpoint, quyền và vòng đời sản phẩm khác nhau.
 
 ## VietQR payload
 

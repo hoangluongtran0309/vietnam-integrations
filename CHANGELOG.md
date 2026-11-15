@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+### Added
+- Zalo OA OAuth v4: `HttpZaloOAuthClient`, PKCE S256 helper và error model không giữ credential/raw response.
+- Zalo OA messaging v3 qua `ZaloOaClient.sendConsultationText`; ZBS Template Message qua SĐT bằng
+  `ZaloZbsClient.sendTemplateByPhone`.
+- PostgreSQL `JdbcZaloTokenStore`, versioned schema và atomic refresh bằng `SELECT ... FOR UPDATE`.
+- Typed webhook events cho text/follow/unfollow/delivered/seen, unknown-event fallback và servlet controller opt-in.
+- Demo OAuth callback, gửi OA/ZBS, webhook monitor; tài liệu tích hợp tại `docs/zalo/`.
+
+### Changed
+- Breaking: `ZaloTokenStore` thêm `updateAtomically`; `ZaloTokenManager` dùng store-level atomic refresh thay cho
+  lock chỉ trong JVM.
+- Breaking: `ZaloOaClient.sendText/sendZns` được thay bằng request/result records và tách ZBS thành
+  `ZaloZbsClient`. Tên ZNS cũ không còn dùng vì dịch vụ đã hợp nhất vào ZBS từ 01/01/2026.
+- Zalo starter tự cấu hình OAuth/OA/ZBS clients, PostgreSQL store và webhook với connect/request timeout.
+
 ## [0.1.0] - 2026-11-13
 
 ### Added

@@ -58,16 +58,18 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 
 ## Phase 2 — Zalo OA 0.2.0 (tuần 5–9)
 
-- [ ] Tạo Zalo app + OA test; ghi lại toàn bộ quy trình cấp quyền vào docs (đây là phần người dùng hay kẹt nhất)
-- [ ] Đối chiếu endpoint, thời hạn token, công thức chữ ký webhook với tài liệu Zalo hiện hành
-- [ ] Implement `ZaloOAuthClient` (PKCE) bằng `java.net.http.HttpClient`
-- [ ] `JdbcZaloTokenStore` + schema SQL; khóa phân tán cho refresh khi chạy nhiều instance (ADR-0004)
-- [ ] Implement `ZaloOaClient`: tin tư vấn, ZNS
-- [ ] Webhook: controller tùy chọn + publish `ApplicationEvent` có kiểu theo từng loại sự kiện
-- [ ] Test bằng WireMock với response thu thập từ API thật
+- [x] Viết quy trình tạo Zalo App/OA, cấp quyền OAuth, cấu hình ZBS và webhook tại [zalo/README.md](zalo/README.md)
+- [x] Đối chiếu endpoint, token 25 giờ/refresh token 3 tháng và chữ ký webhook với tài liệu Zalo ngày 2026-11-13
+- [x] Implement `HttpZaloOAuthClient` + PKCE bằng `java.net.http.HttpClient`
+- [x] `JdbcZaloTokenStore` + schema PostgreSQL; khóa refresh đa instance ([ADR-0007](adr/0007-atomic-zalo-token-rotation.md))
+- [x] Implement `ZaloOaClient` cho tin Tư vấn và `ZaloZbsClient` cho ZBS qua SĐT
+- [x] Webhook controller opt-in + typed Spring events cho text/follow/unfollow/delivered/seen
+- [x] Test WireMock theo request/response trong tài liệu chính thức; Testcontainers PostgreSQL 16 cho distributed refresh
+- [ ] Thay fixture chính thức bằng response đã redact thu từ API/OA thật và ghi ngày kiểm tra
+- [ ] Nghiệm thu sample với ZBS thật và webhook thật theo [zalo/README.md](zalo/README.md#6-chạy-demo-và-nghiệm-thu-thật)
 - [ ] Release 0.2.0
 
-**Done khi:** sample app gửi được ZNS thật và nhận webhook có verify chữ ký.
+**Done khi:** sample app gửi được ZBS thật và nhận webhook có verify chữ ký.
 
 ## Phase 3 — Hóa đơn điện tử 0.3.0 (tuần 10–16)
 

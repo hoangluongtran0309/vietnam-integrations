@@ -2,6 +2,8 @@ package io.github.hoangluongtran0309.vietnam.zalo;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,6 +27,39 @@ class ZaloWebhookTest {
         assertThat(parser.parse(body)).isEqualTo(new UserTextMessageEvent(APP, "user-1", "oa-1",
                 java.time.Instant.ofEpochMilli(154390853474L), "msg-1", "message"));
         assertThat(verifier.verify(body.replace("message", "tampered"), signature)).isFalse();
+    }
+
+    @Test
+    void verifiesRawUtf8BodyWithVietnameseAndEmoji() {
+        String body = event("new_event", ",\"text\":\"Xin chào Việt Nam 👋\"");
+        String signature = signature(body, "1000");
+
+        assertThat(verifier.verify(body.getBytes(StandardCharsets.UTF_8), signature)).isTrue();
+        assertThat(verifier.verify(body, signature.substring(4))).isTrue();
+        assertThat(verifier.verify(body, signature.toUpperCase())).isTrue();
+    }
+
+    @Test
+    void rejectsChangedTimestampAndInvalidUtf8() {
+        String body = event("follow", "");
+        String signature = signature(body, "1000");
+
+        assertThat(verifier.verify(body.replace("1000", "1001"), signature)).isFalse();
+        assertThatThrownBy(() -> verifier.verify(new byte[] {(byte) 0xc3, (byte) 0x28}, signature))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("UTF-8");
+    }
+
+    @Test
+    void rejectsNullOrBlankVerifierCredentials() {
+        assertThatThrownBy(() -> new ZaloWebhookVerifier(null, SECRET))
+                .isInstanceOf(NullPointerException.class).hasMessageContaining("appId");
+        assertThatThrownBy(() -> new ZaloWebhookVerifier(" ", SECRET))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("appId");
+        assertThatThrownBy(() -> new ZaloWebhookVerifier(APP, null))
+                .isInstanceOf(NullPointerException.class).hasMessageContaining("oaSecretKey");
+        assertThatThrownBy(() -> new ZaloWebhookVerifier(APP, " "))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("oaSecretKey");
     }
 
     @Test

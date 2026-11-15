@@ -5,6 +5,8 @@
 ## [Unreleased]
 
 ### Added
+- `ZaloOaRegistry`, `ZaloOa` và `ZaloAccountConfig` để quản lý nhiều Official Account theo alias hoặc `oaId`, dùng
+  chung OAuth client cho các account thuộc cùng một Zalo App.
 - Zalo OA OAuth v4: `HttpZaloOAuthClient`, PKCE S256 helper và error model không giữ credential/raw response.
 - Zalo OA messaging v3 qua `ZaloOaClient.sendConsultationText`; ZBS Template Message qua SĐT bằng
   `ZaloZbsClient.sendTemplateByPhone`.

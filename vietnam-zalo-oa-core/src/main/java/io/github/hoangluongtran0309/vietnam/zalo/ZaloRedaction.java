@@ -6,7 +6,7 @@ final class ZaloRedaction {
     }
 
     static String secret(String value) {
-        return "<redacted:" + value.length() + ">";
+        return "<redacted:" + (value == null ? 0 : value.length()) + ">";
     }
 
     static String recipient(String value) {

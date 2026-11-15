@@ -56,6 +56,20 @@ class SensitiveToStringTest {
     }
 
     @Test
+    void accountConfigRedactsApplicationAndOaSecrets() {
+        ZaloAccountConfig config = new ZaloAccountConfig(
+                "customer-care", "app-1", "application-secret", "oa-1", "oa-secret");
+        ZaloAccountConfig withoutWebhook = new ZaloAccountConfig(
+                "marketing", "app-1", "application-secret", "oa-2", null);
+
+        assertThat(config.toString())
+                .isEqualTo("ZaloAccountConfig[alias=customer-care, appId=app-1, secretKey=<redacted:18>, "
+                        + "oaId=oa-1, oaSecretKey=<redacted:9>]")
+                .doesNotContain("application-secret", "oa-secret");
+        assertThat(withoutWebhook.toString()).contains("oaSecretKey=<redacted:0>");
+    }
+
+    @Test
     void customToStringDoesNotChangeRecordEquality() {
         ZaloToken first = new ZaloToken("access", "refresh", EXPIRES_AT);
         ZaloToken second = new ZaloToken("access", "refresh", EXPIRES_AT);

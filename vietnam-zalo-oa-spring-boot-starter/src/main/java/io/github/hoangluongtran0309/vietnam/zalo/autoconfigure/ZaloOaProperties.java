@@ -55,6 +55,19 @@ public class ZaloOaProperties {
     public Webhook getWebhook() { return webhook; }
     public void setWebhook(Webhook webhook) { this.webhook = webhook; }
 
+    @Override
+    public String toString() {
+        return "ZaloOaProperties[enabled=" + enabled + ", appId=" + appId
+                + ", secretKey=" + redact(secretKey) + ", oaId=" + oaId
+                + ", oaSecretKey=" + redact(oaSecretKey) + ", tokenStore=" + tokenStore
+                + ", connectTimeout=" + connectTimeout + ", requestTimeout=" + requestTimeout
+                + ", webhook=" + webhook + "]";
+    }
+
+    private static String redact(String value) {
+        return "<redacted:" + (value == null ? 0 : value.length()) + ">";
+    }
+
     public static class Webhook {
         /** Whether the servlet webhook controller is exposed. Disabled by default. */
         private boolean enabled;
@@ -66,5 +79,10 @@ public class ZaloOaProperties {
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
         public String getPath() { return path; }
         public void setPath(String path) { this.path = path; }
+
+        @Override
+        public String toString() {
+            return "Webhook[enabled=" + enabled + ", path=" + path + "]";
+        }
     }
 }

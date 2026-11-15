@@ -10,4 +10,10 @@ public record ZaloMessageResult(String messageId, String recipient, Instant sent
         Objects.requireNonNull(recipient, "recipient");
         Objects.requireNonNull(sentAt, "sentAt");
     }
+
+    @Override
+    public String toString() {
+        return "ZaloMessageResult[messageId=" + messageId + ", recipient=" + ZaloRedaction.recipient(recipient)
+                + ", sentAt=" + sentAt + "]";
+    }
 }

@@ -126,9 +126,11 @@ class ZaloOaAutoConfigurationTest {
 
     @Test
     void failsFastWhenOaIdMissing() {
-        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret")
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=private-app-secret")
                 .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
-                        .isInstanceOf(ZaloException.class).hasMessageContaining("vietnam.zalo-oa.oa-id"));
+                        .isInstanceOf(ZaloException.class)
+                        .hasMessageContaining("vietnam.zalo-oa.oa-id")
+                        .hasMessageNotContaining("private-app-secret"));
     }
 
     @Test

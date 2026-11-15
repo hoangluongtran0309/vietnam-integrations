@@ -9,8 +9,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
@@ -19,6 +23,7 @@ import java.time.ZoneOffset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,11 +101,165 @@ class JdbcZaloTokenStoreTest {
         assertThat(store.load("oa")).contains(original);
     }
 
+    @Test
+    void rejectsNonPositiveLockTimeout() {
+        assertThatThrownBy(() -> new JdbcZaloTokenStore(dataSource, Duration.ZERO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("positive");
+        assertThatThrownBy(() -> new JdbcZaloTokenStore(dataSource, Duration.ofMillis(-1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("positive");
+    }
+
+    @Test
+    void failsWithoutCreatingRowWhenTokenDoesNotExist() {
+        JdbcZaloTokenStore store = store();
+
+        assertThatThrownBy(() -> store.updateAtomically("missing", token -> token))
+                .isInstanceOf(ZaloException.class)
+                .hasMessageContaining("OAuth authorization flow");
+        assertThat(store.load("missing")).isEmpty();
+    }
+
+    @Test
+    void timesOutDeterministicallyWhenAnotherInstanceHoldsRowLock() throws Exception {
+        JdbcZaloTokenStore firstStore = store(Duration.ofSeconds(5));
+        JdbcZaloTokenStore secondStore = store(Duration.ofMillis(300));
+        firstStore.save("oa", new ZaloToken("old", "refresh-old", NOW.plusSeconds(30)));
+        CountDownLatch updaterEntered = new CountDownLatch(1);
+        CountDownLatch releaseUpdater = new CountDownLatch(1);
+        var executor = Executors.newSingleThreadExecutor();
+        try {
+            var firstUpdate = executor.submit(() -> firstStore.updateAtomically("oa", ignored -> {
+                updaterEntered.countDown();
+                await(releaseUpdater);
+                return new ZaloToken("new", "refresh-new", NOW.plus(Duration.ofHours(1)));
+            }));
+            assertThat(updaterEntered.await(10, TimeUnit.SECONDS)).isTrue();
+
+            assertThatThrownBy(() -> secondStore.updateAtomically("oa", token -> token))
+                    .isInstanceOfSatisfying(ZaloException.class, exception -> {
+                        assertThat(exception).hasMessageContaining("another instance is refreshing the Zalo token");
+                        assertThat(exception.getCause()).isInstanceOfSatisfying(SQLException.class,
+                                sqlException -> assertThat(sqlException.getSQLState()).isEqualTo("55P03"));
+                    });
+
+            releaseUpdater.countDown();
+            assertThat(firstUpdate.get(10, TimeUnit.SECONDS).accessToken()).isEqualTo("new");
+        } finally {
+            releaseUpdater.countDown();
+            executor.shutdownNow();
+        }
+        assertThat(firstStore.load("oa")).get().extracting(ZaloToken::refreshToken).isEqualTo("refresh-new");
+    }
+
+    @Test
+    void rollsBackNewTokenWhenDatabaseUpdateFails() {
+        JdbcZaloTokenStore normalStore = store();
+        ZaloToken original = new ZaloToken("old", "refresh-old", NOW.plusSeconds(30));
+        normalStore.save("oa", original);
+        JdbcZaloTokenStore failingStore = new JdbcZaloTokenStore(failTokenUpdates(dataSource),
+                Duration.ofSeconds(1), Clock.fixed(NOW, ZoneOffset.UTC));
+        AtomicBoolean updaterReturnedNewToken = new AtomicBoolean();
+
+        assertThatThrownBy(() -> failingStore.updateAtomically("oa", ignored -> {
+            updaterReturnedNewToken.set(true);
+            return new ZaloToken("new", "refresh-new", NOW.plus(Duration.ofHours(1)));
+        })).isInstanceOf(ZaloException.class).hasMessageContaining("atomically");
+
+        assertThat(updaterReturnedNewToken).isTrue();
+        assertThat(normalStore.load("oa")).contains(original);
+    }
+
+    @Test
+    void restoresOriginalAutoCommitAfterAtomicUpdate() throws SQLException {
+        JdbcZaloTokenStore normalStore = store();
+        normalStore.save("oa", new ZaloToken("old", "refresh-old", NOW.plusSeconds(30)));
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(true);
+            JdbcZaloTokenStore store = new JdbcZaloTokenStore(nonClosing(connection), Duration.ofSeconds(1),
+                    Clock.fixed(NOW, ZoneOffset.UTC));
+
+            store.updateAtomically("oa", token -> token);
+
+            assertThat(connection.getAutoCommit()).isTrue();
+        }
+    }
+
     private JdbcZaloTokenStore store() {
-        return new JdbcZaloTokenStore(dataSource, Clock.fixed(NOW, ZoneOffset.UTC));
+        return store(JdbcZaloTokenStore.DEFAULT_LOCK_TIMEOUT);
+    }
+
+    private JdbcZaloTokenStore store(Duration lockTimeout) {
+        return new JdbcZaloTokenStore(dataSource, lockTimeout, Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
     private ZaloTokenManager manager(ZaloTokenStore store, ZaloOAuthClient oauth) {
         return new ZaloTokenManager("oa", store, oauth, Clock.fixed(NOW, ZoneOffset.UTC));
+    }
+
+    private static void await(CountDownLatch latch) {
+        try {
+            if (!latch.await(10, TimeUnit.SECONDS)) {
+                throw new AssertionError("Timed out waiting for test coordination latch");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError("Interrupted while waiting for test coordination latch", e);
+        }
+    }
+
+    private static DataSource failTokenUpdates(DataSource delegate) {
+        return proxy(DataSource.class, (proxy, method, args) -> {
+            Object result = invoke(method, delegate, args);
+            if (result instanceof Connection connection && method.getName().startsWith("getConnection")) {
+                return failTokenUpdates(connection);
+            }
+            return result;
+        });
+    }
+
+    private static Connection failTokenUpdates(Connection delegate) {
+        return proxy(Connection.class, (proxy, method, args) -> {
+            Object result = invoke(method, delegate, args);
+            if (result instanceof PreparedStatement statement && method.getName().equals("prepareStatement")
+                    && args[0] instanceof String sql && sql.startsWith("UPDATE zalo_oa_tokens SET")) {
+                return proxy(PreparedStatement.class, (statementProxy, statementMethod, statementArgs) -> {
+                    if (statementMethod.getName().equals("executeUpdate")) {
+                        throw new SQLException("Simulated token update failure", "XX000");
+                    }
+                    return invoke(statementMethod, statement, statementArgs);
+                });
+            }
+            return result;
+        });
+    }
+
+    private static DataSource nonClosing(Connection connection) {
+        Connection nonClosingConnection = proxy(Connection.class, (proxy, method, args) -> {
+            if (method.getName().equals("close")) {
+                return null;
+            }
+            return invoke(method, connection, args);
+        });
+        return proxy(DataSource.class, (proxy, method, args) -> {
+            if (method.getName().startsWith("getConnection")) {
+                return nonClosingConnection;
+            }
+            throw new UnsupportedOperationException(method.getName());
+        });
+    }
+
+    private static Object invoke(Method method, Object target, Object[] args) throws Throwable {
+        try {
+            return method.invoke(target, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T proxy(Class<T> type, java.lang.reflect.InvocationHandler handler) {
+        return (T) Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[]{type}, handler);
     }
 }

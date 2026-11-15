@@ -43,6 +43,8 @@ vietnam:
     token-store: jdbc # memory chỉ dành cho một instance/dev
     connect-timeout: 5s
     request-timeout: 10s
+    jdbc:
+      lock-timeout: 15s
     webhook:
       enabled: true
       path: /webhooks/zalo
@@ -62,6 +64,7 @@ Không đưa credential vào YAML trong Git. Dùng secret manager hoặc environ
 | `vietnam.zalo-oa.token-store` | Không | Không | Không | `memory` |
 | `vietnam.zalo-oa.connect-timeout` | Không | Không | Không | `5s` |
 | `vietnam.zalo-oa.request-timeout` | Không | Không | Không | `10s` |
+| `vietnam.zalo-oa.jdbc.lock-timeout` | Không | Không | Không | `15s` |
 | `vietnam.zalo-oa.webhook.enabled` | Không | Không | Phải đặt `true` | `false` |
 | `vietnam.zalo-oa.webhook.path` | Không | Không | Không | `/webhooks/zalo` |
 
@@ -78,7 +81,9 @@ Liquibase hoặc công cụ migration hiện có. Starter **không** tự tạo 
 chỉ cấp quyền `SELECT/INSERT/UPDATE` cần thiết cho application role, không log/query token trong công cụ quan sát.
 
 `token-store: jdbc` dùng row lock để chỉ một instance sử dụng refresh token một lần. Nếu refresh gặp lỗi mạng với
-kết quả không xác định, thư viện không retry; hãy kiểm tra kết nối và cấp quyền OAuth lại.
+kết quả không xác định, thư viện không retry; hãy kiểm tra kết nối và cấp quyền OAuth lại. `jdbc.lock-timeout` phải
+lớn hơn `request-timeout`, vì instance đang giữ row lock có thể chờ Zalo tới hết request timeout. Hết thời gian chờ
+lock sẽ báo rõ instance khác đang refresh token thay vì chờ vô hạn.
 
 ## 3. OAuth + PKCE
 
@@ -99,6 +104,12 @@ tokenStore.save(oaId, token);
 
 Authorization code chỉ dùng một lần. Không trả token ra browser hoặc log. Demo app có sẵn
 `GET /zalo/oauth/start` và `GET /zalo/oauth/callback` để minh họa toàn bộ luồng.
+
+### Khi gặp `ZaloReauthorizationRequiredException`
+
+Exception này cho biết refresh token không còn dùng được. Operator cần chạy lại toàn bộ luồng OAuth cho đúng OA,
+kiểm tra app vẫn được liên kết với OA và có đủ quyền cần thiết, sau đó xác nhận token mới đã được lưu trước khi cho
+phép gửi tin trở lại. Không retry refresh token cũ.
 
 ## 4. Gửi tin
 

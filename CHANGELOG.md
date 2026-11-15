@@ -9,6 +9,7 @@
 - Zalo OA messaging v3 qua `ZaloOaClient.sendConsultationText`; ZBS Template Message qua SĐT bằng
   `ZaloZbsClient.sendTemplateByPhone`.
 - PostgreSQL `JdbcZaloTokenStore`, versioned schema và atomic refresh bằng `SELECT ... FOR UPDATE`.
+- `ZaloReauthorizationRequiredException` để phân biệt refresh token không còn hợp lệ với lỗi OAuth tạm thời.
 - Typed webhook events cho text/follow/unfollow/delivered/seen, unknown-event fallback và servlet controller opt-in.
 - Demo OAuth callback, gửi OA/ZBS, webhook monitor; tài liệu tích hợp tại `docs/zalo/`.
 
@@ -18,6 +19,8 @@
 - Breaking: `ZaloOaClient.sendText/sendZns` được thay bằng request/result records và tách ZBS thành
   `ZaloZbsClient`. Tên ZNS cũ không còn dùng vì dịch vụ đã hợp nhất vào ZBS từ 01/01/2026.
 - Zalo starter tự cấu hình OAuth/OA/ZBS clients, PostgreSQL store và webhook với connect/request timeout.
+- `JdbcZaloTokenStore` giới hạn thời gian chờ row lock; Zalo starter thêm
+  `vietnam.zalo-oa.jdbc.lock-timeout` mặc định 15 giây và yêu cầu lớn hơn request timeout.
 - Zalo OA starter giờ fail-fast khi bật Zalo mà thiếu hoặc để trống `vietnam.zalo-oa.app-id`,
   `vietnam.zalo-oa.secret-key`, `vietnam.zalo-oa.oa-id`, hoặc khi đặt
   `vietnam.zalo-oa.webhook.enabled=true` mà thiếu `vietnam.zalo-oa.oa-secret-key`; trước đây context vẫn khởi động

@@ -24,4 +24,12 @@ Transaction có thể giữ row lock trong thời gian gọi OAuth, nên request
 database duy nhất được cam kết trong 0.2.0. Token được lưu plaintext ở cấp ứng dụng; production phải bật encryption
 at rest, giới hạn quyền database hoặc cung cấp `ZaloTokenStore` riêng nếu cần mã hóa từng giá trị.
 
+`JdbcZaloTokenStore` đặt `lock_timeout` cục bộ cho mỗi transaction, mặc định 15 giây. Giá trị này phải lớn hơn HTTP
+request timeout vì instance đang giữ row lock có thể chờ Zalo trả lời tới hết request timeout. Khi hết thời gian chờ,
+caller nhận `ZaloException` cho biết instance khác đang refresh thay vì chờ vô hạn.
+
+Khi Zalo trả mã đã xác minh là refresh token không còn hợp lệ, OAuth client ném
+`ZaloReauthorizationRequiredException`. Lỗi mạng hoặc timeout vẫn là `ZaloApiException` vì kết quả refresh có thể
+không xác định và không được tự retry.
+
 ADR này cụ thể hóa phần PostgreSQL đã dự kiến trong [ADR-0004](0004-zalo-token-store.md).

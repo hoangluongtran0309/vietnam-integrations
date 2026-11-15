@@ -13,12 +13,15 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Zalo OA OAuth v4 client. Requests are never retried because refresh tokens are single-use. */
 public final class HttpZaloOAuthClient implements ZaloOAuthClient {
 
     public static final URI DEFAULT_ENDPOINT = URI.create("https://oauth.zaloapp.com/v4/oa/access_token");
+    // TODO(v0.2): verify expired/revoked refresh-token error codes — source: OAuth OA v4 documentation.
+    private static final Set<Integer> REAUTHORIZATION_REQUIRED_ERROR_CODES = Set.of(-14014);
 
     private final String appId;
     private final String secretKey;
@@ -57,7 +60,14 @@ public final class HttpZaloOAuthClient implements ZaloOAuthClient {
         form.put("refresh_token", require(refreshToken, "refreshToken"));
         form.put("app_id", appId);
         form.put("grant_type", "refresh_token");
-        return request(form, "Zalo OAuth token refresh");
+        try {
+            return request(form, "Zalo OAuth token refresh");
+        } catch (ZaloApiException e) {
+            if (e.apiErrorCode() != null && REAUTHORIZATION_REQUIRED_ERROR_CODES.contains(e.apiErrorCode())) {
+                throw new ZaloReauthorizationRequiredException(e);
+            }
+            throw e;
+        }
     }
 
     private ZaloToken request(Map<String, String> form, String operation) {

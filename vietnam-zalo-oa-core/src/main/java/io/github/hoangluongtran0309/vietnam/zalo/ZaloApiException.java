@@ -8,8 +8,13 @@ public class ZaloApiException extends ZaloException {
     private final Integer apiErrorCode;
 
     public ZaloApiException(String operation, int httpStatus, Integer apiErrorCode, String message) {
+        this(operation, httpStatus, apiErrorCode, message, null);
+    }
+
+    protected ZaloApiException(String operation, int httpStatus, Integer apiErrorCode, String message,
+                               Throwable cause) {
         super(operation + " failed" + (apiErrorCode == null ? "" : " with Zalo error " + apiErrorCode)
-                + ": " + safe(message));
+                + ": " + safe(message), cause);
         this.operation = operation;
         this.httpStatus = httpStatus;
         this.apiErrorCode = apiErrorCode;

@@ -89,9 +89,21 @@ class HttpZaloClientsTest {
                 "\"error\":-14014,\"message\":\"Refresh token expired\"}")));
 
         assertThatThrownBy(() -> oauth().refresh("super-secret-refresh"))
-                .isInstanceOf(ZaloApiException.class)
+                .isInstanceOf(ZaloReauthorizationRequiredException.class)
                 .hasMessageContaining("-14014")
+                .hasMessageContaining("authorization flow")
                 .hasMessageNotContaining("super-secret-refresh");
+        server.verify(1, postRequestedFor(urlEqualTo("/oauth")));
+    }
+
+    @Test
+    void doesNotMapReauthorizationCodeDuringAuthorizationCodeExchange() {
+        server.stubFor(post("/oauth").willReturn(okJson("{" +
+                "\"error\":-14014,\"message\":\"Authorization code rejected\"}")));
+
+        assertThatThrownBy(() -> oauth().exchangeAuthorizationCode("code", "verifier"))
+                .isExactlyInstanceOf(ZaloApiException.class)
+                .isNotInstanceOf(ZaloReauthorizationRequiredException.class);
         server.verify(1, postRequestedFor(urlEqualTo("/oauth")));
     }
 
@@ -117,7 +129,8 @@ class HttpZaloClientsTest {
                 .isInstanceOfSatisfying(ZaloApiException.class, exception -> {
                     assertThat(exception.httpStatus()).isEqualTo(503);
                     assertThat(exception.operation()).isEqualTo("Zalo OAuth token refresh");
-                });
+                })
+                .isNotInstanceOf(ZaloReauthorizationRequiredException.class);
         server.verify(1, postRequestedFor(urlEqualTo("/oauth")));
     }
 

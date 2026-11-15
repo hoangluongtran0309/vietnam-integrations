@@ -24,7 +24,7 @@ class ZaloWebhookAutoConfigurationTest {
             WebApplicationContextRunner.withMockServletContext(AnnotationConfigServletWebApplicationContext::new))
             .withConfiguration(AutoConfigurations.of(ZaloOaAutoConfiguration.class, ZaloWebhookAutoConfiguration.class))
             .withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=app-secret",
-                    "vietnam.zalo-oa.oa-secret-key=oa-secret");
+                    "vietnam.zalo-oa.oa-id=oa");
 
     @Test
     void webhookIsOptIn() {
@@ -33,8 +33,16 @@ class ZaloWebhookAutoConfigurationTest {
 
     @Test
     void registersControllerInServletApplicationWhenEnabled() {
-        runner.withPropertyValues("vietnam.zalo-oa.webhook.enabled=true")
+        runner.withPropertyValues("vietnam.zalo-oa.webhook.enabled=true",
+                        "vietnam.zalo-oa.oa-secret-key=oa-secret")
                 .run(ctx -> assertThat(ctx).hasSingleBean(ZaloWebhookController.class));
+    }
+
+    @Test
+    void failsFastWhenWebhookSecretIsMissing() {
+        runner.withPropertyValues("vietnam.zalo-oa.webhook.enabled=true")
+                .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
+                        .hasMessageContaining("vietnam.zalo-oa.oa-secret-key"));
     }
 
     @Test

@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
+import java.time.Clock;
 
 class ZaloOaAutoConfigurationTest {
 
@@ -38,18 +39,19 @@ class ZaloOaAutoConfigurationTest {
 
     @Test
     void registersInMemoryStoreByDefault() {
-        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret")
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa")
                 .run(ctx -> {
                     assertThat(ctx).getBean(ZaloTokenStore.class).isInstanceOf(InMemoryZaloTokenStore.class);
                     assertThat(ctx).doesNotHaveBean(ZaloWebhookVerifier.class);
-                    assertThat(ctx).doesNotHaveBean(ZaloTokenManager.class);
+                    assertThat(ctx).hasSingleBean(ZaloTokenManager.class);
                 });
     }
 
     @Test
     void registersWebhookVerifierWhenOaSecretKeySet() {
         runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=app-secret",
-                        "vietnam.zalo-oa.oa-secret-key=secret")
+                        "vietnam.zalo-oa.oa-id=oa", "vietnam.zalo-oa.oa-secret-key=secret")
                 .run(ctx -> assertThat(ctx).hasSingleBean(ZaloWebhookVerifier.class));
     }
 
@@ -78,6 +80,7 @@ class ZaloOaAutoConfigurationTest {
     @Test
     void failsFastWhenJdbcStoreRequested() {
         runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa",
                         "vietnam.zalo-oa.token-store=jdbc")
                 .run(ctx -> assertThat(ctx).hasFailed().getFailure()
                         .rootCause().isInstanceOf(ZaloException.class).hasMessageContaining("token-store=jdbc"));
@@ -87,6 +90,7 @@ class ZaloOaAutoConfigurationTest {
     void userTokenStoreWinsEvenWithJdbcSetting() {
         ZaloTokenStore custom = new InMemoryZaloTokenStore();
         runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa",
                         "vietnam.zalo-oa.token-store=jdbc")
                 .withBean(ZaloTokenStore.class, () -> custom)
                 .run(ctx -> assertThat(ctx.getBean(ZaloTokenStore.class)).isSameAs(custom));
@@ -99,6 +103,7 @@ class ZaloOaAutoConfigurationTest {
                     throw new UnsupportedOperationException("not used during auto-configuration");
                 });
         runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa",
                         "vietnam.zalo-oa.token-store=jdbc")
                 .withBean(DataSource.class, () -> unused)
                 .run(ctx -> assertThat(ctx).getBean(ZaloTokenStore.class).isInstanceOf(JdbcZaloTokenStore.class));
@@ -106,9 +111,57 @@ class ZaloOaAutoConfigurationTest {
 
     @Test
     void failsFastWhenSecretKeyMissing() {
-        runner.withPropertyValues("vietnam.zalo-oa.app-id=app")
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.oa-id=oa")
                 .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
                         .isInstanceOf(ZaloException.class).hasMessageContaining("secret-key"));
+    }
+
+    @Test
+    void failsFastWhenAppIdIsBlank() {
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=", "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa")
+                .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
+                        .isInstanceOf(ZaloException.class).hasMessageContaining("vietnam.zalo-oa.app-id"));
+    }
+
+    @Test
+    void failsFastWhenOaIdMissing() {
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret")
+                .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
+                        .isInstanceOf(ZaloException.class).hasMessageContaining("vietnam.zalo-oa.oa-id"));
+    }
+
+    @Test
+    void userTokenManagerDoesNotRequireOaId() {
+        ZaloTokenManager custom = new ZaloTokenManager("custom-oa", new InMemoryZaloTokenStore(),
+                new StubOAuthClient(), Clock.systemUTC());
+
+        runner.withPropertyValues("vietnam.zalo-oa.app-id=app", "vietnam.zalo-oa.secret-key=secret")
+                .withBean(ZaloTokenManager.class, () -> custom)
+                .run(ctx -> {
+                    assertThat(ctx.getBean(ZaloTokenManager.class)).isSameAs(custom);
+                    assertThat(ctx).hasSingleBean(ZaloOaClient.class);
+                    assertThat(ctx).hasSingleBean(ZaloZbsClient.class);
+                });
+    }
+
+    @Test
+    void nonWebApplicationSkipsWebhookControllerAndRegistersOtherBeans() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        ZaloOaAutoConfiguration.class, ZaloWebhookAutoConfiguration.class))
+                .withPropertyValues(
+                        "vietnam.zalo-oa.app-id=app",
+                        "vietnam.zalo-oa.secret-key=secret",
+                        "vietnam.zalo-oa.oa-id=oa",
+                        "vietnam.zalo-oa.oa-secret-key=oa-secret",
+                        "vietnam.zalo-oa.webhook.enabled=true")
+                .run(ctx -> {
+                    assertThat(ctx).doesNotHaveBean(ZaloWebhookController.class);
+                    assertThat(ctx).hasSingleBean(ZaloTokenManager.class);
+                    assertThat(ctx).hasSingleBean(ZaloOaClient.class);
+                    assertThat(ctx).hasSingleBean(ZaloZbsClient.class);
+                });
     }
 
     private static final class StubOAuthClient implements ZaloOAuthClient {

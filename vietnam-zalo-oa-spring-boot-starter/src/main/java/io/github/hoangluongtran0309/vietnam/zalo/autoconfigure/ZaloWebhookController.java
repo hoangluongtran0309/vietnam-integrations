@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
+
 @RestController
 public class ZaloWebhookController {
 
@@ -24,10 +26,14 @@ public class ZaloWebhookController {
         this.publisher = publisher;
     }
 
-    @PostMapping(path = "${vietnam.zalo-oa.webhook.path:/webhooks/zalo}", consumes = "application/json")
+    // TODO(v0.2): verify Content-Type thực tế Zalo gửi — capture ở WP-2D.1.
+    @PostMapping(path = "${vietnam.zalo-oa.webhook.path:/webhooks/zalo}")
     public ResponseEntity<Void> receive(
-            @RequestBody String rawBody,
+            @RequestBody byte[] rawBody,
             @RequestHeader(name = "X-ZEvent-Signature", required = false) String signature) {
+        if (signature == null) {
+            return ResponseEntity.status(401).build();
+        }
         final boolean valid;
         try {
             valid = verifier.verify(rawBody, signature);
@@ -39,11 +45,15 @@ public class ZaloWebhookController {
         }
         final ZaloWebhookEvent event;
         try {
-            event = parser.parse(rawBody);
+            event = parser.parse(new String(rawBody, StandardCharsets.UTF_8));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
-        publisher.publishEvent(event);
+        try {
+            publisher.publishEvent(event);
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().build();
+        }
         return ResponseEntity.ok().build();
     }
 }

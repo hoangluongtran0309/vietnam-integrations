@@ -1,8 +1,8 @@
 # Vietnam Integrations
 
-**Vietnam Integrations for Java & Spring Boot** — thư viện tích hợp với các hệ thống mà dev Việt Nam cần hằng ngày: **VietQR**, **Zalo OA / ZNS**, **hóa đơn điện tử**. Dùng được với Spring Boot (auto-configuration) hoặc Java thuần.
+**Vietnam Integrations for Java & Spring Boot** — thư viện tích hợp với các hệ thống mà dev Việt Nam cần hằng ngày: **VietQR**, **Zalo OA / ZBS**, **hóa đơn điện tử**. Dùng được với Spring Boot (auto-configuration) hoặc Java thuần.
 
-*Integrations with Vietnamese platforms for Java and Spring Boot: VietQR payment QR codes, Zalo Official Account / ZNS messaging, and e-invoices.*
+*Integrations with Vietnamese platforms for Java and Spring Boot: VietQR payment QR codes, Zalo Official Account / ZBS messaging, and e-invoices.*
 
 [![CI](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-0.1.0-brightgreen)
@@ -13,10 +13,12 @@
 | Module | Trạng thái | Phiên bản mục tiêu |
 |---|---|---|
 | `vietnam-vietqr-spring-boot-starter` | 🟢 Phát hành 0.1.0 | 0.1.0 |
-| `vietnam-zalo-oa-spring-boot-starter` | 🔴 Khung (interfaces, token manager) | 0.2.0 |
+| `vietnam-zalo-oa-spring-boot-starter` | 🟡 Code hoàn tất, chờ nghiệm thu API thật | 0.2.0 |
 | `vietnam-einvoice-spring-boot-starter` | 🔴 Khung (domain model, SPI) | 0.3.0 |
 
 Xem kế hoạch chi tiết tại [docs/ROADMAP.md](docs/ROADMAP.md).
+
+Tài liệu Zalo OA/ZBS: [docs/zalo/README.md](docs/zalo/README.md).
 
 ## Yêu cầu
 

@@ -125,8 +125,9 @@ ZaloMessageResult result = zaloZbsClient.sendTemplateByPhone(
 
 ## 5. Webhook
 
-Khi bật webhook, starter kiểm `X-ZEvent-Signature` trên **raw JSON body**, parse event và publish record core trực
-tiếp qua Spring event bus:
+Khi bật webhook, starter kiểm `X-ZEvent-Signature` trên **raw JSON body** được decode UTF-8 nghiêm ngặt, parse
+event và publish record core trực tiếp qua Spring event bus. Endpoint không giới hạn `Content-Type`; request có body
+không phải JSON UTF-8 hợp lệ vẫn bị từ chối.
 
 ```java
 @EventListener
@@ -136,8 +137,12 @@ void onUserText(UserTextMessageEvent event) {
 ```
 
 Các event typed trong 0.2.0: user text, follow, unfollow, delivered và seen. Event mới/chưa hỗ trợ trở thành
-`UnknownZaloWebhookEvent` và vẫn trả HTTP 200. Signature sai trả 401; body lỗi trả 400; exception từ listener lan ra
-thành 5xx để Zalo retry.
+`UnknownZaloWebhookEvent` và vẫn trả HTTP 200. Thiếu/sai signature trả 401; body lỗi trả 400; exception từ
+listener được controller bắt và trả 500 để Zalo retry. Response lỗi có body rỗng, không chứa payload hay
+chi tiết exception.
+
+Starter chưa chống replay: cùng một payload hợp lệ gửi lại vẫn được chấp nhận. Listener phải idempotent
+theo `msg_id`, hoặc theo tổ hợp `event_name` + `timestamp` + sender đối với event không có `msg_id`.
 
 ## 6. Chạy demo và nghiệm thu thật
 

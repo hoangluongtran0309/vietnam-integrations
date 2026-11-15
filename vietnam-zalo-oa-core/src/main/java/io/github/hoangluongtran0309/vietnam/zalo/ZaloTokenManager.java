@@ -2,7 +2,6 @@ package io.github.hoangluongtran0309.vietnam.zalo;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Returns a valid access token, refreshing at most once concurrently (single-flight within this JVM).
@@ -15,7 +14,6 @@ public class ZaloTokenManager {
     private final ZaloTokenStore store;
     private final ZaloOAuthClient oauthClient;
     private final Clock clock;
-    private final ReentrantLock lock = new ReentrantLock();
 
     public ZaloTokenManager(String oaId, ZaloTokenStore store, ZaloOAuthClient oauthClient, Clock clock) {
         this.oaId = oaId;
@@ -29,19 +27,12 @@ public class ZaloTokenManager {
         if (!current.isAccessTokenExpired(clock.instant(), SKEW)) {
             return current.accessToken();
         }
-        lock.lock();
-        try {
-            // Re-check: another thread may have refreshed while we waited.
-            current = loadOrFail();
-            if (!current.isAccessTokenExpired(clock.instant(), SKEW)) {
-                return current.accessToken();
+        return store.updateAtomically(oaId, locked -> {
+            if (!locked.isAccessTokenExpired(clock.instant(), SKEW)) {
+                return locked;
             }
-            ZaloToken refreshed = oauthClient.refresh(current.refreshToken());
-            store.save(oaId, refreshed);
-            return refreshed.accessToken();
-        } finally {
-            lock.unlock();
-        }
+            return oauthClient.refresh(locked.refreshToken());
+        }).accessToken();
     }
 
     private ZaloToken loadOrFail() {

@@ -8,7 +8,7 @@
        otherwise importing this BOM would also import the whole Spring Boot BOM. See docs/adr/0003. -->
   <groupId>io.github.hoangluongtran0309</groupId>
   <artifactId>vietnam-bom</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Vietnam Integrations BOM</name>

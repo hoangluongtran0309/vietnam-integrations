@@ -8,6 +8,7 @@ public sealed interface ZaloWebhookEvent permits UserTextMessageEvent, FollowEve
 
     String eventName();
     String appId();
+    String oaId();
     String senderId();
     String recipientId();
     Instant occurredAt();

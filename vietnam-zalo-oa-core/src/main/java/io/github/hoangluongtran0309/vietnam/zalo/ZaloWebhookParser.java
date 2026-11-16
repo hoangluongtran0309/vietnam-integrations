@@ -11,6 +11,11 @@ import java.time.Instant;
 public final class ZaloWebhookParser {
 
     public ZaloWebhookEvent parse(String rawBody) {
+        return parse(rawBody, null);
+    }
+
+    /** Parses an event and attaches the Official Account selected by the webhook router. */
+    public ZaloWebhookEvent parse(String rawBody, String routedOaId) {
         try {
             JsonElement parsed = JsonParser.parseString(rawBody);
             if (!parsed.isJsonObject()) {
@@ -21,35 +26,50 @@ public final class ZaloWebhookParser {
             String appId = required(root, "app_id");
             String sender = nested(root, "sender", "id");
             String recipient = nested(root, "recipient", "id");
+            String oaId = routedOaId != null ? requireNotBlank(routedOaId, "oaId")
+                    : payloadOaId(root, sender, recipient);
             Instant occurredAt = epoch(required(root, "timestamp"), "timestamp");
             return switch (eventName) {
                 case "user_send_text" -> {
                     JsonObject message = object(root, "message");
-                    yield new UserTextMessageEvent(appId, sender, recipient, occurredAt,
+                    yield new UserTextMessageEvent(appId, oaId, sender, recipient, occurredAt,
                             required(message, "msg_id"), required(message, "text"));
                 }
-                case "follow" -> new FollowEvent(appId, sender != null ? sender : nested(root, "follower", "id"),
+                case "follow" -> new FollowEvent(appId, oaId,
+                        sender != null ? sender : nested(root, "follower", "id"),
                         recipient, occurredAt);
-                case "unfollow" -> new UnfollowEvent(appId,
+                case "unfollow" -> new UnfollowEvent(appId, oaId,
                         sender != null ? sender : nested(root, "follower", "id"), recipient, occurredAt);
                 case "user_received_message" -> {
                     JsonObject message = object(root, "message");
                     String delivered = optional(message, "delivery_time");
-                    yield new MessageDeliveredEvent(appId, sender, recipient, occurredAt,
+                    yield new MessageDeliveredEvent(appId, oaId, sender, recipient, occurredAt,
                             required(message, "msg_id"), optional(message, "tracking_id"),
                             delivered == null ? occurredAt : epoch(delivered, "delivery_time"));
                 }
                 case "user_seen_message" -> {
                     JsonObject message = object(root, "message");
                     String seen = optional(message, "seen_time");
-                    yield new MessageSeenEvent(appId, sender, recipient, occurredAt,
+                    yield new MessageSeenEvent(appId, oaId, sender, recipient, occurredAt,
                             required(message, "msg_id"), seen == null ? occurredAt : epoch(seen, "seen_time"));
                 }
-                default -> new UnknownZaloWebhookEvent(eventName, appId, sender, recipient, occurredAt, rawBody);
+                default -> new UnknownZaloWebhookEvent(
+                        eventName, appId, oaId, sender, recipient, occurredAt, rawBody);
             };
         } catch (JsonParseException | IllegalStateException | UnsupportedOperationException e) {
             throw new IllegalArgumentException("Webhook body is not valid JSON", e);
         }
+    }
+
+    private static String payloadOaId(JsonObject root, String sender, String recipient) {
+        String explicit = optional(root, "oa_id");
+        if (explicit != null && !explicit.isBlank()) {
+            return explicit;
+        }
+        if (recipient != null && !recipient.isBlank()) {
+            return recipient;
+        }
+        return requireNotBlank(sender, "oaId");
     }
 
     private static JsonObject object(JsonObject root, String name) {
@@ -67,6 +87,13 @@ public final class ZaloWebhookParser {
 
     private static String required(JsonObject object, String name) {
         String value = optional(object, name);
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Webhook body is missing " + name);
+        }
+        return value;
+    }
+
+    private static String requireNotBlank(String value, String name) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Webhook body is missing " + name);
         }

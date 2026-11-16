@@ -21,6 +21,12 @@ public final class ZaloWebhookRouter {
 
     public ZaloWebhookRouter(ZaloOaRegistry registry) {
         this.registry = Objects.requireNonNull(registry, "registry");
+        for (ZaloOa account : registry.accounts()) {
+            if (registry.accountConfig(account.alias()).oaSecretKey() == null) {
+                throw new IllegalArgumentException("Webhook secret is required for Zalo account alias '"
+                        + account.alias() + "'");
+            }
+        }
         this.parser = new ZaloWebhookParser();
     }
 

@@ -1,7 +1,6 @@
 package io.github.hoangluongtran0309.vietnam.zalo.autoconfigure;
 
-import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookParser;
-import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookVerifier;
+import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookRouter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,8 +20,7 @@ public class ZaloWebhookAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     ZaloWebhookController zaloWebhookController(
-            ZaloOaAutoConfiguration.ZaloConfigurationValidator validator,
-            ZaloWebhookVerifier verifier, ZaloWebhookParser parser, ApplicationEventPublisher publisher) {
-        return new ZaloWebhookController(verifier, parser, publisher);
+            ZaloWebhookRouter router, ApplicationEventPublisher publisher) {
+        return new ZaloWebhookController(router, publisher);
     }
 }

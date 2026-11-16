@@ -1,9 +1,11 @@
 package io.github.hoangluongtran0309.vietnam.zalo.autoconfigure;
 
-import io.github.hoangluongtran0309.vietnam.zalo.UserTextMessageEvent;
+import io.github.hoangluongtran0309.vietnam.zalo.InMemoryZaloTokenStore;
 import io.github.hoangluongtran0309.vietnam.zalo.UnknownZaloWebhookEvent;
-import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookParser;
-import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookVerifier;
+import io.github.hoangluongtran0309.vietnam.zalo.UserTextMessageEvent;
+import io.github.hoangluongtran0309.vietnam.zalo.ZaloAccountConfig;
+import io.github.hoangluongtran0309.vietnam.zalo.ZaloOaRegistry;
+import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookRouter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
@@ -18,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,18 +39,24 @@ class ZaloWebhookAutoConfigurationTest {
 
     @Test
     void webhookIsOptIn() {
-        runner.run(ctx -> assertThat(ctx).doesNotHaveBean(ZaloWebhookController.class));
+        runner.run(ctx -> {
+            assertThat(ctx).doesNotHaveBean(ZaloWebhookRouter.class);
+            assertThat(ctx).doesNotHaveBean(ZaloWebhookController.class);
+        });
     }
 
     @Test
-    void registersControllerInServletApplicationWhenEnabled() {
+    void registersRouterAndControllerInServletApplicationWhenEnabled() {
         runner.withPropertyValues("vietnam.zalo-oa.webhook.enabled=true",
                         "vietnam.zalo-oa.oa-secret-key=oa-secret")
-                .run(ctx -> assertThat(ctx).hasSingleBean(ZaloWebhookController.class));
+                .run(ctx -> {
+                    assertThat(ctx).hasSingleBean(ZaloWebhookRouter.class);
+                    assertThat(ctx).hasSingleBean(ZaloWebhookController.class);
+                });
     }
 
     @Test
-    void failsFastWhenWebhookSecretIsMissing() {
+    void failsFastWhenLegacyWebhookSecretIsMissing() {
         runner.withPropertyValues("vietnam.zalo-oa.webhook.enabled=true")
                 .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
                         .hasMessageContaining("vietnam.zalo-oa.oa-secret-key")
@@ -55,27 +64,68 @@ class ZaloWebhookAutoConfigurationTest {
     }
 
     @Test
-    void controllerVerifiesRawBodyAndPublishesTypedEvent() throws Exception {
-        String body = userTextBody();
+    void failsFastAndNamesMapAliasWithMissingWebhookSecret() {
+        runner.withPropertyValues(
+                        "vietnam.zalo-oa.app-id=app",
+                        "vietnam.zalo-oa.secret-key=app-secret",
+                        "vietnam.zalo-oa.oa-id=",
+                        "vietnam.zalo-oa.accounts.cskh.oa-id=oa-cskh",
+                        "vietnam.zalo-oa.accounts.cskh.oa-secret-key=cskh-secret",
+                        "vietnam.zalo-oa.accounts.marketing.oa-id=oa-marketing",
+                        "vietnam.zalo-oa.webhook.enabled=true")
+                .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
+                        .hasMessageContaining("vietnam.zalo-oa.accounts.marketing.oa-secret-key")
+                        .hasMessageNotContaining("app-secret")
+                        .hasMessageNotContaining("cskh-secret"));
+    }
+
+    @Test
+    void customRegistryWithoutEveryWebhookSecretFailsFastWithAlias() {
+        ZaloOaRegistry custom = ZaloOaRegistry.builder(List.of(
+                        new ZaloAccountConfig("without-secret", "app", "secret", "oa", null)),
+                new InMemoryZaloTokenStore()).build();
+
+        runner.withBean(ZaloOaRegistry.class, () -> custom)
+                .withPropertyValues("vietnam.zalo-oa.app-id=", "vietnam.zalo-oa.secret-key=",
+                        "vietnam.zalo-oa.oa-id=", "vietnam.zalo-oa.webhook.enabled=true")
+                .run(ctx -> assertThat(ctx).hasFailed().getFailure().rootCause()
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("without-secret"));
+    }
+
+    @Test
+    void controllerRoutesSecondAccountAndPublishesTypedEvent() throws Exception {
+        String body = userTextBody("oa-2");
         AtomicReference<Object> published = new AtomicReference<>();
         MockMvc mockMvc = mockMvc(published::set);
 
-        mockMvc.perform(signedRequest(body).contentType("application/json;charset=UTF-8"))
+        mockMvc.perform(signedRequest(body, "oa-secret-2").contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(emptyBody());
 
         assertThat(published.get()).isInstanceOf(UserTextMessageEvent.class);
+        assertThat(((UserTextMessageEvent) published.get()).oaId()).isEqualTo("oa-2");
+    }
+
+    @Test
+    void controllerRejectsSignatureFromAnotherAccount() throws Exception {
+        String body = userTextBody("oa-2");
+        MockMvc mockMvc = mockMvc(event -> { });
+
+        mockMvc.perform(signedRequest(body, "oa-secret-1"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(emptyBody());
     }
 
     @Test
     void controllerAcceptsUnknownEventWithAnyOrMissingContentType() throws Exception {
-        String body = eventBody("future_event", "1000");
+        String body = eventBody("future_event", "1000", "oa-2");
         AtomicReference<Object> published = new AtomicReference<>();
         MockMvc mockMvc = mockMvc(published::set);
 
-        mockMvc.perform(signedRequest(body).contentType("application/octet-stream"))
+        mockMvc.perform(signedRequest(body, "oa-secret-2").contentType("application/octet-stream"))
                 .andExpect(status().isOk());
-        mockMvc.perform(signedRequest(body))
+        mockMvc.perform(signedRequest(body, "oa-secret-2"))
                 .andExpect(status().isOk());
 
         assertThat(published.get()).isInstanceOf(UnknownZaloWebhookEvent.class);
@@ -83,7 +133,7 @@ class ZaloWebhookAutoConfigurationTest {
 
     @Test
     void controllerReturnsEmpty401ForMissingOrInvalidSignature() throws Exception {
-        String body = userTextBody();
+        String body = userTextBody("oa-2");
         MockMvc mockMvc = mockMvc(event -> { });
 
         mockMvc.perform(post(WEBHOOK_PATH).content(body))
@@ -97,7 +147,7 @@ class ZaloWebhookAutoConfigurationTest {
     @Test
     void controllerReturnsEmpty400ForMalformedJsonOrTimestamp() throws Exception {
         MockMvc mockMvc = mockMvc(event -> { });
-        String nonNumericTimestamp = eventBody("follow", "not-a-number");
+        String nonNumericTimestamp = eventBody("follow", "not-a-number", "oa-2");
 
         mockMvc.perform(post(WEBHOOK_PATH).content("sensitive-not-json")
                         .header("X-ZEvent-Signature", "mac=bad"))
@@ -107,7 +157,7 @@ class ZaloWebhookAutoConfigurationTest {
                         .header("X-ZEvent-Signature", "mac=bad"))
                 .andExpect(status().isBadRequest())
                 .andExpect(emptyBody());
-        mockMvc.perform(signedRequest(nonNumericTimestamp, "not-a-number"))
+        mockMvc.perform(signedRequest(nonNumericTimestamp, "oa-secret-2", "not-a-number"))
                 .andExpect(status().isBadRequest())
                 .andExpect(emptyBody());
     }
@@ -124,24 +174,20 @@ class ZaloWebhookAutoConfigurationTest {
 
     @Test
     void controllerCatchesListenerFailureAndReturnsEmpty500() throws Exception {
-        String body = userTextBody();
+        String body = userTextBody("oa-2");
         MockMvc mockMvc = mockMvc(event -> {
             throw new IllegalStateException("listener failed with sensitive details");
         });
 
-        mockMvc.perform(signedRequest(body))
+        mockMvc.perform(signedRequest(body, "oa-secret-2"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(emptyBody());
     }
 
-    private static String signature(String body) {
-        return signature(body, "1000");
-    }
-
-    private static String signature(String body, String timestamp) {
+    private static String signature(String body, String secret, String timestamp) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256")
-                    .digest(("app" + body + timestamp + "oa-secret").getBytes(StandardCharsets.UTF_8));
+                    .digest(("app" + body + timestamp + secret).getBytes(StandardCharsets.UTF_8));
             return "mac=" + HexFormat.of().formatHex(digest);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
@@ -149,8 +195,11 @@ class ZaloWebhookAutoConfigurationTest {
     }
 
     private static MockMvc mockMvc(ApplicationEventPublisher publisher) {
-        ZaloWebhookController controller = new ZaloWebhookController(new ZaloWebhookVerifier("app", "oa-secret"),
-                new ZaloWebhookParser(), publisher);
+        ZaloOaRegistry registry = ZaloOaRegistry.builder(List.of(
+                        new ZaloAccountConfig("first", "app", "app-secret", "oa-1", "oa-secret-1"),
+                        new ZaloAccountConfig("second", "app", "app-secret", "oa-2", "oa-secret-2")),
+                new InMemoryZaloTokenStore()).build();
+        ZaloWebhookController controller = new ZaloWebhookController(new ZaloWebhookRouter(registry), publisher);
         return MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -158,23 +207,24 @@ class ZaloWebhookAutoConfigurationTest {
         return result -> assertThat(result.getResponse().getContentAsByteArray()).isEmpty();
     }
 
-    private static MockHttpServletRequestBuilder signedRequest(String body) {
-        return signedRequest(body, "1000");
+    private static MockHttpServletRequestBuilder signedRequest(String body, String secret) {
+        return signedRequest(body, secret, "1000");
     }
 
-    private static MockHttpServletRequestBuilder signedRequest(String body, String timestamp) {
-        return post(WEBHOOK_PATH).content(body).header("X-ZEvent-Signature", signature(body, timestamp));
+    private static MockHttpServletRequestBuilder signedRequest(String body, String secret, String timestamp) {
+        return post(WEBHOOK_PATH).content(body)
+                .header("X-ZEvent-Signature", signature(body, secret, timestamp));
     }
 
-    private static String userTextBody() {
-        return """
-                {"app_id":"app","sender":{"id":"user"},"recipient":{"id":"oa"},
-                 "event_name":"user_send_text","message":{"msg_id":"m1","text":"Xin chào 👋"},"timestamp":"1000"}
-                """.strip();
+    private static String userTextBody(String oaId) {
+        return "{\"app_id\":\"app\",\"oa_id\":\"" + oaId + "\",\"sender\":{\"id\":\"user\"},"
+                + "\"recipient\":{\"id\":\"" + oaId + "\"},\"event_name\":\"user_send_text\","
+                + "\"message\":{\"msg_id\":\"m1\",\"text\":\"Xin chào 👋\"},\"timestamp\":\"1000\"}";
     }
 
-    private static String eventBody(String eventName, String timestamp) {
-        return "{\"app_id\":\"app\",\"sender\":{\"id\":\"user\"},\"recipient\":{\"id\":\"oa\"},"
-                + "\"event_name\":\"" + eventName + "\",\"timestamp\":\"" + timestamp + "\"}";
+    private static String eventBody(String eventName, String timestamp, String oaId) {
+        return "{\"app_id\":\"app\",\"oa_id\":\"" + oaId + "\",\"sender\":{\"id\":\"user\"},"
+                + "\"recipient\":{\"id\":\"" + oaId + "\"},\"event_name\":\"" + eventName
+                + "\",\"timestamp\":\"" + timestamp + "\"}";
     }
 }

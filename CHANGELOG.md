@@ -18,6 +18,8 @@
 - Demo OAuth callback, gửi OA/ZBS, webhook monitor; tài liệu tích hợp tại `docs/zalo/`.
 
 ### Changed
+- Breaking: mọi `ZaloWebhookEvent` thêm `oaId`; `ZaloWebhookRouter` định tuyến payload tới đúng Official Account
+  trước khi kiểm chữ ký bằng webhook secret tương ứng.
 - Breaking: `ZaloTokenStore` thêm `updateAtomically`; `ZaloTokenManager` dùng store-level atomic refresh thay cho
   lock chỉ trong JVM.
 - Breaking: `ZaloOaClient.sendText/sendZns` được thay bằng request/result records và tách ZBS thành

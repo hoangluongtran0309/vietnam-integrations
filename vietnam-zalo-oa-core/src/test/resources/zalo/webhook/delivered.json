@@ -1,0 +1,1 @@
+{"app_id":"app","sender":{"id":"oa-2"},"recipient":{"id":"user-2"},"event_name":"user_received_message","message":{"msg_id":"msg-2","tracking_id":"track-2","delivery_time":"1001"},"timestamp":"1000"}

@@ -24,7 +24,7 @@ class ZaloWebhookTest {
         String signature = signature(body, "154390853474");
 
         assertThat(verifier.verify(body, signature)).isTrue();
-        assertThat(parser.parse(body)).isEqualTo(new UserTextMessageEvent(APP, "user-1", "oa-1",
+        assertThat(parser.parse(body)).isEqualTo(new UserTextMessageEvent(APP, "oa-1", "user-1", "oa-1",
                 java.time.Instant.ofEpochMilli(154390853474L), "msg-1", "message"));
         assertThat(verifier.verify(body.replace("message", "tampered"), signature)).isFalse();
     }
@@ -74,7 +74,7 @@ class ZaloWebhookTest {
                 .isInstanceOf(MessageSeenEvent.class);
         String unknown = event("new_event", ",\"extra\":true");
         assertThat(parser.parse(unknown)).isEqualTo(new UnknownZaloWebhookEvent(
-                "new_event", APP, "user", "oa", java.time.Instant.ofEpochMilli(1000), unknown));
+                "new_event", APP, "oa", "user", "oa", java.time.Instant.ofEpochMilli(1000), unknown));
     }
 
     @Test

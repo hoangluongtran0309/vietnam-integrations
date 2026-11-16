@@ -1,0 +1,1 @@
+{"app_id":"app","oa_id":"oa-2","sender":{"id":"user-2"},"recipient":{"id":"oa-1"},"event_name":"user_send_text","message":{"text":"Xin chào","msg_id":"msg-1"},"timestamp":"1000"}

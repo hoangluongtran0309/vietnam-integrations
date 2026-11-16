@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "vietnam.zalo-oa.accounts.*.oa-id",
+      "type": "java.lang.String",
+      "description": "Official Account id for the named account."
+    },
+    {
+      "name": "vietnam.zalo-oa.accounts.*.oa-secret-key",
+      "type": "java.lang.String",
+      "description": "OA secret key used to verify webhook signatures for the named account."
+    },
+    {
+      "name": "vietnam.zalo-oa.accounts.*.app-id",
+      "type": "java.lang.String",
+      "description": "Optional application id overriding vietnam.zalo-oa.app-id for the named account."
+    },
+    {
+      "name": "vietnam.zalo-oa.accounts.*.secret-key",
+      "type": "java.lang.String",
+      "description": "Optional application secret overriding vietnam.zalo-oa.secret-key for the named account."
+    }
+  ]
+}

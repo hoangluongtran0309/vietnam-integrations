@@ -11,6 +11,8 @@
   soát qua `PayableLookup` do ứng dụng cung cấp; core không lưu trạng thái hay tự chống xử lý trùng.
 - `ZaloOaRegistry`, `ZaloOa` và `ZaloAccountConfig` để quản lý nhiều Official Account theo alias hoặc `oaId`, dùng
   chung OAuth client cho các account thuộc cùng một Zalo App.
+- Zalo starter hỗ trợ map `vietnam.zalo-oa.accounts`, `default-account`, registry và webhook router nhiều OA, đồng
+  thời giữ cấu hình một OA cấp gốc cùng các bean client tiện ích tương thích.
 - Zalo OA OAuth v4: `HttpZaloOAuthClient`, PKCE S256 helper và error model không giữ credential/raw response.
 - Zalo OA messaging v3 qua `ZaloOaClient.sendConsultationText`; ZBS Template Message qua SĐT bằng
   `ZaloZbsClient.sendTemplateByPhone`.

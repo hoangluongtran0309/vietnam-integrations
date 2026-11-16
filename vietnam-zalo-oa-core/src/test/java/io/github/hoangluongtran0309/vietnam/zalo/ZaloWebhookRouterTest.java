@@ -98,6 +98,17 @@ class ZaloWebhookRouterTest {
                 .hasMessageContaining("timestamp");
     }
 
+    @Test
+    void rejectsRegistryAccountWithoutWebhookSecretAtConstructionTime() {
+        ZaloOaRegistry registry = ZaloOaRegistry.builder(List.of(
+                        new ZaloAccountConfig("missing-secret", APP, "app-secret", "oa", null)),
+                new InMemoryZaloTokenStore()).build();
+
+        assertThatThrownBy(() -> new ZaloWebhookRouter(registry))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("missing-secret");
+    }
+
     private static ZaloOaRegistry registry() {
         return ZaloOaRegistry.builder(List.of(
                         new ZaloAccountConfig("first", APP, "app-secret", "oa-1", OA_1_SECRET),

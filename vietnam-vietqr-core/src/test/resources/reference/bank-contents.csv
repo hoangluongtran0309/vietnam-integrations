@@ -1,0 +1,15 @@
+# All rows in this file are synthetic test data, not captured bank content.
+content,expected
+"Thanh toán đơn hàng DH123455",DH123455
+"  DH123455   ",DH123455
+"MBVCB.1234.DH123455.CT tu 0123",DH123455
+"THANHTOANDH123455CAMON",DH123455
+"dh123455",DH123455
+"Chuyển tiền: DH123455; cảm ơn",DH123455
+"DH123455 va DH67890L",DH123455|DH67890L
+"DH123455 lap lai DH123455",DH123455
+"DH123456",<none>
+"DHL EXPRESS",<none>
+"PREFIXDH123455SUFFIX",DH123455
+"Khong co ma tham chieu",<none>
+"DHABC1237",DHABC1237

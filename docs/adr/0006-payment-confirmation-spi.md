@@ -45,8 +45,9 @@ Dự kiến cho 0.4 (sẽ chốt bằng ADR riêng):
 
 - **Chỉ dùng `ApplicationEvent` của Spring**: tiện cho người dùng Spring nhưng buộc core phụ thuộc Spring; vẫn có thể
   thêm ở starter như một lớp bọc.
-- **Thư viện tự khớp giao dịch với đơn hàng** (`PaymentMatcher`): mô hình đơn hàng là của ứng dụng; cách khớp
-  (theo mã đơn, số tiền, thời gian) quá khác nhau giữa các hệ thống. Docs đưa ví dụ thay vì API.
+- **Thư viện tự sở hữu mô hình và trạng thái đơn hàng** (`PaymentMatcher`): mô hình đơn hàng là của ứng dụng; cách
+  lưu trạng thái quá khác nhau giữa các hệ thống. [ADR-0009](0009-payment-reference-and-reconciliation.md) bổ sung mã
+  tham chiếu và chính sách đối soát thuần, trong đó ứng dụng vẫn sở hữu dữ liệu và cung cấp lookup.
 - **Interface kéo dữ liệu (polling)** cho nhà cung cấp chỉ có API tra cứu: để sau, nếu adapter nào cần.
 
 ## Hệ quả

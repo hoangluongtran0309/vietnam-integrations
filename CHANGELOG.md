@@ -5,6 +5,8 @@
 ## [Unreleased]
 
 ### Added
+- VietQR: `PaymentReferenceFormat` sinh, kiểm tra và trích mã tham chiếu có ký tự kiểm tra Luhn mod N từ nội dung
+  chuyển khoản do ngân hàng ghi nhận.
 - `ZaloOaRegistry`, `ZaloOa` và `ZaloAccountConfig` để quản lý nhiều Official Account theo alias hoặc `oaId`, dùng
   chung OAuth client cho các account thuộc cùng một Zalo App.
 - Zalo OA OAuth v4: `HttpZaloOAuthClient`, PKCE S256 helper và error model không giữ credential/raw response.

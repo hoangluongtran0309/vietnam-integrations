@@ -3,6 +3,8 @@ vietnam:
     # Replace with your own account to test with a real banking app
     bank-bin: "970436"
     account-number: "0123456789"
+    reference:
+      prefix: "DH"
   zalo-oa:
     enabled: ${ZALO_ENABLED:false}
     # Single-OA configuration remains the simplest way to run the demo.

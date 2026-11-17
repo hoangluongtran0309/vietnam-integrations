@@ -8,6 +8,7 @@ và Spring Boot. Payload được sinh **offline**: không cần đăng ký, kh�
 | **Trang này** | Cài đặt, bắt đầu nhanh, cấu hình, sinh/đọc payload, cấu trúc payload, nội dung chuyển khoản, lỗi, FAQ |
 | [Danh sách ngân hàng (BIN)](banks.md) | 65 thành viên NAPAS trong `VietQrBank`, nguồn dữ liệu, cách cập nhật |
 | [Render ảnh QR](rendering.md) | PNG, màu, logo, `QrImageOptions` |
+| [Mã tham chiếu và đối soát](reconciliation.md) | Sinh/trích mã, phân loại giao dịch và chống xử lý trùng |
 | [Xác nhận thanh toán](payment-confirmation.md) | SPI `PaymentConfirmationListener` (interface; adapter ở 0.4) |
 | [Test vector thật](test-vectors.md) | Thu thập payload từ app ngân hàng để kiểm thử decoder |
 | [Kiểm tra thủ công](manual-verification.md) | Quét QR bằng app ngân hàng thật, đo giới hạn nội dung |
@@ -118,9 +119,11 @@ Prefix `vietnam.vietqr`:
 | `bank-bin` | — | BIN 6 chữ số của ngân hàng nhận mặc định |
 | `account-number` | — | Số tài khoản nhận mặc định |
 | `service-code` | `TO_ACCOUNT` | `TO_ACCOUNT` (chuyển tới số tài khoản) hoặc `TO_CARD` (tới số thẻ) |
+| `reference.prefix` | — | Tùy chọn; 2–6 chữ cái ASCII hoa để sinh và trích mã tham chiếu |
 
-`bank-bin` và `account-number` chỉ cần khi dùng `VietQrGenerator.forAmount(...)` / `staticQr()`. Thiếu thì app vẫn khởi
-động, nhưng gọi hai method đó sẽ báo `VietQrException`.
+`bank-bin` và `account-number` chỉ cần khi dùng `VietQrGenerator.forAmount(...)`, `forReference(...)` hoặc
+`staticQr()`. Thiếu thì app vẫn khởi động, nhưng gọi các method đó sẽ báo `VietQrException`.
+`reference.prefix` không có mặc định; giá trị sai làm ứng dụng fail-fast với thông báo nêu đúng tên property.
 
 Bean được tạo tự động — bean nào bạn tự khai báo cùng kiểu sẽ được ưu tiên (`@ConditionalOnMissingBean`):
 
@@ -129,6 +132,8 @@ Bean được tạo tự động — bean nào bạn tự khai báo cùng kiểu
 | `VietQrEncoder` | luôn có |
 | `VietQrDecoder` | luôn có |
 | `VietQrGenerator` | luôn có |
+| `PaymentReferenceFormat` | khi có `vietnam.vietqr.reference.prefix` |
+| `PaymentReconciler` | khi có đúng một `PaymentReferenceFormat` và một bean `PayableLookup` |
 | `QrImageRenderer` | khi có ZXing (`com.google.zxing:javase`) trên classpath |
 
 ## Sinh payload
@@ -138,6 +143,7 @@ Bean được tạo tự động — bean nào bạn tự khai báo cùng kiểu
 | Method | Kết quả |
 |---|---|
 | `forAmount(long amount, String purpose)` | QR động cho tài khoản mặc định |
+| `forReference(long amount, String reference)` | QR động sau khi kiểm tra mã theo `reference.prefix` |
 | `staticQr()` | QR tĩnh cho tài khoản mặc định — người trả tự nhập số tiền |
 | `generate(VietQrRequest request)` | QR theo request tùy ý, bỏ qua cấu hình mặc định (ví dụ shop có nhiều tài khoản) |
 
@@ -274,13 +280,13 @@ if (normalized != null && normalized.length() > VietQrEncoder.MAX_PURPOSE_LENGTH
 
 ### Khuyến nghị khi đặt nội dung
 
-- **Đặt mã đơn hàng ở đầu**: `DH12345 Thanh toan` tốt hơn `Thanh toan don hang so DH12345` — nếu có app cắt nội dung
-  thì mã đơn vẫn còn.
+- Nếu cần đối soát tự động, ưu tiên để mã tham chiếu hợp lệ làm toàn bộ `purpose` qua `forReference`; xem
+  [Mã tham chiếu và đối soát](reconciliation.md).
 - **Giữ ≤ 25 ký tự** để tương thích bảo thủ với các app ngân hàng.
 - Mã đơn nên chỉ gồm chữ và số. Ký tự đặc biệt (`#`, `/`, `:`) vẫn được mã hóa, nhưng chưa xác nhận mọi app
   ngân hàng giữ nguyên chúng.
-- Khi đối soát, so khớp theo kiểu "nội dung **chứa** mã đơn" thay vì so bằng tuyệt đối: nội dung người nhận thấy
-  có thể khác nội dung trong QR nếu người trả tiền sửa lại trước khi chuyển.
+- Không so bằng tuyệt đối khi đối soát: nội dung người nhận thấy có thể bị thêm tiền tố/hậu tố. Dùng
+  `PaymentReferenceFormat.extract` để chỉ giữ ứng viên có ký tự kiểm tra hợp lệ.
 
 ## Ngân hàng
 
@@ -334,8 +340,8 @@ thư viện sinh hoàn toàn offline.
 **Vì sao nội dung bị mất dấu?** Nhiều app ngân hàng hiển thị sai ký tự có dấu, nên thư viện chủ động bỏ dấu. Xem
 [Nội dung chuyển khoản](#nội-dung-chuyển-khoản-purpose).
 
-**Làm sao biết khách đã trả tiền?** QR không báo được điều đó. Cần một dịch vụ theo dõi tài khoản; thư viện chuẩn bị sẵn
-interface ở [payment-confirmation.md](payment-confirmation.md).
+**Làm sao biết khách đã trả tiền?** QR không báo được điều đó. Cần một dịch vụ theo dõi tài khoản; xem
+[Xác nhận thanh toán](payment-confirmation.md) và [Mã tham chiếu và đối soát](reconciliation.md).
 
 **Không có bean `QrImageRenderer`?** Thêm dependency `com.google.zxing:javase`.
 

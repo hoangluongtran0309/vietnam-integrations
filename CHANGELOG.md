@@ -9,6 +9,10 @@
   chuyển khoản do ngân hàng ghi nhận.
 - VietQR: `PaymentReconciler` phân loại khoản tiền vào thành khớp, thiếu, thừa, sai tài khoản hoặc không thể đối
   soát qua `PayableLookup` do ứng dụng cung cấp; core không lưu trạng thái hay tự chống xử lý trùng.
+- VietQR starter: property `vietnam.vietqr.reference.prefix` tự cấu hình `PaymentReferenceFormat` và, khi ứng dụng
+  cung cấp `PayableLookup`, `PaymentReconciler`; `VietQrGenerator.forReference` kiểm mã trước khi sinh QR.
+- Demo VietQR: `/checkout` và `POST /demo/payments/simulate` minh họa đối soát offline bằng dữ liệu giả lập; tài liệu
+  hướng dẫn mã tham chiếu, xử lý thiếu/thừa tiền và lưu idempotency key an toàn.
 - `ZaloOaRegistry`, `ZaloOa` và `ZaloAccountConfig` để quản lý nhiều Official Account theo alias hoặc `oaId`, dùng
   chung OAuth client cho các account thuộc cùng một Zalo App.
 - Zalo starter hỗ trợ map `vietnam.zalo-oa.accounts`, `default-account`, registry và webhook router nhiều OA, đồng

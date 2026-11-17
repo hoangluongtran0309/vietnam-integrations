@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -30,28 +32,31 @@ class ZaloOAuthController {
     private final ZaloOaRegistry registry;
     private final ZaloDemoOAuthClients oauthClients;
     private final ZaloTokenStore tokenStore;
+    private final String authorizationUri;
     private final String redirectUri;
 
     ZaloOAuthController(ZaloOaRegistry registry, ZaloDemoOAuthClients oauthClients, ZaloTokenStore tokenStore,
+                        @Value("${demo.zalo.authorization-uri:https://oauth.zaloapp.com/v4/oa/permission}")
+                        String authorizationUri,
                         @Value("${demo.zalo.redirect-uri}") String redirectUri) {
         this.registry = registry;
         this.oauthClients = oauthClients;
         this.tokenStore = tokenStore;
+        this.authorizationUri = authorizationUri;
         this.redirectUri = redirectUri;
     }
 
     @GetMapping("/zalo/oauth/start")
-    Map<String, String> start(@RequestParam(required = false) String account, HttpSession session) {
+    ResponseEntity<Void> start(@RequestParam(required = false) String account, HttpSession session) {
         ZaloOa selected = selectAccount(account);
         ZaloPkce pkce = ZaloPkce.generate();
         session.setAttribute(ATTEMPT, new OAuthAttempt(selected.alias(), pkce.codeVerifier(), pkce.state()));
-        String authorizationUrl = "https://oauth.zaloapp.com/v4/oa/permission"
+        String authorizationUrl = authorizationUri
                 + "?app_id=" + encode(selected.appId())
                 + "&redirect_uri=" + encode(redirectUri)
                 + "&code_challenge=" + encode(pkce.codeChallenge())
                 + "&state=" + encode(pkce.state());
-        return Map.of("account", selected.alias(), "authorizationUrl", authorizationUrl,
-                "state", pkce.state(), "codeChallenge", pkce.codeChallenge());
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(authorizationUrl)).build();
     }
 
     @GetMapping("/zalo/oauth/callback")

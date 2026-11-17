@@ -58,6 +58,7 @@ Tài liệu Zalo OA/ZBS: [docs/zalo/README.md](docs/zalo/README.md).
 
 Tài liệu đầy đủ: **[docs/vietqr](docs/vietqr/README.md)** — cấu hình, cấu trúc payload, giới hạn nội dung,
 [65 ngân hàng](docs/vietqr/banks.md), [render ảnh có màu/logo](docs/vietqr/rendering.md),
+[mã tham chiếu và đối soát](docs/vietqr/reconciliation.md),
 [xác nhận thanh toán](docs/vietqr/payment-confirmation.md), bảng lỗi thường gặp.
 
 ```yaml
@@ -65,16 +66,26 @@ vietnam:
   vietqr:
     bank-bin: "970436"        # Vietcombank
     account-number: "0123456789"
+    reference:
+      prefix: "DH"
 ```
 
 ```java
 @Service
 class PaymentService {
     private final VietQrGenerator vietQr;
+    private final PaymentReferenceFormat references;
     private final QrImageRenderer renderer;
 
+    PaymentService(VietQrGenerator vietQr, PaymentReferenceFormat references, QrImageRenderer renderer) {
+        this.vietQr = vietQr;
+        this.references = references;
+        this.renderer = renderer;
+    }
+
     byte[] qrForOrder(Order order) {
-        String payload = vietQr.forAmount(order.total(), "Thanh toan " + order.code());
+        String reference = references.encode(order.code());
+        String payload = vietQr.forReference(order.total(), reference);
         return renderer.renderPng(payload, 400);
     }
 }
@@ -98,6 +109,7 @@ String payload = new VietQrEncoder().encode(VietQrRequest.builder()
 ./mvnw -q install -DskipTests          # lần đầu: để demo app dùng được các module trong repo
 ./mvnw -Psamples -pl samples/demo-app spring-boot:run
 # mở http://localhost:8080/qr.png?amount=10000&orderId=DH1 và quét bằng app ngân hàng
+# mở http://localhost:8080/checkout?amount=150000 để tạo khoản cần thu và mã tham chiếu giả lập
 # mở http://localhost:8080/verify để có bộ QR kiểm tra thủ công (docs/vietqr/manual-verification.md)
 ```
 

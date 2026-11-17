@@ -21,6 +21,9 @@ public class VietQrProperties {
     /** Default transfer type. */
     private ServiceCode serviceCode = ServiceCode.TO_ACCOUNT;
 
+    /** Optional payment-reference settings used for reconciliation. */
+    private Reference reference = new Reference();
+
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public String getBankBin() { return bankBin; }
@@ -29,4 +32,15 @@ public class VietQrProperties {
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
     public ServiceCode getServiceCode() { return serviceCode; }
     public void setServiceCode(ServiceCode serviceCode) { this.serviceCode = serviceCode; }
+    public Reference getReference() { return reference; }
+    public void setReference(Reference reference) { this.reference = reference == null ? new Reference() : reference; }
+
+    public static class Reference {
+
+        /** Application-specific prefix of 2-6 uppercase ASCII letters. */
+        private String prefix;
+
+        public String getPrefix() { return prefix; }
+        public void setPrefix(String prefix) { this.prefix = prefix; }
+    }
 }

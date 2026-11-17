@@ -1,8 +1,9 @@
 # Xác nhận thanh toán (`PaymentConfirmationListener`)
 
-> **Trạng thái ở 0.1.0:** mới có **interface**. Chưa có adapter nào gọi listener — adapter cho SePay/Casso dự kiến ở
-> 0.4 ([ROADMAP](../ROADMAP.md)). Bạn có thể viết và test listener ngay bây giờ; khi có adapter chỉ cần thêm dependency.
-> Quyết định thiết kế: [ADR-0006](../adr/0006-payment-confirmation-spi.md).
+> `PaymentConfirmationListener` có từ 0.1.0, nhưng chưa có adapter nào gọi listener — adapter cho SePay/Casso dự kiến
+> ở 0.4 ([ROADMAP](../ROADMAP.md)). Core hiện đã có mã tham chiếu và chính sách đối soát thuần để listener dùng.
+> Quyết định thiết kế: [ADR-0006](../adr/0006-payment-confirmation-spi.md) và
+> [ADR-0009](../adr/0009-payment-reference-and-reconciliation.md).
 
 ## Vấn đề
 
@@ -22,13 +23,13 @@ sequenceDiagram
     participant Adapter as Adapter (0.4)
     participant Listener as PaymentConfirmationListener
 
-    Shop->>Payer: Hiển thị QR (số tiền, nội dung "DH12345")
+    Shop->>Payer: Hiển thị QR (số tiền, mã "DH123455")
     Payer->>Bank: Chuyển tiền NAPAS 247
     Bank-->>Provider: Biến động số dư
     Provider->>Adapter: Webhook
     Adapter->>Adapter: Xác thực, lọc tiền vào, chuyển thành PaymentConfirmation
     Adapter->>Listener: onPaymentConfirmed(confirmation)
-    Listener->>Shop: Khớp đơn DH12345 → đánh dấu đã thanh toán
+    Listener->>Shop: Đối soát mã DH123455 → cập nhật đơn
 ```
 
 ## API
@@ -76,11 +77,9 @@ public interface PaymentConfirmationListener {
 ## Khớp giao dịch với đơn hàng
 
 `content` là nội dung **ngân hàng ghi nhận**, có thể khác nội dung trong QR: khách có thể sửa, một số ngân hàng thêm
-tiền tố/hậu tố. Vì vậy:
-
-- Đặt mã đơn **dễ nhận diện** trong chuỗi bất kỳ: chữ + số, không dấu cách, ví dụ `DH12345`.
-- Tìm mã đơn bằng biểu thức chính quy trên nội dung đã viết hoa, **đừng so sánh bằng tuyệt đối**.
-- Kiểm tra số tiền: `amount` có thể thiếu hoặc thừa so với đơn.
+tiền tố/hậu tố. Không cần tự viết regex: dùng `PaymentReferenceFormat` để tạo/trích mã có ký tự kiểm tra và
+`PaymentReconciler` để phân loại giao dịch theo số tiền, tài khoản nhận và trạng thái khoản cần thu. Xem hướng dẫn đầy
+đủ tại [Mã tham chiếu và đối soát](reconciliation.md).
 
 Ví dụ với Spring (`OrderRepository`, `ProcessedPaymentRepository`, `UnmatchedPaymentRepository` là code **của ứng dụng
 bạn**, không thuộc thư viện):
@@ -89,14 +88,15 @@ bạn**, không thuộc thư viện):
 @Component
 class OrderPaymentListener implements PaymentConfirmationListener {
 
-    private static final Pattern ORDER_CODE = Pattern.compile("DH\\d{5}");
-
+    private final PaymentReconciler reconciler;
     private final OrderRepository orders;
     private final ProcessedPaymentRepository processed;
     private final UnmatchedPaymentRepository unmatched;
 
-    OrderPaymentListener(OrderRepository orders, ProcessedPaymentRepository processed,
+    OrderPaymentListener(PaymentReconciler reconciler, OrderRepository orders,
+                         ProcessedPaymentRepository processed,
                          UnmatchedPaymentRepository unmatched) {
+        this.reconciler = reconciler;
         this.orders = orders;
         this.processed = processed;
         this.unmatched = unmatched;
@@ -111,26 +111,22 @@ class OrderPaymentListener implements PaymentConfirmationListener {
             return;
         }
 
-        Matcher matcher = ORDER_CODE.matcher(payment.content().toUpperCase(Locale.ROOT));
-        Optional<Order> order = matcher.find() ? orders.findByCode(matcher.group()) : Optional.empty();
-        if (order.isEmpty()) {
-            unmatched.save(payment);          // không khớp đơn: để người xử lý
-            return;
-        }
-        // Giả định Order là entity được persistence context quản lý (ví dụ JPA): thay đổi tự được lưu khi
-        // transaction commit. Nếu không, gọi thêm orders.save(order.get()) sau khi cập nhật.
-        if (payment.amount() < order.get().total()) {
-            order.get().markUnderpaid(payment.amount(), payment.transactionId());
+        ReconciliationResult result = reconciler.reconcile(payment);
+        if (result instanceof Matched matched) {
+            orders.markPaid(matched.payable().reference());
+        } else if (result instanceof Underpaid underpaid) {
+            orders.flagUnderpaid(underpaid.payable().reference(), underpaid.missingAmount());
+        } else if (result instanceof Overpaid overpaid) {
+            orders.markPaidWithExcess(overpaid.payable().reference(), overpaid.excessAmount());
         } else {
-            order.get().markPaid(payment.transactionId());
+            unmatched.save(payment, result);  // không khớp hoặc cần xử lý tay: không ném exception
         }
     }
 }
 ```
 
-Mã đơn trong QR nên khớp với cách listener tìm, ví dụ sinh QR bằng
-`vietQr.forAmount(order.total(), order.code())` để nội dung là `DH12345`
-(xem [README](README.md#nội-dung-chuyển-khoản-purpose) về giới hạn nội dung).
+Lưu `idempotencyKey` và cập nhật đơn trong cùng transaction. `AlreadySettled` không thay thế được khóa idempotency,
+vì một đơn đã tất toán vẫn có thể nhận thêm một giao dịch thật sự khác.
 
 ## Unit test listener
 
@@ -141,12 +137,12 @@ Không cần adapter hay nhà cung cấp — tự tạo `PaymentConfirmation`:
 void marksOrderPaid() {
     PaymentConfirmation payment = new PaymentConfirmation(
             "test", "TX-1", "970436", "0123456789",
-            150_000, "CK 123456 DH12345 Thanh toan", Instant.now(), Map.of());
+            150_000, "MBVCB.1234.DH123455.CT tu demo", Instant.now(), Map.of());
 
     listener.onPaymentConfirmed(payment);
     listener.onPaymentConfirmed(payment);   // gửi lại: không được xử lý hai lần
 
-    assertThat(orders.findByCode("DH12345")).get().extracting(Order::status).isEqualTo(Status.PAID);
+    assertThat(orders.findByReference("DH123455")).get().extracting(Order::status).isEqualTo(Status.PAID);
 }
 ```
 

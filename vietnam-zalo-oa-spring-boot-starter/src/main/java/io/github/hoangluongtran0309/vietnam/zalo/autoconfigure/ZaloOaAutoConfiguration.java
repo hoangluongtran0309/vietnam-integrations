@@ -43,6 +43,12 @@ public class ZaloOaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    Clock zaloClock() {
+        return Clock.systemUTC();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     ZaloTokenStore zaloTokenStore(ZaloOaProperties properties, ObjectProvider<DataSource> dataSources) {
         if (properties.getTokenStore() == ZaloOaProperties.TokenStoreType.JDBC) {
             DataSource dataSource = dataSources.getIfAvailable();
@@ -57,7 +63,7 @@ public class ZaloOaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ZaloOaRegistry zaloOaRegistry(ZaloOaProperties properties, ZaloTokenStore tokenStore) {
+    ZaloOaRegistry zaloOaRegistry(ZaloOaProperties properties, ZaloTokenStore tokenStore, Clock clock) {
         validateTimeouts(properties);
         List<ZaloAccountConfig> accounts = accountConfigs(properties);
         HttpClient httpClient = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
@@ -69,7 +75,7 @@ public class ZaloOaAutoConfiguration {
                     .zbsEndpoint(HttpZaloZbsClient.DEFAULT_ENDPOINT)
                     .requestTimeout(properties.getRequestTimeout())
                     .lockTimeout(properties.getJdbc().getLockTimeout())
-                    .clock(Clock.systemUTC())
+                    .clock(clock)
                     .defaultAccount(normalize(properties.getDefaultAccount()))
                     .build();
         } catch (IllegalArgumentException | NullPointerException e) {
@@ -80,10 +86,10 @@ public class ZaloOaAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @Conditional(RootApplicationCredentialsCondition.class)
-    ZaloOAuthClient zaloOAuthClient(ZaloOaProperties properties) {
+    ZaloOAuthClient zaloOAuthClient(ZaloOaProperties properties, Clock clock) {
         HttpClient httpClient = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
         return new HttpZaloOAuthClient(properties.getAppId(), properties.getSecretKey(), httpClient,
-                HttpZaloOAuthClient.DEFAULT_ENDPOINT, properties.getRequestTimeout(), Clock.systemUTC());
+                HttpZaloOAuthClient.DEFAULT_ENDPOINT, properties.getRequestTimeout(), clock);
     }
 
     @Bean

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Authenticator;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -60,9 +62,7 @@ class HttpZaloClientsTest {
                 .withRequestBody(containing("app_id=123"))
                 .withRequestBody(containing("grant_type=authorization_code"))
                 .withRequestBody(containing("code_verifier=verifier"))
-                .willReturn(okJson("""
-                        {"access_token":"access","refresh_token":"refresh","expires_in":"90000"}
-                        """)));
+                .willReturn(okJson(fixture("oauth-code-token.json"))));
         HttpZaloOAuthClient client = oauth();
 
         ZaloToken token = client.exchangeAuthorizationCode("code+value", "verifier");
@@ -73,9 +73,7 @@ class HttpZaloClientsTest {
 
     @Test
     void acceptsNumericOAuthExpiry() {
-        server.stubFor(post("/oauth").willReturn(okJson("""
-                {"access_token":"access","refresh_token":"refresh","expires_in":90000}
-                """)));
+        server.stubFor(post("/oauth").willReturn(okJson(fixture("oauth-code-token-numeric-expiry.json"))));
 
         ZaloToken token = oauth().exchangeAuthorizationCode("code", "verifier");
 
@@ -153,10 +151,7 @@ class HttpZaloClientsTest {
                 .withRequestBody(equalToJson("""
                         {"recipient":{"user_id":"user-1"},"message":{"text":"Xin chào","quote_message_id":"msg-0"}}
                         """))
-                .willReturn(okJson("""
-                        {"data":{"message_id":"msg-1","user_id":"user-1","sent_time":"1794528000000"},
-                         "error":0,"message":"Success"}
-                        """)));
+                .willReturn(okJson(fixture("oa-message-success.json"))));
 
         ZaloMessageResult result = new HttpZaloOaClient(manager(), HttpClient.newHttpClient(),
                 uri("/oa-message"), Duration.ofSeconds(2))
@@ -214,9 +209,7 @@ class HttpZaloClientsTest {
                          "tracking_id":"order-123"}
                         """))
                 .withRequestBody(containing("\"decimal\":0.0000001"))
-                .willReturn(okJson("""
-                        {"data":{"msg_id":"zbs-1","sent_time":"1794528000000"},"error":0,"message":"Success"}
-                        """)));
+                .willReturn(okJson(fixture("zbs-message-success.json"))));
 
         ZaloMessageResult result = new HttpZaloZbsClient(manager(), HttpClient.newHttpClient(), uri("/zbs"),
                 Duration.ofSeconds(2)).sendTemplateByPhone(new ZbsPhoneTemplateRequest(
@@ -346,6 +339,15 @@ class HttpZaloClientsTest {
 
     private URI uri(String path) {
         return URI.create(server.baseUrl() + path);
+    }
+
+    private static String fixture(String name) {
+        try (var input = Objects.requireNonNull(
+                HttpZaloClientsTest.class.getResourceAsStream("/zalo/http/" + name))) {
+            return new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private void assertInvalidTemplateValue(String key, Object value) {

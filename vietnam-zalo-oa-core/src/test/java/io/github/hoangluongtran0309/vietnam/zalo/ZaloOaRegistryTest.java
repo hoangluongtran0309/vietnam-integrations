@@ -5,13 +5,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,9 +65,7 @@ class ZaloOaRegistryTest {
     void refreshingOneAccountDoesNotChangeAnotherAccountsToken() {
         server.stubFor(post("/oauth")
                 .withRequestBody(containing("refresh_token=refresh-1"))
-                .willReturn(okJson("""
-                        {"access_token":"new-access-1","refresh_token":"new-refresh-1","expires_in":"90000"}
-                        """)));
+                .willReturn(okJson(fixture("oauth-refreshed-token.json"))));
         InMemoryZaloTokenStore store = new InMemoryZaloTokenStore();
         ZaloToken firstBefore = new ZaloToken("old-access-1", "refresh-1", NOW.plusSeconds(60));
         ZaloToken secondBefore = new ZaloToken("old-access-2", "refresh-2", NOW.plusSeconds(60));
@@ -187,6 +189,15 @@ class ZaloOaRegistryTest {
 
     private URI uri(String path) {
         return URI.create(server.baseUrl() + path);
+    }
+
+    private static String fixture(String name) {
+        try (var input = Objects.requireNonNull(
+                ZaloOaRegistryTest.class.getResourceAsStream("/zalo/http/" + name))) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static ZaloAccountConfig account(String alias, String appId, String secretKey, String oaId,

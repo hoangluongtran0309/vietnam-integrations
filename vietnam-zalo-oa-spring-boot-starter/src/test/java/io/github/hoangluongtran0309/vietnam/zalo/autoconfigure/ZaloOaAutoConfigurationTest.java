@@ -17,7 +17,10 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +67,23 @@ class ZaloOaAutoConfigurationTest {
                             .isSameAs(registry.oa("default").messaging());
                     assertThat(ctx.getBean(ZaloZbsClient.class))
                             .isSameAs(registry.oa("default").zbs());
+                });
+    }
+
+    @Test
+    void usesAnApplicationProvidedClockAcrossTokenComponents() {
+        Clock clock = Clock.fixed(Instant.parse("2026-11-17T00:00:00Z"), ZoneOffset.UTC);
+
+        runner.withPropertyValues(legacyAccount())
+                .withBean(Clock.class, () -> clock)
+                .run(ctx -> {
+                    assertThat(ctx.getBean(Clock.class)).isSameAs(clock);
+                    assertThat(ctx.getBean(ZaloOAuthClient.class))
+                            .extracting("clock")
+                            .isSameAs(clock);
+                    assertThat(ctx.getBean(ZaloOaRegistry.class).oa("default").tokenManager())
+                            .extracting("clock")
+                            .isSameAs(clock);
                 });
     }
 

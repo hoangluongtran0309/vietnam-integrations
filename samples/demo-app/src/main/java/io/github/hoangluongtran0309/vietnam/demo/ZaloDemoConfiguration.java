@@ -25,7 +25,8 @@ class ZaloDemoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "vietnam.zalo-oa", name = "enabled", havingValue = "true")
     ZaloDemoOAuthClients zaloDemoOAuthClients(ZaloOaProperties properties,
-                                               ObjectProvider<ZaloOAuthClient> rootOAuthClient) {
+                                               ObjectProvider<ZaloOAuthClient> rootOAuthClient,
+                                               Clock clock) {
         Map<String, ZaloOAuthClient> clients = new LinkedHashMap<>();
         HttpClient httpClient = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
         ZaloOAuthClient rootClient = rootOAuthClient.getIfAvailable();
@@ -47,7 +48,7 @@ class ZaloDemoConfiguration {
                     client = clientsByCredentials.computeIfAbsent(credentialsKey, ignored ->
                             new HttpZaloOAuthClient(appId, secretKey, httpClient,
                                     HttpZaloOAuthClient.DEFAULT_ENDPOINT, properties.getRequestTimeout(),
-                                    Clock.systemUTC()));
+                                    clock));
                 }
                 clients.put(alias, client);
             });

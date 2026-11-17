@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
@@ -34,8 +34,9 @@ class ZaloControllerRegistrationTest {
     @Test
     void exposesOAuthStartWhenZaloIsEnabled() throws Exception {
         mockMvc.perform(get("/zalo/oauth/start"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authorizationUrl").exists());
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location",
+                        org.hamcrest.Matchers.containsString("code_challenge=")));
     }
 
     @Test

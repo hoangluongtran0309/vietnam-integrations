@@ -1,6 +1,5 @@
 package io.github.hoangluongtran0309.vietnam.demo;
 
-import com.jayway.jsonpath.JsonPath;
 import io.github.hoangluongtran0309.vietnam.zalo.UserTextMessageEvent;
 import io.github.hoangluongtran0309.vietnam.zalo.ZaloOAuthClient;
 import io.github.hoangluongtran0309.vietnam.zalo.ZaloToken;
@@ -19,6 +18,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "vietnam.zalo-oa.secret-key=shared-secret-key",
         "vietnam.zalo-oa.default-account=cskh",
         "vietnam.zalo-oa.accounts.cskh.oa-id=oa-cskh",
-        "vietnam.zalo-oa.accounts.marketing.oa-id=oa-marketing"
+        "vietnam.zalo-oa.accounts.marketing.oa-id=oa-marketing",
+        "demo.zalo.authorization-uri=https://fake-zalo.example/authorize"
 })
 @Import(ZaloMultiAccountControllerTest.OAuthTestConfiguration.class)
 class ZaloMultiAccountControllerTest {
@@ -73,9 +76,9 @@ class ZaloMultiAccountControllerTest {
     @Test
     void rejectsCallbackWhenZaloReturnsAnotherAccountId() throws Exception {
         MvcResult start = mockMvc.perform(get("/zalo/oauth/start").param("account", "marketing"))
-                .andExpect(status().isOk())
+                .andExpect(status().isFound())
                 .andReturn();
-        String state = JsonPath.read(start.getResponse().getContentAsString(), "$.state");
+        String state = queryParameter(start, "state");
 
         mockMvc.perform(get("/zalo/oauth/callback")
                         .session((MockHttpSession) start.getRequest().getSession(false))
@@ -104,12 +107,14 @@ class ZaloMultiAccountControllerTest {
             request.param("account", account);
         }
         MvcResult start = mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.account").value(expectedAlias))
-                .andExpect(jsonPath("$.authorizationUrl").value(
-                        org.hamcrest.Matchers.containsString("app_id=shared-app-id")))
+                .andExpect(status().isFound())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                        .string("Location", org.hamcrest.Matchers.allOf(
+                                org.hamcrest.Matchers.startsWith("https://fake-zalo.example/authorize?"),
+                                org.hamcrest.Matchers.containsString("app_id=shared-app-id"),
+                                org.hamcrest.Matchers.containsString("code_challenge="))))
                 .andReturn();
-        String state = JsonPath.read(start.getResponse().getContentAsString(), "$.state");
+        String state = queryParameter(start, "state");
 
         mockMvc.perform(get("/zalo/oauth/callback")
                         .session((MockHttpSession) start.getRequest().getSession(false))
@@ -120,6 +125,18 @@ class ZaloMultiAccountControllerTest {
                 .andExpect(jsonPath("$.status").value("authorized"))
                 .andExpect(jsonPath("$.account").value(expectedAlias))
                 .andExpect(jsonPath("$.oaId").value(oaId));
+    }
+
+    private static String queryParameter(MvcResult result, String name) {
+        String location = result.getResponse().getHeader("Location");
+        assertThat(location).isNotNull();
+        for (String parameter : URI.create(location).getRawQuery().split("&")) {
+            String[] pair = parameter.split("=", 2);
+            if (URLDecoder.decode(pair[0], StandardCharsets.UTF_8).equals(name)) {
+                return URLDecoder.decode(pair[1], StandardCharsets.UTF_8);
+            }
+        }
+        throw new AssertionError("Missing query parameter: " + name);
     }
 
     private static ZaloToken token(String prefix) {

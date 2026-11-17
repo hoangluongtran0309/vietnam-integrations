@@ -52,15 +52,63 @@ vietnam:
 
 Không đưa credential vào YAML trong Git. Dùng secret manager hoặc environment variables.
 
+### Nhiều OA
+
+Dùng cấu hình nhiều OA khi một ứng dụng cần chọn động giữa các Official Account, chẳng hạn OA chăm sóc khách hàng
+và OA marketing. Đặt alias ổn định cho từng OA; alias chỉ gồm chữ thường, chữ số và dấu gạch ngang, dài tối đa 32
+ký tự. Không cấu hình đồng thời `oa-id` cấp gốc và `accounts`.
+
+```yaml
+vietnam:
+  zalo-oa:
+    app-id: ${ZALO_APP_ID} # mặc định cho account không override
+    secret-key: ${ZALO_APP_SECRET_KEY}
+    default-account: cskh
+    accounts:
+      cskh:
+        oa-id: ${ZALO_CSKH_OA_ID}
+        oa-secret-key: ${ZALO_CSKH_OA_SECRET_KEY}
+      marketing:
+        oa-id: ${ZALO_MARKETING_OA_ID}
+        oa-secret-key: ${ZALO_MARKETING_OA_SECRET_KEY}
+        app-id: ${ZALO_MARKETING_APP_ID} # chỉ cần khi OA thuộc App khác
+        secret-key: ${ZALO_MARKETING_APP_SECRET_KEY}
+```
+
+`app-id` và `secret-key` trong từng account là tùy chọn; khi bỏ qua, account kế thừa cặp giá trị cấp gốc. Các
+account cùng App phải dùng cùng `secret-key`. `default-account` tạo các bean tiện ích `ZaloTokenManager`,
+`ZaloOaClient` và `ZaloZbsClient` cho alias đó. Nếu không đặt mặc định khi có nhiều account, inject registry và chọn
+OA rõ ràng:
+
+```java
+ZaloOa customerCare = zaloOaRegistry.oa("cskh");
+customerCare.messaging().sendConsultationText(request);
+
+@EventListener
+void onUserText(UserTextMessageEvent event) {
+    ZaloOa source = zaloOaRegistry.byOaId(event.oaId());
+    // Xử lý theo OA đã nhận webhook.
+}
+```
+
+Đăng ký cùng URL webhook của ứng dụng cho từng OA và cấu hình đúng `oa-secret-key` của từng alias. Router đọc OA
+từ payload trước, kiểm `app_id`, rồi mới xác thực chữ ký bằng secret tương ứng; OA lạ hoặc App không khớp bị từ chối.
+Token vẫn được lưu và khóa độc lập theo `oaId`, kể cả khi nhiều OA dùng chung một App và token store.
+
 ### Thuộc tính bắt buộc theo tính năng
 
 | Thuộc tính | OAuth/gửi tin mặc định | Có `ZaloTokenManager` tùy chỉnh | Webhook | Mặc định |
 |---|---:|---:|---:|---|
 | `vietnam.zalo-oa.enabled` | Không | Không | Không | `true` |
-| `vietnam.zalo-oa.app-id` | Có | Có | Có | — |
-| `vietnam.zalo-oa.secret-key` | Có | Có | Có | — |
-| `vietnam.zalo-oa.oa-id` | Có | Không | Có | — |
+| `vietnam.zalo-oa.app-id` | Có nếu account không override | Có nếu account không override | Có nếu account không override | — |
+| `vietnam.zalo-oa.secret-key` | Có nếu account không override | Có nếu account không override | Có nếu account không override | — |
+| `vietnam.zalo-oa.oa-id` | Có khi không dùng `accounts` | Có khi không dùng `accounts` | Có khi không dùng `accounts` | — |
 | `vietnam.zalo-oa.oa-secret-key` | Không | Không | Có | — |
+| `vietnam.zalo-oa.accounts.<alias>.oa-id` | Thay cho `oa-id` cấp gốc | Thay cho `oa-id` cấp gốc | Có | — |
+| `vietnam.zalo-oa.accounts.<alias>.oa-secret-key` | Không | Không | Có với mọi alias | — |
+| `vietnam.zalo-oa.accounts.<alias>.app-id` | Không nếu có `app-id` cấp gốc | Không nếu có `app-id` cấp gốc | Không nếu có `app-id` cấp gốc | Kế thừa cấp gốc |
+| `vietnam.zalo-oa.accounts.<alias>.secret-key` | Không nếu có `secret-key` cấp gốc | Không nếu có `secret-key` cấp gốc | Không nếu có `secret-key` cấp gốc | Kế thừa cấp gốc |
+| `vietnam.zalo-oa.default-account` | Không | Không | Không | Tự chọn nếu chỉ có một account |
 | `vietnam.zalo-oa.token-store` | Không | Không | Không | `memory` |
 | `vietnam.zalo-oa.connect-timeout` | Không | Không | Không | `5s` |
 | `vietnam.zalo-oa.request-timeout` | Không | Không | Không | `10s` |
@@ -68,8 +116,9 @@ Không đưa credential vào YAML trong Git. Dùng secret manager hoặc environ
 | `vietnam.zalo-oa.webhook.enabled` | Không | Không | Phải đặt `true` | `false` |
 | `vietnam.zalo-oa.webhook.path` | Không | Không | Không | `/webhooks/zalo` |
 
-Starter dừng khởi động và nêu đúng tên thuộc tính khi cấu hình bắt buộc bị thiếu hoặc rỗng. Nếu ứng dụng tự cung cấp
-`ZaloTokenManager`, có thể bỏ `oa-id`; các credential còn lại vẫn được kiểm tra như trong bảng.
+Starter dừng khởi động và nêu đúng tên thuộc tính khi cấu hình bắt buộc bị thiếu hoặc rỗng. Cấu hình một OA luôn cần
+`oa-id` cấp gốc; cấu hình map luôn cần `oa-id` cho từng account. Có thể bỏ credential khỏi properties khi ứng dụng
+tự cung cấp toàn bộ `ZaloOaRegistry`.
 
 ### PostgreSQL
 
@@ -103,7 +152,9 @@ tokenStore.save(oaId, token);
 ```
 
 Authorization code chỉ dùng một lần. Không trả token ra browser hoặc log. Demo app có sẵn
-`GET /zalo/oauth/start` và `GET /zalo/oauth/callback` để minh họa toàn bộ luồng.
+`GET /zalo/oauth/start?account=cskh` và `GET /zalo/oauth/callback` để minh họa toàn bộ luồng. Khi bỏ tham số
+`account`, demo dùng `default-account` (hoặc account duy nhất); callback chỉ chấp nhận `oa_id` đúng với alias đã lưu
+cùng PKCE state trong session.
 
 ### Khi gặp `ZaloReauthorizationRequiredException`
 
@@ -132,6 +183,10 @@ ZaloMessageResult result = zaloZbsClient.sendTemplateByPhone(
                 Map.of("order_code", "DH-123", "amount", 150000),
                 "order-DH-123"));
 ```
+
+Trong demo nhiều OA, truyền `account` cho từng request, ví dụ
+`POST /zalo/consultation?account=cskh&userId=...&text=...` và `POST /zalo/zbs?account=marketing`. Có thể bỏ tham số
+này khi đã cấu hình `default-account`.
 
 Key trong `templateData` không được để trống. Value hỗ trợ `String`, `Boolean`, các kiểu số nguyên
 `Integer`/`Long`/`Short`/`Byte`/`BigInteger` và `BigDecimal`; không nhận `Double`, `Float` hoặc object tùy ý.
@@ -180,10 +235,10 @@ Với PostgreSQL, chạy migration trước rồi thêm `ZALO_TOKEN_STORE=jdbc`,
 
 Checklist release:
 
-- `/zalo/oauth/start` → cấp quyền → callback lưu token thành công.
-- `POST /zalo/consultation` gửi được tới test user đủ điều kiện.
-- `POST /zalo/zbs` gửi template đã duyệt tới số test với tracking ID mới.
-- Gửi tin vào OA; `/zalo/webhook/last` trả đúng typed event.
+- `/zalo/oauth/start?account=<alias>` → cấp quyền → callback lưu token đúng `oaId` của alias đó.
+- `POST /zalo/consultation?account=<alias>` gửi được tới test user đủ điều kiện.
+- `POST /zalo/zbs?account=<alias>` gửi template đã duyệt tới số test với tracking ID mới.
+- Gửi tin vào từng OA; `/zalo/webhook/last` trả đúng typed event và `oaId` nguồn.
 - Payload bị sửa hoặc signature sai phải bị từ chối.
 - Redact toàn bộ token, số điện thoại và user ID trước khi thêm response thật làm test vector.
 

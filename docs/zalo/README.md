@@ -152,9 +152,10 @@ tokenStore.save(oaId, token);
 ```
 
 Authorization code chỉ dùng một lần. Không trả token ra browser hoặc log. Demo app có sẵn
-`GET /zalo/oauth/start?account=cskh` và `GET /zalo/oauth/callback` để minh họa toàn bộ luồng. Khi bỏ tham số
-`account`, demo dùng `default-account` (hoặc account duy nhất); callback chỉ chấp nhận `oa_id` đúng với alias đã lưu
-cùng PKCE state trong session.
+`GET /zalo/oauth/start?account=cskh` và `GET /zalo/oauth/callback` để minh họa toàn bộ luồng. Endpoint `start` trả
+HTTP 302 tới trang cấp quyền và lưu PKCE verifier/state trong session. Khi bỏ tham số `account`, demo dùng
+`default-account` (hoặc account duy nhất); callback chỉ chấp nhận `oa_id` đúng với alias đã lưu cùng PKCE state
+trong session.
 
 ### Khi gặp `ZaloReauthorizationRequiredException`
 
@@ -216,7 +217,22 @@ chi tiết exception.
 Starter chưa chống replay: cùng một payload hợp lệ gửi lại vẫn được chấp nhận. Listener phải idempotent
 theo `msg_id`, hoặc theo tổ hợp `event_name` + `timestamp` + sender đối với event không có `msg_id`.
 
-## 6. Chạy demo và nghiệm thu thật
+## 6. Mức độ kiểm chứng
+
+Test end-to-end dùng WireMock làm **Zalo giả** và PostgreSQL 16 thật trong Testcontainers. Test này bắt lỗi nối dây
+giữa demo controller, session OAuth, registry nhiều OA, HTTP client, JDBC token store, webhook controller và event
+monitor. Nó **không chứng minh Zalo thật sẽ chấp nhận request**, không thay thế quyền App/OA, template đã duyệt,
+chính sách gửi tin, hạn mức, giao nhận thực tế hoặc capture từ OA thật.
+
+| Kiểm bằng test đơn vị | Kiểm bằng Zalo giả end-to-end | Chỉ kiểm được với OA thật |
+|---|---|---|
+| OAuth v4: form/header, PKCE, parse token, không retry; token manager và PostgreSQL row lock được kiểm riêng. | HTTP 302 có `code_challenge`/`state`; callback giữ session và lưu token đúng `oa_id`; đồng hồ được đẩy qua hạn để refresh đúng một lần và lưu refresh token mới. | Hoàn tất cấp quyền trên App/OA thật và xác nhận callback/token thật. `TODO(v0.2)`: xác minh đầy đủ mã lỗi refresh token hết hạn hoặc bị thu hồi từ OAuth OA v4. |
+| Tin Tư vấn: validate request, escape Unicode/control character, serialize body và parse response. | Gọi HTTP thật của demo; WireMock nhận đúng một lệnh với access token sau refresh. | Gửi tới test user đủ điều kiện và xác nhận chính sách/quyền/giao nhận. `TODO(v0.2)`: xác minh giới hạn 2.000 ký tự được Zalo đếm theo code point hay UTF-16 unit. |
+| ZBS: chuẩn hóa cấu trúc số điện thoại, giới hạn tracking ID, kiểu scalar và dạng số thập phân. | Gọi HTTP thật của demo; WireMock nhận đúng một lệnh ZBS với số đã chuẩn hóa và access token đúng. | Gửi template đã duyệt tới số test và kiểm tra giao nhận. `TODO(v0.2)`: xác minh chính xác định dạng số điện thoại ZBS và việc mọi template parameter có bắt buộc là chuỗi hay không. |
+| Webhook: chữ ký trên raw body, UTF-8, typed event, router nhiều OA, status 200/400/401/500. | Payload fixture của OA thứ hai với secret thứ hai trả 200 và monitor hiện đúng `oaId`; cùng payload ký bằng secret OA thứ nhất trả 401. | Nhận capture thật từ từng OA. `TODO(v0.2)`: xác minh OA ID nằm ở sender/recipient theo từng event, OA Secret Key thuộc OA hay App, và `Content-Type` Zalo thực gửi. |
+| Lỗi API, timeout và quy tắc không tự retry được kiểm ở từng client; dữ liệu nhạy cảm được kiểm tra khi `toString()`. | Toàn bộ luồng demo chạy qua random port, cùng migration V1 và `token-store=jdbc`; DB được kiểm sau từng chặng. | Xác nhận mã lỗi, payload và header thực tế có khớp tài liệu tại thời điểm release; redact capture trước khi đưa vào fixture. |
+
+## 7. Chạy demo và nghiệm thu thật
 
 ```bash
 export ZALO_ENABLED=true
@@ -242,7 +258,7 @@ Checklist release:
 - Payload bị sửa hoặc signature sai phải bị từ chối.
 - Redact toàn bộ token, số điện thoại và user ID trước khi thêm response thật làm test vector.
 
-## 7. Giới hạn 0.2.0
+## 8. Giới hạn 0.2.0
 
 Chưa hỗ trợ ZBS qua UID, quản lý template, media, broadcast, quota/status, Journey, MySQL, webhook deduplication
 hoặc tự mã hóa token cấp ứng dụng.

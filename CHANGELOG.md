@@ -19,7 +19,8 @@
 - PostgreSQL `JdbcZaloTokenStore`, versioned schema và atomic refresh bằng `SELECT ... FOR UPDATE`.
 - `ZaloReauthorizationRequiredException` để phân biệt refresh token không còn hợp lệ với lỗi OAuth tạm thời.
 - Typed webhook events cho text/follow/unfollow/delivered/seen, unknown-event fallback và servlet controller opt-in.
-- Demo OAuth callback, gửi OA/ZBS, webhook monitor; tài liệu tích hợp tại `docs/zalo/`.
+- Demo OAuth callback, gửi OA/ZBS và webhook monitor hỗ trợ chọn account trong cấu hình nhiều OA; tài liệu tích hợp
+  tại `docs/zalo/`.
 
 ### Changed
 - Breaking: mọi `ZaloWebhookEvent` thêm `oaId`; `ZaloWebhookRouter` định tuyến payload tới đúng Official Account

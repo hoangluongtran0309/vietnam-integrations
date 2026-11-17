@@ -15,6 +15,8 @@ Mô hình ports & adapters:
 - **Domain/core**: `VietQrEncoder`, `Invoice`, `ZaloToken`… không biết tới Spring.
 - **Ports**: `ZaloTokenStore`, `ZaloOAuthClient`, `ZaloOaClient`, `EInvoiceProvider`,
   `PaymentConfirmationListener` (xác nhận thanh toán VietQR, [ADR-0006](adr/0006-payment-confirmation-spi.md)).
+- **Điều phối core**: `ZaloOaRegistry` chọn bộ client theo alias/`oaId`; `ZaloWebhookRouter` tìm OA từ payload rồi
+  xác thực webhook bằng credential đúng của OA đó.
 - **Adapters**: `InMemoryZaloTokenStore`, `JdbcZaloTokenStore`, các HTTP client Zalo dùng
   `java.net.http.HttpClient`, `vietnam-einvoice-provider-*`.
 - **Starter**: chỉ nối dây — đọc properties, tạo bean, mọi bean đều `@ConditionalOnMissingBean`.

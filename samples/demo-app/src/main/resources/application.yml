@@ -5,6 +5,7 @@ vietnam:
     account-number: "0123456789"
   zalo-oa:
     enabled: ${ZALO_ENABLED:false}
+    # Single-OA configuration remains the simplest way to run the demo.
     app-id: ${ZALO_APP_ID:}
     secret-key: ${ZALO_APP_SECRET_KEY:}
     oa-id: ${ZALO_OA_ID:}
@@ -13,6 +14,18 @@ vietnam:
     webhook:
       enabled: ${ZALO_WEBHOOK_ENABLED:false}
       path: /webhooks/zalo
+
+    # For multiple OAs, remove oa-id and oa-secret-key above, then configure aliases:
+    # default-account: cskh
+    # accounts:
+    #   cskh:
+    #     oa-id: ${ZALO_CSKH_OA_ID:}
+    #     oa-secret-key: ${ZALO_CSKH_OA_SECRET_KEY:}
+    #   marketing:
+    #     oa-id: ${ZALO_MARKETING_OA_ID:}
+    #     oa-secret-key: ${ZALO_MARKETING_OA_SECRET_KEY:}
+    #     app-id: ${ZALO_MARKETING_APP_ID:} # Optional: when this OA belongs to another App
+    #     secret-key: ${ZALO_MARKETING_APP_SECRET_KEY:}
 
 spring:
   servlet:

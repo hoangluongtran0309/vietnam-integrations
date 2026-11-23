@@ -1,5 +1,11 @@
 # Zalo OA / ZBS
 
+> [!WARNING]
+> Zalo OA/ZBS trong 0.2.0 là **Preview** và chưa được nghiệm thu với OA thật. Xem
+> [mục 6 — Mức độ kiểm chứng](#6-mức-độ-kiểm-chứng) và
+> [ADR-0010](../adr/0010-preview-releases.md) trước khi dùng; test với Zalo giả không thay thế
+> nghiệm thu App/OA, ZBS template, webhook hoặc giao nhận thực tế.
+
 Module Zalo cung cấp OAuth OA v4 + PKCE, quản lý vòng đời token, gửi tin Tư vấn OA v3, gửi ZBS Template Message
 qua số điện thoại và nhận webhook có xác thực chữ ký. Tài liệu được đối chiếu với tài liệu Zalo công khai ngày
 2026-11-13. ZNS đã được hợp nhất vào **ZBS Template Message** từ 01/01/2026.

@@ -18,7 +18,7 @@
 ## Mỗi lần release
 
 1. Cập nhật `CHANGELOG.md` qua PR (`main` được bảo vệ, xem [CONTRIBUTING.md](../CONTRIBUTING.md#quy-trình-pr)), merge, rồi `git pull` để tag đúng commit trên `main`.
-2. `git tag v0.1.0 && git push origin v0.1.0`
+2. `git tag v0.2.0 && git push origin v0.2.0`
 3. Workflow `release.yml` sẽ set version theo tag, ký, và publish.
 4. Kiểm tra trên Central Portal; artifact xuất hiện trên search.maven.org sau vài phút đến vài giờ.
 5. Tạo GitHub Release từ tag, dán phần CHANGELOG.
@@ -30,3 +30,21 @@
 ```
 
 Kiểm tra mỗi module có đủ `-sources.jar` và `-javadoc.jar` trong `target/`.
+
+## Smoke test sau khi publish
+
+Sau khi Maven Central đã có đủ artifact của version mới, chạy smoke test từ một local repository
+rỗng. Script import BOM, resolve ba starter, compile/runs VietQR, mã tham chiếu và Zalo registry mà không
+gọi API ngoài trong bước chạy Java:
+
+```bash
+./scripts/smoke-test-central.sh 0.2.0
+```
+
+Có thể kiểm một repository khác trước khi artifact xuất hiện trên Central:
+
+```bash
+./scripts/smoke-test-central.sh 0.2.0-SNAPSHOT --repo file:///path/to/maven/repository
+```
+
+Chỉ coi bước này hoàn tất khi script in `SMOKE TEST OK <version>`.

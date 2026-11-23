@@ -2,6 +2,7 @@ package io.github.hoangluongtran0309.vietnam.demo.capture;
 
 import io.github.hoangluongtran0309.vietnam.zalo.autoconfigure.ZaloOaProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
@@ -32,6 +33,13 @@ class ZaloCaptureConfiguration {
     HttpClient capturingZaloHttpClient(ZaloOaProperties properties, CaptureSession session) {
         HttpClient delegate = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
         return new CapturingHttpClient(delegate, session);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "vietnam.zalo-oa", name = "webhook.enabled", havingValue = "true")
+    ZaloWebhookCaptureFilter zaloWebhookCaptureFilter(ZaloOaProperties properties, CaptureSession session) {
+        return new ZaloWebhookCaptureFilter(session, properties.getWebhook().getPath());
     }
 
     private static List<CaptureSession.Account> captureAccounts(ZaloOaProperties properties) {

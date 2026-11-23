@@ -5,6 +5,7 @@ import io.github.hoangluongtran0309.vietnam.zalo.ZaloOAuthClient;
 import io.github.hoangluongtran0309.vietnam.zalo.autoconfigure.ZaloOaProperties;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,9 +27,9 @@ class ZaloDemoConfiguration {
     @ConditionalOnProperty(prefix = "vietnam.zalo-oa", name = "enabled", havingValue = "true")
     ZaloDemoOAuthClients zaloDemoOAuthClients(ZaloOaProperties properties,
                                                ObjectProvider<ZaloOAuthClient> rootOAuthClient,
+                                               @Qualifier("zaloHttpClient") HttpClient httpClient,
                                                Clock clock) {
         Map<String, ZaloOAuthClient> clients = new LinkedHashMap<>();
-        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
         ZaloOAuthClient rootClient = rootOAuthClient.getIfAvailable();
 
         if (properties.getAccounts().isEmpty()) {

@@ -17,6 +17,7 @@ import io.github.hoangluongtran0309.vietnam.zalo.ZaloWebhookRouter;
 import io.github.hoangluongtran0309.vietnam.zalo.ZaloZbsClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -47,6 +48,12 @@ public class ZaloOaAutoConfiguration {
         return Clock.systemUTC();
     }
 
+    @Bean(name = "zaloHttpClient", defaultCandidate = false)
+    @ConditionalOnMissingBean(name = "zaloHttpClient")
+    HttpClient zaloHttpClient(ZaloOaProperties properties) {
+        return HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
+    }
+
     @Bean
     @ConditionalOnMissingBean
     ZaloTokenStore zaloTokenStore(ZaloOaProperties properties, ObjectProvider<DataSource> dataSources) {
@@ -63,10 +70,10 @@ public class ZaloOaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ZaloOaRegistry zaloOaRegistry(ZaloOaProperties properties, ZaloTokenStore tokenStore, Clock clock) {
+    ZaloOaRegistry zaloOaRegistry(ZaloOaProperties properties, ZaloTokenStore tokenStore, Clock clock,
+                                  @Qualifier("zaloHttpClient") HttpClient httpClient) {
         validateTimeouts(properties);
         List<ZaloAccountConfig> accounts = accountConfigs(properties);
-        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
         try {
             return ZaloOaRegistry.builder(accounts, tokenStore)
                     .httpClient(httpClient)
@@ -86,8 +93,8 @@ public class ZaloOaAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @Conditional(RootApplicationCredentialsCondition.class)
-    ZaloOAuthClient zaloOAuthClient(ZaloOaProperties properties, Clock clock) {
-        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build();
+    ZaloOAuthClient zaloOAuthClient(ZaloOaProperties properties, Clock clock,
+                                    @Qualifier("zaloHttpClient") HttpClient httpClient) {
         return new HttpZaloOAuthClient(properties.getAppId(), properties.getSecretKey(), httpClient,
                 HttpZaloOAuthClient.DEFAULT_ENDPOINT, properties.getRequestTimeout(), clock);
     }

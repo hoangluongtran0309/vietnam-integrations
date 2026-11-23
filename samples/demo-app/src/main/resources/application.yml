@@ -38,6 +38,7 @@ spring:
 
 demo:
   zalo:
+    capture-dir: ${ZALO_CAPTURE_DIR:}
     authorization-uri: ${ZALO_AUTHORIZATION_URI:https://oauth.zaloapp.com/v4/oa/permission}
     redirect-uri: ${ZALO_REDIRECT_URI:http://localhost:8080/zalo/oauth/callback}
     jdbc-url: ${ZALO_JDBC_URL:}

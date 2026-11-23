@@ -7,6 +7,8 @@
 ### Added
 - Zalo starter cung cấp bean `zaloHttpClient` dùng chung cho registry và OAuth client; ứng dụng có thể thay thế
   theo tên, bean mặc định đặt `defaultCandidate = false` để không ảnh hưởng việc inject `HttpClient` theo type.
+- Demo Zalo có chế độ capture HTTP/webhook theo phiên, redact dữ liệu nhạy cảm trước khi ghi và checklist nghiệm
+  thu với OA thật.
 - VietQR: `PaymentReferenceFormat` sinh, kiểm tra và trích mã tham chiếu có ký tự kiểm tra Luhn mod N từ nội dung
   chuyển khoản do ngân hàng ghi nhận.
 - VietQR: `PaymentReconciler` phân loại khoản tiền vào thành khớp, thiếu, thừa, sai tài khoản hoặc không thể đối

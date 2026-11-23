@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
         "vietnam.zalo-oa.enabled=true",
@@ -47,5 +48,12 @@ class ZaloControllerRegistrationTest {
                 .andExpect(status().isBadRequest());
         mockMvc.perform(get("/zalo/webhook/last"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void captureModeDoesNotAddBeansWhenCaptureDirectoryIsBlank() {
+        assertThat(applicationContext.containsBean("zaloCaptureSession")).isFalse();
+        assertThat(applicationContext.getBean("zaloHttpClient").getClass().getSimpleName())
+                .doesNotContain("Capturing");
     }
 }

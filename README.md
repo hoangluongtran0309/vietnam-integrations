@@ -5,15 +5,15 @@
 *Integrations with Vietnamese platforms for Java and Spring Boot: VietQR payment QR codes, Zalo Official Account / ZBS messaging, and e-invoices.*
 
 [![CI](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml)
-![Status](https://img.shields.io/badge/status-0.1.0-brightgreen)
+![Status](https://img.shields.io/badge/status-0.2.0-brightgreen)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 ## Trạng thái
 
 | Module | Trạng thái | Phiên bản mục tiêu |
 |---|---|---|
-| `vietnam-vietqr-spring-boot-starter` | 🟢 Phát hành 0.1.0 | 0.1.0 |
-| `vietnam-zalo-oa-spring-boot-starter` | 🟡 Code hoàn tất, chờ nghiệm thu API thật | 0.2.0 |
+| `vietnam-vietqr-spring-boot-starter` | 🟢 0.2.0 (QR, decode, đối soát) | 0.2.0 |
+| `vietnam-zalo-oa-spring-boot-starter` | 🟡 Preview 0.2.0, chưa nghiệm thu với OA thật ([mức độ kiểm chứng](docs/zalo/README.md#6-mức-độ-kiểm-chứng)) | 0.2.0 |
 | `vietnam-einvoice-spring-boot-starter` | 🔴 Khung (domain model, SPI) | 0.3.0 |
 
 Xem kế hoạch chi tiết tại [docs/ROADMAP.md](docs/ROADMAP.md).
@@ -33,7 +33,7 @@ Tài liệu Zalo OA/ZBS: [docs/zalo/README.md](docs/zalo/README.md).
     <dependency>
       <groupId>io.github.hoangluongtran0309</groupId>
       <artifactId>vietnam-bom</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -53,6 +53,45 @@ Tài liệu Zalo OA/ZBS: [docs/zalo/README.md](docs/zalo/README.md).
   </dependency>
 </dependencies>
 ```
+
+## Zalo OA / ZBS — dùng nhanh
+
+> [!WARNING]
+> Zalo OA/ZBS trong 0.2.0 là **Preview** và chưa được nghiệm thu với OA thật. Sáu điểm còn
+> phải xác minh là: định dạng số điện thoại ZBS; kiểu giá trị trong `template_data`; cách Zalo đếm
+> giới hạn 2.000 ký tự; vị trí OA ID và phạm vi OA Secret Key trong webhook; `Content-Type` webhook;
+> mã lỗi refresh token hết hạn, bị thu hồi hoặc đã dùng. Xem
+> [mức độ kiểm chứng](docs/zalo/README.md#6-mức-độ-kiểm-chứng) trước khi dùng.
+
+Một OA dùng properties cấp gốc:
+
+```yaml
+vietnam:
+  zalo-oa:
+    app-id: ${ZALO_APP_ID}
+    secret-key: ${ZALO_APP_SECRET_KEY}
+    oa-id: ${ZALO_OA_ID}
+    oa-secret-key: ${ZALO_OA_SECRET_KEY}
+```
+
+Nhiều OA dùng map `accounts`; `default-account` chọn account cho các bean client tiện ích:
+
+```yaml
+vietnam:
+  zalo-oa:
+    app-id: ${ZALO_APP_ID}
+    secret-key: ${ZALO_APP_SECRET_KEY}
+    default-account: cskh
+    accounts:
+      cskh:
+        oa-id: ${ZALO_CSKH_OA_ID}
+        oa-secret-key: ${ZALO_CSKH_OA_SECRET_KEY}
+      marketing:
+        oa-id: ${ZALO_MARKETING_OA_ID}
+        oa-secret-key: ${ZALO_MARKETING_OA_SECRET_KEY}
+```
+
+Tài liệu cấu hình, OAuth, gửi tin và webhook đầy đủ: [docs/zalo/README.md](docs/zalo/README.md).
 
 ## VietQR — dùng nhanh
 
@@ -87,6 +126,58 @@ class PaymentService {
         String reference = references.encode(order.code());
         String payload = vietQr.forReference(order.total(), reference);
         return renderer.renderPng(payload, 400);
+    }
+}
+```
+
+Để đối soát, đặt prefix cho mã tham chiếu, cung cấp một `PayableLookup`, rồi xử lý kết quả từ
+`PaymentReconciler`:
+
+```yaml
+vietnam:
+  vietqr:
+    bank-bin: "970436"
+    account-number: "0123456789"
+    reference:
+      prefix: "DH"
+```
+
+```java
+import java.util.Optional;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+
+import io.github.hoangluongtran0309.vietnam.vietqr.confirmation.PaymentConfirmation;
+import io.github.hoangluongtran0309.vietnam.vietqr.reconciliation.Payable;
+import io.github.hoangluongtran0309.vietnam.vietqr.reconciliation.PayableLookup;
+import io.github.hoangluongtran0309.vietnam.vietqr.reconciliation.PayableStatus;
+import io.github.hoangluongtran0309.vietnam.vietqr.reconciliation.PaymentReconciler;
+import io.github.hoangluongtran0309.vietnam.vietqr.reconciliation.ReconciliationResult;
+
+@Configuration
+class ReconciliationConfig {
+    @Bean
+    PayableLookup payableLookup() {
+        Payable payable = new Payable("DH123455", 150_000, PayableStatus.OPEN,
+                "0123456789", "970436");
+        return reference -> payable.reference().equals(reference)
+                ? Optional.of(payable)
+                : Optional.empty();
+    }
+}
+
+@Component
+class IncomingPaymentHandler {
+    private final PaymentReconciler reconciler;
+
+    IncomingPaymentHandler(PaymentReconciler reconciler) {
+        this.reconciler = reconciler;
+    }
+
+    ReconciliationResult handle(PaymentConfirmation confirmation) {
+        return reconciler.reconcile(confirmation);
     }
 }
 ```

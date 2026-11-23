@@ -249,6 +249,11 @@ export ZALO_WEBHOOK_ENABLED=true
 Với PostgreSQL, chạy migration trước rồi thêm `ZALO_TOKEN_STORE=jdbc`, `ZALO_JDBC_URL`, `ZALO_JDBC_USER` và
 `ZALO_JDBC_PASSWORD`.
 
+Để nghiệm thu với OA thật mà không ghi dữ liệu thô xuống đĩa, đặt `ZALO_CAPTURE_DIR` tới một thư mục **nằm ngoài
+mọi cây Git**. Demo sẽ ghi request/response Zalo và webhook đã redact vào một thư mục phiên; khi không đặt biến này,
+bean graph và hành vi demo giữ nguyên. Thực hiện đủ các bước chuẩn bị, kịch bản và duyệt thủ công trong
+[checklist capture Zalo thật](capture-checklist.md) trước khi đưa bất kỳ capture nào vào test fixture.
+
 Checklist release:
 
 - `/zalo/oauth/start?account=<alias>` → cấp quyền → callback lưu token đúng `oaId` của alias đó.

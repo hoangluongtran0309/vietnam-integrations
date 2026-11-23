@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
+        "debug=false",
         "vietnam.zalo-oa.enabled=true",
         "vietnam.zalo-oa.app-id=capture-app",
         "vietnam.zalo-oa.secret-key=test-app-secret",

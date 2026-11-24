@@ -15,7 +15,9 @@ public record InvoiceLine(
     }
 
     public BigDecimal taxAmount() {
-        // TODO(v0.3): confirm rounding rules per provider (line-level vs invoice-level rounding)
+        // TODO(v0.3): verify amount and VAT rounding (mode and line-level versus
+        // tax-rate aggregate) against the official Decision 1233/QD-CT schema package
+        // and redacted provider captures before using these calculations for validation.
         return taxRate.rate() == null
                 ? BigDecimal.ZERO
                 : amountBeforeTax().multiply(taxRate.rate()).setScale(0, RoundingMode.HALF_UP);

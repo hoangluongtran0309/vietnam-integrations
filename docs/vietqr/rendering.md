@@ -159,3 +159,11 @@ Phát hiện khi viết test: với payload dài nhất ở mức `H` (version 1
 - giữ nội dung chuyển khoản ngắn (≤ 25 ký tự, xem [README](README.md#nội-dung-chuyển-khoản-purpose));
 - không dùng logo cho payload dài;
 - tăng `size` khi mã dày để mỗi module có nhiều điểm ảnh hơn.
+
+## 8. Chạy trên server không có màn hình
+
+`QrImageRenderer` dùng AWT (`BufferedImage`, `Graphics2D`) để vẽ ảnh. Trên máy có biến `DISPLAY` nhưng không có
+X server, ứng dụng Java thuần nên chạy với `-Djava.awt.headless=true`; nếu không, thao tác vẽ ảnh, đặc biệt khi có
+logo, có thể lỗi kết nối X11. Đây là hành vi đã quan sát được trong test của repo.
+
+Với Spring Boot, `SpringApplication` mặc định bật headless.

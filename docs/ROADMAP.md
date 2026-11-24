@@ -82,10 +82,13 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
   xem [bảng đối chiếu SDK](zalo/sdk-crosscheck.md).
 - [x] Thêm công cụ capture HTTP/webhook có redact và test bằng Zalo giả — 2026-11-23,
   xem [checklist capture](zalo/capture-checklist.md).
-- [ ] Release 0.2.0 (Preview cho Zalo, theo [ADR-0010](adr/0010-preview-releases.md)).
+- [x] Release 0.2.0 (Preview cho Zalo, theo [ADR-0010](adr/0010-preview-releases.md)) —
+  [GitHub Release](https://github.com/hoangluongtran0309/vietnam-integrations/releases/tag/v0.2.0),
+  Maven Central ngày 2026-11-24.
 
 **Done khi:** 0.2.0 có trên Maven Central; một project trống dùng được VietQR đối soát và khởi tạo
-được `ZaloOaRegistry` theo README.
+được `ZaloOaRegistry` theo README. ✅ Hoàn tất ngày 2026-11-24; smoke test từ Maven Central thành công trong
+90 giây lúc 15:02 ICT.
 
 ## Phase 2.x — Nghiệm thu Zalo với OA thật (0.2.x)
 

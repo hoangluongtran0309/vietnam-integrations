@@ -109,8 +109,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 
 ## Phase 3 — Đọc và kiểm tra XML hóa đơn điện tử 0.3.0
 
-- [ ] Xác minh cơ sở pháp lý và định dạng XML đang có hiệu lực; ghi kết quả tại
-  `docs/einvoice/legal-basis.md`.
+- [ ] Xác minh [cơ sở pháp lý và định dạng XML đang có hiệu lực](einvoice/legal-basis.md); còn thiếu bản
+  gốc QĐ 1306/QĐ-CT, QĐ 1233/QĐ-CT, gói XSD và điều khoản tái phân phối.
 - [ ] Thu XML hóa đơn thật đã redact làm test vector.
 - [ ] Thiết kế domain model đọc hóa đơn.
 - [ ] Implement parser XML an toàn, hỗ trợ nhiều phiên bản định dạng.

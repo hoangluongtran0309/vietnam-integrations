@@ -6,7 +6,7 @@ Vai trò khi dùng nhiều agent. Mỗi agent đọc `CLAUDE.md` trước.
 Viết code theo một mục trong `docs/ROADMAP.md`. Chỉ chạm vào module liên quan. Kết thúc bằng `./mvnw -pl <module> -am verify`.
 
 ## spec-verifier
-Đối chiếu code với tài liệu chính thức (NAPAS, Zalo, NĐ 123/2020, TT 78/2021, docs nhà cung cấp).
+Đối chiếu code với tài liệu chính thức (NAPAS, Zalo, NĐ 254/2026, TT 91/2026, [quy tắc HĐĐT hiện hành](docs/einvoice/legal-basis.md), docs nhà cung cấp).
 Đầu ra: danh sách sai lệch + test vector cần thêm. Không sửa code production.
 
 ## reviewer

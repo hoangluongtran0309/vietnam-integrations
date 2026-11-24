@@ -22,6 +22,8 @@ trên cơ sở dữ liệu tư nhân và chưa thay thế việc đối chiếu 
 - Nguồn đã đọc không quy định phương pháp làm tròn chung (`HALF_UP`, v.v.) hoặc tính thuế theo dòng hay theo
   tổng. Bản sao phụ lục chỉ yêu cầu một số tổng tiền VND không có phần thập phân và tổng hợp thuế theo thuế suất.
 
+Read model tương ứng được mô tả tại [read-model.md](read-model.md).
+
 ## Văn bản pháp lý
 
 | Văn bản | Trích yếu và điều khoản dùng | Ban hành | Hiệu lực | Trạng thái tại 24/11/2026 | Nguồn | Ngày kiểm tra |

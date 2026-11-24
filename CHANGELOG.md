@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- E-invoice: read model cho XML hóa đơn đã phát hành trong package
+  `io.github.hoangluongtran0309.vietnam.einvoice.document`. `extensions` giữ text gốc theo đường dẫn XML có chỉ số
+  cho các phần tử lặp cùng tên. Xem
+  [ADR-0011](docs/adr/0011-einvoice-read-model.md).
+
 ## [0.2.0] - 2026-11-24
 
 Zalo OA/ZBS trong bản này là **Preview** theo [ADR-0010](docs/adr/0010-preview-releases.md) và chưa được

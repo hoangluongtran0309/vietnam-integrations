@@ -68,16 +68,16 @@ class InvoiceXmlParserTest {
                 new InvoiceParty("Công ty Mẫu B", "MST-MAU-B", "Địa chỉ mẫu B", "Người Mua Mẫu"));
         assertThat(invoice.items()).containsExactly(
                 new InvoiceItem(1, "MAU-1", "Sổ mẫu", "quyển",
-                        new BigDecimal("2.00"), new BigDecimal("10.50"), new BigDecimal("21.000"), "5%"),
+                        new BigDecimal("2.00"), new BigDecimal("10.50"), new BigDecimal("21.000"), null, null, "5%"),
                 new InvoiceItem(1, "MAU-2", "Bút mẫu", "chiếc",
-                        new BigDecimal("3"), new BigDecimal("4.00"), new BigDecimal("12.00"), "10%"),
+                        new BigDecimal("3"), new BigDecimal("4.00"), new BigDecimal("12.00"), null, null, "10%"),
                 new InvoiceItem(1, "MAU-3", "Giấy mẫu", "tập",
-                        new BigDecimal("1.0"), new BigDecimal("9.000"), new BigDecimal("9.00"), "5%"));
+                        new BigDecimal("1.0"), new BigDecimal("9.000"), new BigDecimal("9.00"), null, null, "5%"));
         assertThat(invoice.taxRateSummaries()).containsExactly(
                 new TaxRateSummary("5%", new BigDecimal("30.000"), new BigDecimal("1.50")),
                 new TaxRateSummary("10%", new BigDecimal("12.00"), new BigDecimal("1.200")));
         assertThat(invoice.totals()).isEqualTo(new InvoiceTotals(
-                new BigDecimal("42.000"), new BigDecimal("2.700"), new BigDecimal("44.7000"),
+                new BigDecimal("42.000"), new BigDecimal("2.700"), null, new BigDecimal("44.7000"),
                 "Bốn mươi bốn đô la Mỹ và bảy mươi xu"));
         assertThat(invoice.taxAuthorityCode()).isEqualTo("MA-CQT-MAU");
         assertThat(invoice.extensions()).isEmpty();
@@ -91,19 +91,41 @@ class InvoiceXmlParserTest {
         assertIdentity(invoice, "00000002", "C26MAU", "Công ty Mẫu C");
         assertThat(invoice.items()).containsExactly(
                 new InvoiceItem(null, null, "Dịch vụ mẫu thứ nhất", null, null, null,
-                        new BigDecimal("1000.00"), null),
+                        new BigDecimal("1000.00"), null, new BigDecimal("100.00"), null),
                 new InvoiceItem(null, null, "Dịch vụ mẫu thứ hai", null, null, null,
-                        new BigDecimal("2000.00"), null));
+                        new BigDecimal("2000.00"), null, new BigDecimal("200.00"), null));
         assertThat(invoice.taxRateSummaries())
                 .containsExactly(new TaxRateSummary("10%", new BigDecimal("3000.00"), new BigDecimal("300")));
         assertThat(invoice.totals()).isEqualTo(new InvoiceTotals(
-                new BigDecimal("3000"), new BigDecimal("300"), new BigDecimal("3300"), "Ba nghìn ba trăm đồng"));
+                new BigDecimal("3000"), new BigDecimal("300"), null, new BigDecimal("3300"), "Ba nghìn ba trăm đồng"));
         assertThat(invoice.taxAuthorityCode()).isNull();
         assertThat(invoice.extensions()).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[1]/STCKhau", "100.00",
-                "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STCKhau", "200.00",
                 "HDon/DLHDon/NDHDon/NBan/MDDKDoanh[1]/TDDKDoanh", "  Điểm mẫu 1  ",
                 "HDon/DLHDon/NDHDon/NBan/MDDKDoanh[2]/TDDKDoanh", "Điểm mẫu 2"));
+    }
+
+    @Test
+    void parsesDiscountsWithTheirOriginalDecimalScale() throws IOException {
+        var invoice = parser.parse(fixture("vat-line-discount.xml"));
+
+        assertThat(invoice.items().get(0).discountRate()).isEqualTo(new BigDecimal("10.000"));
+        assertThat(invoice.items().get(0).discountAmount()).isEqualTo(new BigDecimal("50.00"));
+        assertThat(invoice.items().get(1).discountRate()).isNull();
+        assertThat(invoice.items().get(1).discountAmount()).isNull();
+        assertThat(invoice.totals().totalTradeDiscount()).isEqualTo(new BigDecimal("50.000"));
+        assertThat(invoice.extensions()).isEmpty();
+    }
+
+    @Test
+    void rejectsInvalidDiscountNumbersAtTheirXmlPaths() throws IOException {
+        String xml = new String(fixture("vat-line-discount.xml"), StandardCharsets.UTF_8);
+        for (String tag : List.of("TLCKhau", "STCKhau", "TTCKTMai")) {
+            String invalid = xml.replaceFirst("<" + tag + ">[^<]+", "<" + tag + ">invalid");
+            var error = assertThrows(InvoiceXmlException.class, () -> parser.parse(bytes(invalid)));
+            String parent = tag.equals("TTCKTMai") ? "TToan" : "DSHHDVu/HHDVu[1]";
+            assertThat(error.code()).isEqualTo(INVALID_NUMBER);
+            assertThat(error.path()).isEqualTo("HDon/DLHDon/NDHDon/" + parent + "/" + tag);
+        }
     }
 
     @Test
@@ -115,9 +137,9 @@ class InvoiceXmlParserTest {
         assertThat(invoice.header().nonTariffAreaFlag()).isZero();
         assertThat(invoice.buyer()).isNull();
         assertThat(invoice.items()).containsExactly(
-                new InvoiceItem(1, null, "Hàng mẫu", null, null, null, new BigDecimal("90"), null));
+                new InvoiceItem(1, null, "Hàng mẫu", null, null, null, new BigDecimal("90"), null, null, null));
         assertThat(invoice.taxRateSummaries()).isEmpty();
-        assertThat(invoice.totals()).isEqualTo(new InvoiceTotals(null, null, new BigDecimal("90"), "Chín mươi đồng"));
+        assertThat(invoice.totals()).isEqualTo(new InvoiceTotals(null, null, null, new BigDecimal("90"), "Chín mươi đồng"));
         assertThat(invoice.taxAuthorityCode()).isNull();
     }
 
@@ -129,10 +151,10 @@ class InvoiceXmlParserTest {
         assertThat(xml).startsWith((byte) 0xff, (byte) 0xfe);
         assertIdentity(invoice, "00000004", "C26MAU", "Cửa hàng Mẫu Đ");
         assertThat(invoice.items()).containsExactly(
-                new InvoiceItem(null, null, "Ấm trà mẫu", null, null, null, new BigDecimal("70.00"), null));
+                new InvoiceItem(null, null, "Ấm trà mẫu", null, null, null, new BigDecimal("70.00"), null, null, null));
         assertThat(invoice.taxRateSummaries()).isEmpty();
         assertThat(invoice.totals()).isEqualTo(
-                new InvoiceTotals(null, null, new BigDecimal("70.00"), "Bảy mươi đồng"));
+                new InvoiceTotals(null, null, null, new BigDecimal("70.00"), "Bảy mươi đồng"));
         assertThat(invoice.taxAuthorityCode()).isNull();
         assertThat(parser.parse(new ByteArrayInputStream(xml))).isEqualTo(invoice);
     }

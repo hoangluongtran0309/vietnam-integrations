@@ -194,6 +194,8 @@ public final class InvoiceXmlParser {
                 decimal(item, "SLuong"),
                 decimal(item, "DGia"),
                 decimal(item, "ThTien"),
+                decimal(item, "TLCKhau"),
+                decimal(item, "STCKhau"),
                 string(item, "TSuat"));
     }
 
@@ -205,6 +207,7 @@ public final class InvoiceXmlParser {
         return new InvoiceTotals(
                 decimal(totals, "TgTCThue"),
                 decimal(totals, "TgTThue"),
+                decimal(totals, "TTCKTMai"),
                 decimal(totals, "TgTTTBSo"),
                 string(totals, "TgTTTBChu"));
     }

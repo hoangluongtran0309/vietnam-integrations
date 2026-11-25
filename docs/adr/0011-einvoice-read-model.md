@@ -29,7 +29,7 @@ Model chỉ khai báo các thẻ trong bảng trường bắt buộc của
 [cơ sở pháp lý](../einvoice/legal-basis.md#trường-bắt-buộc-của-hóa-đơn-gtgt-và-hóa-đơn-bán-hàng). Các thẻ khác được
 giữ trong `InvoiceDocument.extensions`. Key là đường dẫn XML đầy đủ bắt đầu từ `HDon`, value là text gốc. Ở mỗi
 bước, phần tử có anh em cùng tên mang chỉ số bắt đầu từ 1 theo cú pháp XPath, ví dụ
-`HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STCKhau`. Phần tử duy nhất mang tên đó trong nhóm anh em được ghi
+`HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STT`. Phần tử duy nhất mang tên đó trong nhóm anh em được ghi
 bằng tên thẻ. Javadoc của từng field ghi đường dẫn thẻ XML tương ứng.
 
 Thông tin bên bán và bên mua có thể là dữ liệu cá nhân nên `toString()` che tên, mã số thuế, địa chỉ và họ tên người

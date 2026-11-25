@@ -28,7 +28,7 @@ class InvoiceDocumentTest {
 
     @Test
     void defensivelyCopiesCollectionsAndExposesImmutableViews() {
-        InvoiceItem item = new InvoiceItem(null, null, null, null, null, null, null, null);
+        InvoiceItem item = new InvoiceItem(null, null, null, null, null, null, null, null, null, null);
         TaxRateSummary summary = new TaxRateSummary(null, null, null);
         InvoiceSignature signature = new InvoiceSignature(SignerRole.SELLER, null, null);
         List<InvoiceItem> items = new ArrayList<>(List.of(item));
@@ -75,8 +75,8 @@ class InvoiceDocumentTest {
 
     @Test
     void preservesExtensionsWithSameTagOnDifferentInvoiceItems() {
-        String firstPath = "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[1]/STCKhau";
-        String secondPath = "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STCKhau";
+        String firstPath = "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[1]/STT";
+        String secondPath = "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STT";
         InvoiceDocument document = new InvoiceDocument(
                 null, null, null, null, null, null, null, null,
                 Map.of(firstPath, "100.00", secondPath, "200.00"));
@@ -106,11 +106,11 @@ class InvoiceDocumentTest {
                 "SOLUTION-PROVIDER-TAX-CODE-SENTINEL");
         InvoiceItem item = new InvoiceItem(
                 1, "ITEM-1", "Service", "unit", new BigDecimal("1.000000"), new BigDecimal("1000.50"),
-                new BigDecimal("1000.500000"), "10%");
+                new BigDecimal("1000.500000"), null, null, "10%");
         TaxRateSummary summary = new TaxRateSummary(
                 "10%", new BigDecimal("1000.500000"), new BigDecimal("100.050000"));
         InvoiceTotals totals = new InvoiceTotals(
-                new BigDecimal("1000.500000"), new BigDecimal("100.050000"), new BigDecimal("1100.550000"),
+                new BigDecimal("1000.500000"), new BigDecimal("100.050000"), null, new BigDecimal("1100.550000"),
                 "One thousand one hundred");
 
         InvoiceDocument document = new InvoiceDocument(

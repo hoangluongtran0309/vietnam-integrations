@@ -22,7 +22,7 @@ không import hoặc chuyển đổi sang `Invoice`, `InvoiceLine`, `Party`, `Ta
   `Integer`. Read model không dùng enum khi danh sách giá trị hợp lệ chưa được xác minh.
 - `InvoiceDocument.extensions` giữ text gốc của thẻ chưa được mô hình hóa. Key là đường dẫn XML đầy đủ bắt đầu
   từ `HDon`. Ở mỗi bước, phần tử có anh em cùng tên mang chỉ số bắt đầu từ 1 theo cú pháp XPath, ví dụ
-  `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STCKhau`. Phần tử duy nhất mang tên đó trong nhóm anh em được ghi
+  `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STT`. Phần tử duy nhất mang tên đó trong nhóm anh em được ghi
   bằng tên thẻ. Parser sau này chịu trách nhiệm điền map.
 - `InvoiceParty.toString()` che tên, mã số thuế, địa chỉ và họ tên người mua. `InvoiceDocument.toString()` chỉ in
   key của `extensions`, không in value chưa biết có chứa dữ liệu cá nhân hay không.
@@ -64,17 +64,24 @@ API, không phải tính bắt buộc pháp lý của XML.
 | `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu/SLuong` | `InvoiceItem.quantity` | `BigDecimal` | Có | Có điều kiện; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu/DGia` | `InvoiceItem.unitPrice` | `BigDecimal` | Có | Có điều kiện; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu/ThTien` | `InvoiceItem.amount` | `BigDecimal` | Có | Không tự tính lại; giữ nguyên scale |
+| `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu/TLCKhau` | `InvoiceItem.discountRate` | `BigDecimal` | Có | Tỷ lệ chiết khấu dòng; giữ nguyên scale |
+| `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu/STCKhau` | `InvoiceItem.discountAmount` | `BigDecimal` | Có | Tiền chiết khấu dòng; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu/TSuat` | `InvoiceItem.taxRate` | `String` | Có | Giữ nguyên text; TODO(v0.3): verify danh sách giá trị — bản gốc QĐ 1233/QĐ-CT và XSD chính thức |
 | `HDon/DLHDon/NDHDon/TToan/THTTLTSuat/LTSuat/TSuat` | `TaxRateSummary.taxRate` | `String` | Có | Giữ nguyên text; TODO(v0.3): verify danh sách giá trị — bản gốc QĐ 1233/QĐ-CT và XSD chính thức |
 | `HDon/DLHDon/NDHDon/TToan/THTTLTSuat/LTSuat/ThTien` | `TaxRateSummary.amount` | `BigDecimal` | Có | Không tự cộng lại; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/TToan/THTTLTSuat/LTSuat/TThue` | `TaxRateSummary.taxAmount` | `BigDecimal` | Có | Có điều kiện; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/TToan/TgTCThue` | `InvoiceTotals.totalAmountBeforeTax` | `BigDecimal` | Có | Không tự cộng lại; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/TToan/TgTThue` | `InvoiceTotals.totalTaxAmount` | `BigDecimal` | Có | Không tự cộng lại; giữ nguyên scale |
+| `HDon/DLHDon/NDHDon/TToan/TTCKTMai` | `InvoiceTotals.totalTradeDiscount` | `BigDecimal` | Có | Tổng chiết khấu thương mại; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/TToan/TgTTTBSo` | `InvoiceTotals.totalPaymentAmount` | `BigDecimal` | Có | Không tự cộng lại; giữ nguyên scale |
 | `HDon/DLHDon/NDHDon/TToan/TgTTTBChu` | `InvoiceTotals.totalPaymentAmountInWords` | `String` | Có | Nguồn thẻ thứ cấp |
 | `HDon/MCCQT` | `InvoiceDocument.taxAuthorityCode` | `String` | Có | Có điều kiện |
 | `HDon/DSCKS/NBan/ds:Signature` | phần tử `InvoiceDocument.signatures`, role `SELLER` | `InvoiceSignature` | Không | List không-null, có thể rỗng; không giữ byte chữ ký |
 | `HDon/DSCKS/CQT/ds:Signature` | phần tử `InvoiceDocument.signatures`, role `TAX_AUTHORITY` | `InvoiceSignature` | Không | List không-null, có thể rỗng; không giữ byte chữ ký |
+
+Ba thẻ chiết khấu dựa trên bản sao thứ cấp của QĐ 1233/QĐ-CT và quan sát trên hóa đơn thật.
+
+TODO(v0.3): verify the meaning of TLCKhau, STCKhau and TTCKTMai — official QD 1233/QD-CT technical appendix.
 
 Phần mô tả chữ ký trong `legal-basis.md` còn nêu chữ ký người mua và metadata XAdES. Chúng được ánh xạ riêng như
 sau; tên thẻ, namespace và cardinality vẫn là dữ liệu từ nguồn thứ cấp:
@@ -92,7 +99,7 @@ sau; tên thẻ, namespace và cardinality vẫn là dữ liệu từ nguồn th
 
 ## Ví dụ tạo read model bằng Java
 
-Ví dụ dùng dữ liệu giả cho hai dòng hàng. Hai giá trị `STCKhau` có key riêng nhờ chỉ số `HHDVu[1]` và `HHDVu[2]`.
+Ví dụ dùng dữ liệu giả cho hai dòng hàng. Hai giá trị `STT` có key riêng nhờ chỉ số `HHDVu[1]` và `HHDVu[2]`.
 
 ```java
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceDocument;
@@ -132,6 +139,8 @@ InvoiceItem firstItem = new InvoiceItem(
         new BigDecimal("1.00"),
         new BigDecimal("1100"),
         new BigDecimal("1000"),
+        null,
+        new BigDecimal("100.00"),
         "10%");
 
 InvoiceItem secondItem = new InvoiceItem(
@@ -142,6 +151,8 @@ InvoiceItem secondItem = new InvoiceItem(
         new BigDecimal("1.00"),
         new BigDecimal("2200"),
         new BigDecimal("2000"),
+        null,
+        new BigDecimal("200.00"),
         "10%");
 
 TaxRateSummary taxSummary = new TaxRateSummary(
@@ -150,6 +161,7 @@ TaxRateSummary taxSummary = new TaxRateSummary(
 InvoiceTotals totals = new InvoiceTotals(
         new BigDecimal("3000"),
         new BigDecimal("300"),
+        new BigDecimal("300.00"),
         new BigDecimal("3300"),
         "Ba nghìn ba trăm đồng");
 
@@ -163,8 +175,8 @@ InvoiceDocument document = new InvoiceDocument(
         null,
         List.of(),
         Map.of(
-                "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[1]/STCKhau", "100.00",
-                "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STCKhau", "200.00"));
+                "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[1]/STT", "1",
+                "HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STT", "2"));
 ```
 
 Đối tượng trên chỉ là dữ liệu đã đọc. Việc trường nào bắt buộc, tổng tiền có khớp hay chữ ký có hợp lệ không thuộc

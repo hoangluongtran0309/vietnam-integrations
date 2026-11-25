@@ -184,6 +184,8 @@ class RealInvoiceSamplesTest {
             fields.add(itemPath, "SLuong", item.quantity());
             fields.add(itemPath, "DGia", item.unitPrice());
             fields.add(itemPath, "ThTien", item.amount());
+            fields.add(itemPath, "TLCKhau", item.discountRate());
+            fields.add(itemPath, "STCKhau", item.discountAmount());
             fields.add(itemPath, "TSuat", item.taxRate());
         }
         String summaryPath = repeatedPath(SUMMARY, invoice.taxRateSummaries().size());
@@ -196,6 +198,7 @@ class RealInvoiceSamplesTest {
         if (totals != null) {
             fields.add(TOTALS, "TgTCThue", totals.totalAmountBeforeTax());
             fields.add(TOTALS, "TgTThue", totals.totalTaxAmount());
+            fields.add(TOTALS, "TTCKTMai", totals.totalTradeDiscount());
             fields.add(TOTALS, "TgTTTBSo", totals.totalPaymentAmount());
             fields.add(TOTALS, "TgTTTBChu", totals.totalPaymentAmountInWords());
         }

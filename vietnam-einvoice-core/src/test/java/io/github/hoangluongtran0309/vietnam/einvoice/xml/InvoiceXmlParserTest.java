@@ -1,9 +1,11 @@
 package io.github.hoangluongtran0309.vietnam.einvoice.xml;
 
+import io.github.hoangluongtran0309.vietnam.einvoice.document.CertificateInfo;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceDocument;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceHeader;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceItem;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceParty;
+import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceSignature;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceTotals;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.TaxRateSummary;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +31,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static io.github.hoangluongtran0309.vietnam.einvoice.document.SignerRole.BUYER;
+import static io.github.hoangluongtran0309.vietnam.einvoice.document.SignerRole.SELLER;
+import static io.github.hoangluongtran0309.vietnam.einvoice.document.SignerRole.TAX_AUTHORITY;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.DOCTYPE_NOT_ALLOWED;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.DUPLICATE_ELEMENT;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INPUT_TOO_LARGE;
+import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_CERTIFICATE;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_DATE;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_INTEGER;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_NUMBER;
@@ -138,6 +145,96 @@ class InvoiceXmlParserTest {
                 """.getBytes(StandardCharsets.ISO_8859_1);
 
         assertThat(parser.parse(xml).seller().name()).isEqualTo("Cà phê");
+    }
+
+    @Test
+    void readsSigningTimesAndPublicCertificatesFromSyntheticSignatures() throws IOException {
+        InvoiceDocument invoice = parser.parse(fixture("signed-metadata.xml"));
+
+        assertThat(invoice.signatures()).containsExactly(
+                new InvoiceSignature(SELLER, Instant.parse("2026-11-25T02:30:00Z"),
+                        certificate("Synthetic Test Seller", "8da396a3a0c0264b")),
+                new InvoiceSignature(TAX_AUTHORITY, Instant.parse("2026-11-25T02:45:00Z"),
+                        certificate("Synthetic Test Tax Authority", "155f060354d02830")));
+        assertThat(invoice.extensions()).isEmpty();
+    }
+
+    @Test
+    void readsBuyerMetadataAndUsesOnlyTheFirstXmlDsigCertificate() throws IOException {
+        String xml = new String(fixture("signed-metadata.xml"), StandardCharsets.UTF_8)
+                .replace("<NBan>", "<NMua>")
+                .replace("</NBan>", "</NMua>")
+                .replaceFirst("<ds:X509Data>", """
+                        <ds:X509Data><xades:X509Certificate>a===</xades:X509Certificate>
+                        """)
+                .replaceFirst("</ds:X509Certificate>", """
+                        </ds:X509Certificate><ds:X509Certificate>a===</ds:X509Certificate>
+                        """);
+
+        InvoiceSignature buyer = parser.parse(bytes(xml)).signatures().get(0);
+        assertThat(buyer).isEqualTo(new InvoiceSignature(BUYER, Instant.parse("2026-11-25T02:30:00Z"),
+                certificate("Synthetic Test Seller", "8da396a3a0c0264b")));
+    }
+
+    @Test
+    void readsEveryXmlDsigSignatureAndAllowsMissingMetadata() {
+        InvoiceDocument invoice = parse("""
+                <HDon xmlns:d="http://www.w3.org/2000/09/xmldsig#" xmlns:other="urn:synthetic:other">
+                  <DSCKS>
+                    <NMua>
+                      <other:Signature/>
+                      <d:Signature>
+                        <SigningTime>outside-object</SigningTime>
+                        <other:Object><SigningTime>wrong-namespace</SigningTime></other:Object>
+                        <d:Object><SigningTime> </SigningTime></d:Object>
+                      </d:Signature>
+                      <d:Signature><d:KeyInfo/></d:Signature>
+                    </NMua>
+                  </DSCKS>
+                </HDon>
+                """);
+
+        assertThat(invoice.signatures()).containsExactly(
+                new InvoiceSignature(BUYER, null, null), new InvoiceSignature(BUYER, null, null));
+    }
+
+    @Test
+    void rejectsInvalidBase64AndNonCertificateData() {
+        for (String invalidCertificate : List.of("a===", "RkFLRQ==")) {
+            InvoiceXmlException error = failure("""
+                    <HDon xmlns:d="http://www.w3.org/2000/09/xmldsig#">
+                      <DSCKS><NBan><d:Signature><d:KeyInfo><d:X509Data>
+                        <d:X509Certificate>%s</d:X509Certificate>
+                      </d:X509Data></d:KeyInfo></d:Signature></NBan></DSCKS>
+                    </HDon>
+                    """.formatted(invalidCertificate), INVALID_CERTIFICATE,
+                    "HDon/DSCKS/NBan/Signature/KeyInfo/X509Data/X509Certificate");
+            assertThat(error).hasMessageNotContaining(invalidCertificate).hasNoCause();
+        }
+    }
+
+    @Test
+    void signingTimeRequiresAnIsoDateTimeWithOffset() {
+        String invalidTime = "2026-11-25T09:30:00";
+        InvoiceXmlException error = failure("""
+                <HDon xmlns:d="http://www.w3.org/2000/09/xmldsig#">
+                  <DSCKS><NBan><d:Signature><d:Object>
+                    <SigningTime>%s</SigningTime>
+                  </d:Object></d:Signature></NBan></DSCKS>
+                </HDon>
+                """.formatted(invalidTime), INVALID_DATE, "HDon/DSCKS/NBan/Signature/Object/SigningTime");
+        assertThat(error).hasMessageNotContaining(invalidTime).hasNoCause();
+    }
+
+    @Test
+    void rejectsRepeatedSigningTimeUnderTheSameParent() {
+        failure("""
+                <HDon xmlns:d="http://www.w3.org/2000/09/xmldsig#" xmlns:other="urn:synthetic:other">
+                  <DSCKS><NBan><d:Signature><d:Object>
+                    <SigningTime/><other:SigningTime/>
+                  </d:Object></d:Signature></NBan></DSCKS>
+                </HDon>
+                """, DUPLICATE_ELEMENT, "HDon/DSCKS/NBan/Signature/Object/SigningTime[2]");
     }
 
     @Test
@@ -394,6 +491,12 @@ class InvoiceXmlParserTest {
         assertThat(invoice.header().invoiceSymbol()).isEqualTo(symbol);
         assertThat(invoice.header().issueDate()).isEqualTo(ISSUE_DATE);
         assertThat(invoice.seller().name()).isEqualTo(sellerName);
+    }
+
+    private static CertificateInfo certificate(String commonName, String serialNumber) {
+        String dn = "CN=" + commonName;
+        return new CertificateInfo(dn, dn, serialNumber, Instant.parse("2026-11-25T00:00:00Z"),
+                Instant.parse("2036-11-25T00:00:00Z"));
     }
 
     private InvoiceDocument parse(String xml) {

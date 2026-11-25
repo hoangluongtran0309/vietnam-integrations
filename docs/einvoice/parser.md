@@ -78,6 +78,25 @@ và `extensions`. Xem
 
 Bộ test hiện dùng XML tổng hợp tự dựng theo bảng thẻ từ bản sao thứ cấp của QĐ 1233/QĐ-CT. Các chữ ký
 trong fixture chỉ phục vụ kiểm tra việc trích metadata và có `SignatureValue` giả. Kết quả test xác nhận
-parser khớp với cách repo hiểu tài liệu. Khả năng tương thích với hóa đơn thật hoặc XML từ sandbox
-chưa được xác minh. Xem [danh mục fixture](../../vietnam-einvoice-core/src/test/resources/einvoice/synthetic/README.md)
+parser khớp với cách repo hiểu tài liệu. Khả năng tương thích với XML từ sandbox còn chờ kiểm chứng.
+Xem [danh mục fixture](../../vietnam-einvoice-core/src/test/resources/einvoice/synthetic/README.md)
 và [các điểm chưa xác minh](legal-basis.md#chưa-xác-minh).
+
+Parser đã được kiểm với một hóa đơn thật phiên bản `2.1.0` trên máy của chủ dự án. Tệp XML được lưu
+ngoài repo và chưa từng được commit. Trong mẫu này, thẻ nghiệp vụ không có namespace, `NLap` có dạng
+`yyyy-MM-dd` và số tiền có tối đa 6 chữ số thập phân. `HVTNMHang` là trường người mua duy nhất được ánh
+xạ. Mẫu có `MCCQT` và `DSCKS` không chứa chữ ký số. Nhà cung cấp bổ sung nhiều khối `TTKhac/TTin`.
+Các thẻ `STT`, `TLCKhau`, `STCKhau`, `TTCKTMai`, `DLQRCode`, `KBHang`, `TGHang` và `MDHang` được giữ
+trong `extensions`. Ý nghĩa của các thẻ này chưa được xác minh.
+
+<!-- TODO(v0.3): verify the meaning of the unmapped tags — provider XML format documentation. -->
+
+Để chạy lại, đặt các tệp XML trong một thư mục riêng ngoài repo và trỏ `EINVOICE_REAL_SAMPLES_DIR`
+đến thư mục đó. Test xuất số đếm, scale và đường dẫn thẻ đã chuẩn hóa. Khi không đặt biến môi trường,
+JUnit bỏ qua `RealInvoiceSamplesTest`.
+
+```bash
+EINVOICE_REAL_SAMPLES_DIR="$HOME/einvoice-samples/originals" \
+  ./mvnw -B -pl vietnam-einvoice-core -am test \
+  -Dtest=RealInvoiceSamplesTest -Dsurefire.failIfNoSpecifiedTests=false
+```

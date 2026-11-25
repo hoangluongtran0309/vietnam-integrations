@@ -193,6 +193,11 @@ String payload = new VietQrEncoder().encode(VietQrRequest.builder()
         .build());
 ```
 
+## Đọc hóa đơn điện tử
+
+Bản phát triển của `vietnam-einvoice-core` cung cấp `InvoiceXmlParser` và `InvoiceValidator` cho XML hóa đơn
+đã phát hành. [Đọc XML](docs/einvoice/parser.md) · [Kiểm tra hóa đơn](docs/einvoice/validation.md).
+
 ## Chạy thử
 
 ```bash

@@ -88,12 +88,12 @@ class InvoiceXmlParserTest {
     void usesLocalNamesAndIndexesAllRepeatedPathSteps() throws IOException {
         InvoiceDocument invoice = parser.parse(fixture("vat-with-extensions.xml"));
 
-        assertIdentity(invoice, "00000002", "C26MAU", "Công ty Mẫu C");
+        assertIdentity(invoice, "00000002", "K26MAU", "Công ty Mẫu C");
         assertThat(invoice.items()).containsExactly(
-                new InvoiceItem(null, null, "Dịch vụ mẫu thứ nhất", null, null, null,
-                        new BigDecimal("1000.00"), null, new BigDecimal("100.00"), null),
-                new InvoiceItem(null, null, "Dịch vụ mẫu thứ hai", null, null, null,
-                        new BigDecimal("2000.00"), null, new BigDecimal("200.00"), null));
+                new InvoiceItem(1, null, "Dịch vụ mẫu thứ nhất", null, null, null,
+                        new BigDecimal("1000.00"), null, new BigDecimal("100.00"), "10%"),
+                new InvoiceItem(1, null, "Dịch vụ mẫu thứ hai", null, null, null,
+                        new BigDecimal("2000.00"), null, new BigDecimal("200.00"), "10%"));
         assertThat(invoice.taxRateSummaries())
                 .containsExactly(new TaxRateSummary("10%", new BigDecimal("3000.00"), new BigDecimal("300")));
         assertThat(invoice.totals()).isEqualTo(new InvoiceTotals(
@@ -149,9 +149,9 @@ class InvoiceXmlParserTest {
         InvoiceDocument invoice = parser.parse(xml);
 
         assertThat(xml).startsWith((byte) 0xff, (byte) 0xfe);
-        assertIdentity(invoice, "00000004", "C26MAU", "Cửa hàng Mẫu Đ");
+        assertIdentity(invoice, "00000004", "K26MAU", "Cửa hàng Mẫu Đ");
         assertThat(invoice.items()).containsExactly(
-                new InvoiceItem(null, null, "Ấm trà mẫu", null, null, null, new BigDecimal("70.00"), null, null, null));
+                new InvoiceItem(1, null, "Ấm trà mẫu", null, null, null, new BigDecimal("70.00"), null, null, null));
         assertThat(invoice.taxRateSummaries()).isEmpty();
         assertThat(invoice.totals()).isEqualTo(
                 new InvoiceTotals(null, null, null, new BigDecimal("70.00"), "Bảy mươi đồng"));
@@ -184,8 +184,8 @@ class InvoiceXmlParserTest {
     @Test
     void readsBuyerMetadataAndUsesOnlyTheFirstXmlDsigCertificate() throws IOException {
         String xml = new String(fixture("signed-metadata.xml"), StandardCharsets.UTF_8)
-                .replace("<NBan>", "<NMua>")
-                .replace("</NBan>", "</NMua>")
+                .replace("<NBan>\n      <ds:Signature>", "<NMua>\n      <ds:Signature>")
+                .replace("</ds:Signature>\n    </NBan>", "</ds:Signature>\n    </NMua>")
                 .replaceFirst("<ds:X509Data>", """
                         <ds:X509Data><xades:X509Certificate>a===</xades:X509Certificate>
                         """)

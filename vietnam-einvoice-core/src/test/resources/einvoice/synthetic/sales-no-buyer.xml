@@ -4,9 +4,10 @@
     <TTChung>
       <PBan>2.1.0</PBan><THDon>Hóa đơn bán hàng</THDon><KHMSHDon>2</KHMSHDon>
       <KHHDon>K26MAU</KHHDon><NLap>2026-11-25</NLap><HDDCKPTQuan>0</HDDCKPTQuan><DVTTe>VND</DVTTe>
+      <HTTToan>Chuyển khoản</HTTToan><MSTTCGP>MST-MAU-GP</MSTTCGP>
     </TTChung>
     <NDHDon>
-      <NBan><Ten>Cửa hàng Mẫu D</Ten></NBan>
+      <NBan><Ten>Cửa hàng Mẫu D</Ten><MST>MST-MAU-BAN</MST><DChi>Địa chỉ mẫu</DChi></NBan>
       <DSHHDVu><HHDVu><TChat>1</TChat><THHDVu>Hàng mẫu</THHDVu><ThTien>90</ThTien></HHDVu></DSHHDVu>
       <TToan><TgTTTBSo>90</TgTTTBSo><TgTTTBChu>Chín mươi đồng</TgTTTBChu></TToan>
     </NDHDon>

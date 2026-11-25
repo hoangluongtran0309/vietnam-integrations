@@ -2,17 +2,19 @@
 <HDon xmlns="urn:synthetic:invoice" xmlns:mau="urn:synthetic:other">
   <DLHDon>
     <TTChung>
-      <PBan>2.1.1</PBan><KHHDon>C26MAU</KHHDon><SHDon>00000002</SHDon><NLap>2026-11-25</NLap>
+      <PBan>2.1.1</PBan><THDon>Hóa đơn giá trị gia tăng</THDon><KHMSHDon>1</KHMSHDon>
+      <HDCTTChinh>0</HDCTTChinh><DVTTe>VND</DVTTe><HTTToan>Chuyển khoản</HTTToan><MSTTCGP>MST-MAU-GP</MSTTCGP>
+      <KHHDon>K26MAU</KHHDon><SHDon>00000002</SHDon><NLap>2026-11-25</NLap>
     </TTChung>
     <NDHDon>
       <NBan>
-        <Ten>Công ty Mẫu C</Ten>
+        <Ten>Công ty Mẫu C</Ten><MST>MST-MAU-C</MST><DChi>Địa chỉ mẫu C</DChi>
         <MDDKDoanh><TDDKDoanh>  Điểm mẫu 1  </TDDKDoanh></MDDKDoanh>
         <mau:MDDKDoanh><TDDKDoanh>Điểm mẫu 2</TDDKDoanh></mau:MDDKDoanh>
       </NBan>
       <DSHHDVu>
-        <HHDVu><THHDVu>Dịch vụ mẫu thứ nhất</THHDVu><ThTien>1000.00</ThTien><STCKhau>100.00</STCKhau></HHDVu>
-        <mau:HHDVu><THHDVu>Dịch vụ mẫu thứ hai</THHDVu><ThTien>2000.00</ThTien><STCKhau>200.00</STCKhau></mau:HHDVu>
+        <HHDVu><TChat>1</TChat><THHDVu>Dịch vụ mẫu thứ nhất</THHDVu><ThTien>1000.00</ThTien><STCKhau>100.00</STCKhau><TSuat>10%</TSuat></HHDVu>
+        <mau:HHDVu><TChat>1</TChat><THHDVu>Dịch vụ mẫu thứ hai</THHDVu><ThTien>2000.00</ThTien><STCKhau>200.00</STCKhau><TSuat>10%</TSuat></mau:HHDVu>
       </DSHHDVu>
       <TToan>
         <THTTLTSuat><LTSuat><TSuat>10%</TSuat><ThTien>3000.00</ThTien><TThue>300</TThue></LTSuat></THTTLTSuat>

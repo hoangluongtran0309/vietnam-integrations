@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HDon xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xades="urn:synthetic:xades">
+  <DLHDon>
+    <TTChung>
+      <PBan>2.1.0</PBan><THDon>Hóa đơn bán hàng</THDon><KHMSHDon>2</KHMSHDon>
+      <KHHDon>K26MAU</KHHDon><SHDon>00000003</SHDon><NLap>2026-11-25</NLap><HDDCKPTQuan>0</HDDCKPTQuan><DVTTe>VND</DVTTe>
+      <HTTToan>Chuyển khoản</HTTToan><MSTTCGP>MST-MAU-GP</MSTTCGP>
+    </TTChung>
+    <NDHDon>
+      <NBan><Ten>Cửa hàng Mẫu F</Ten><MST>MST-MAU-BAN</MST><DChi>Địa chỉ mẫu</DChi></NBan>
+      <DSHHDVu><HHDVu><TChat>1</TChat><THHDVu>Hàng mẫu</THHDVu><ThTien>90</ThTien></HHDVu></DSHHDVu>
+      <TToan><TgTTTBSo>90</TgTTTBSo><TgTTTBChu>Chín mươi đồng</TgTTTBChu></TToan>
+    </NDHDon>
+  </DLHDon>
   <DSCKS>
     <NBan>
       <ds:Signature>

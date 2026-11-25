@@ -2,6 +2,7 @@ package io.github.hoangluongtran0309.vietnam.einvoice.xml;
 
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceDocument;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceParty;
+import io.github.hoangluongtran0309.vietnam.einvoice.validation.InvoiceValidator;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -89,7 +90,20 @@ class RealInvoiceSamplesTest {
                         leafCount, accountedFor)),
                 () -> invoice.extensions().keySet().forEach(path -> assertTrue(
                         path.startsWith("HDon/") && !path.contains("DSCKS"),
-                        () -> "Invalid extension path: " + normalize(path))));
+                        () -> "Invalid extension path: " + normalize(path))),
+                () -> checkValidation(invoice));
+    }
+
+    private static void checkValidation(InvoiceDocument invoice) {
+        var report = InvoiceValidator.defaults().validate(invoice);
+        var counts = new TreeMap<String, Integer>();
+        report.issues().forEach(issue -> counts.merge(
+                issue.code() + " " + issue.severity() + " " + normalize(issue.path()), 1, Integer::sum));
+        counts.forEach((issue, count) -> System.out.printf("%s = %d%n", issue, count));
+        assertTrue(report.isValid(), () -> "Validation errors: " + report.errors().stream()
+                .map(issue -> issue.code() + " " + issue.severity() + " " + normalize(issue.path()))
+                .distinct()
+                .toList());
     }
 
     private static InvoiceDocument parseSample(Path sample) {

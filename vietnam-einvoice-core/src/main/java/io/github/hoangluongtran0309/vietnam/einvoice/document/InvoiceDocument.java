@@ -19,7 +19,7 @@ import java.util.Objects;
  *                   {@code null}
  * @param extensions original text of other XML elements, keyed by their full XML path starting at {@code HDon}.
  *                   Each path step for an element with same-name siblings includes a 1-based XPath-style index,
- *                   as in {@code HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STCKhau}. A step with no same-name siblings
+ *                   as in {@code HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STT}. A step with no same-name siblings
  *                   has no index. The map is never {@code null} and rejects {@code null} keys and values.
  */
 public record InvoiceDocument(

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HDon>
+  <DLHDon>
+    <TTChung>
+      <PBan>2.1.1</PBan><THDon>Hóa đơn giá trị gia tăng</THDon><KHMSHDon>1</KHMSHDon>
+      <KHHDon>K26TMA</KHHDon><SHDon>00000005</SHDon><NLap>2026-11-25</NLap>
+      <HDCTTChinh>0</HDCTTChinh><DVTTe>VND</DVTTe><HTTToan>Chuyển khoản</HTTToan><MSTTCGP>MST-MAU-GP</MSTTCGP>
+    </TTChung>
+    <NDHDon>
+      <NBan><Ten>Công ty Mẫu E</Ten><MST>MST-MAU-E</MST><DChi>Địa chỉ mẫu E</DChi></NBan>
+      <DSHHDVu>
+        <HHDVu>
+          <TChat>1</TChat><THHDVu>Dịch vụ mẫu</THHDVu><SLuong>2.00</SLuong><DGia>250.00</DGia>
+          <ThTien>450.000</ThTien><TLCKhau>10.000</TLCKhau><STCKhau>50.00</STCKhau><TSuat>10%</TSuat>
+        </HHDVu>
+        <HHDVu><TChat>1</TChat><THHDVu>Hàng mẫu</THHDVu><SLuong>1</SLuong><DGia>550</DGia><ThTien>550</ThTien><TSuat>10%</TSuat></HHDVu>
+      </DSHHDVu>
+      <TToan>
+        <THTTLTSuat><LTSuat><TSuat>10%</TSuat><ThTien>1000</ThTien><TThue>100</TThue></LTSuat></THTTLTSuat>
+        <TgTCThue>1000</TgTCThue><TgTThue>100</TgTThue><TTCKTMai>50.000</TTCKTMai>
+        <TgTTTBSo>1100</TgTTTBSo><TgTTTBChu>Một nghìn một trăm đồng</TgTTTBChu>
+      </TToan>
+    </NDHDon>
+  </DLHDon>
+</HDon>

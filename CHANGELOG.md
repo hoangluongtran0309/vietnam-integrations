@@ -8,7 +8,7 @@
 
 - E-invoice: read model cho XML hóa đơn đã phát hành trong package
   `io.github.hoangluongtran0309.vietnam.einvoice.document`. `extensions` giữ text gốc theo đường dẫn XML có chỉ số
-  cho các phần tử lặp cùng tên. Xem
+  cho các phần tử lặp cùng tên. Read model ánh xạ tỷ lệ và tiền chiết khấu dòng cùng tổng chiết khấu thương mại. Xem
   [ADR-0011](docs/adr/0011-einvoice-read-model.md).
 - E-invoice: `InvoiceXmlParser` đọc XML hóa đơn với giới hạn kích thước và số phần tử, trích metadata chữ ký
   và đã được kiểm bằng fixture tổng hợp. [ADR-0012](docs/adr/0012-einvoice-xml-parser.md).

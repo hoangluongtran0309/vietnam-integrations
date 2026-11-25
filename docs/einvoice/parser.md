@@ -86,8 +86,8 @@ Parser đã được kiểm với một hóa đơn thật phiên bản `2.1.0` t
 ngoài repo và chưa từng được commit. Trong mẫu này, thẻ nghiệp vụ không có namespace, `NLap` có dạng
 `yyyy-MM-dd` và số tiền có tối đa 6 chữ số thập phân. `HVTNMHang` là trường người mua duy nhất được ánh
 xạ. Mẫu có `MCCQT` và `DSCKS` không chứa chữ ký số. Nhà cung cấp bổ sung nhiều khối `TTKhac/TTin`.
-Các thẻ `STT`, `TLCKhau`, `STCKhau`, `TTCKTMai`, `DLQRCode`, `KBHang`, `TGHang` và `MDHang` được giữ
-trong `extensions`. Ý nghĩa của các thẻ này chưa được xác minh.
+Các thẻ `STT`, `DLQRCode`, `KBHang`, `TGHang` và `MDHang` được giữ
+trong `extensions`. Ba thẻ chiết khấu được ánh xạ vào [read model](read-model.md). Ý nghĩa của các thẻ này chưa được xác minh.
 
 <!-- TODO(v0.3): verify the meaning of the unmapped tags — provider XML format documentation. -->
 

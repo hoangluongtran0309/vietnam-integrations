@@ -67,8 +67,8 @@ Thông báo chỉ gồm mã lỗi, đường dẫn nếu có và mô tả ngắn
 
 ## Phạm vi xử lý
 
-Kiểm tra trường bắt buộc, schema, tính khớp của số tiền và xác minh chữ ký thuộc các bước riêng. Parser
-giữ nguyên `PBan` ở mọi phiên bản. Chữ ký được đọc dưới dạng metadata, gồm vai trò, thời điểm ký đã
+Sau khi parse, dùng [validator](validation.md) để kiểm tra trường bắt buộc và tính khớp của số tiền.
+Parser giữ nguyên `PBan` ở mọi phiên bản. Chữ ký được đọc dưới dạng metadata, gồm vai trò, thời điểm ký đã
 đổi sang `Instant` và thông tin từ chứng thư đầu tiên nếu có. Đầu vào là tài liệu `HDon` độc lập.
 Cây `HDon/DSCKS` nằm ngoài phạm vi thu thập `extensions`. Parser bỏ qua thuộc tính XML khi tạo model
 và `extensions`. Xem
@@ -92,7 +92,8 @@ trong `extensions`. Ba thẻ chiết khấu được ánh xạ vào [read model]
 <!-- TODO(v0.3): verify the meaning of the unmapped tags — provider XML format documentation. -->
 
 Để chạy lại, đặt các tệp XML trong một thư mục riêng ngoài repo và trỏ `EINVOICE_REAL_SAMPLES_DIR`
-đến thư mục đó. Test xuất số đếm, scale và đường dẫn thẻ đã chuẩn hóa. Khi không đặt biến môi trường,
+đến thư mục đó. Test xuất số đếm, scale và đường dẫn thẻ đã chuẩn hóa. Các issue của validator xuất theo mã,
+mức độ, đường dẫn chuẩn hóa và số lần xuất hiện. Khi không đặt biến môi trường,
 JUnit bỏ qua `RealInvoiceSamplesTest`.
 
 ```bash

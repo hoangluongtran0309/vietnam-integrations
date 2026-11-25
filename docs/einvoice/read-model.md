@@ -5,8 +5,7 @@ Xem [hướng dẫn đọc XML vào read model](parser.md).
 ## Mục đích
 
 Package `io.github.hoangluongtran0309.vietnam.einvoice.document` biểu diễn dữ liệu đã đọc từ XML hóa đơn do một
-đơn vị khác phát hành. Model này giữ lại cả tài liệu thiếu hoặc sai trường để parser và validator ở các work package
-sau có thể báo lỗi đúng vị trí.
+đơn vị khác phát hành. Model này giữ lại cả tài liệu thiếu hoặc sai trường để [validator](validation.md) có thể báo lỗi đúng vị trí.
 
 Read model độc lập với model phát hành trong package `io.github.hoangluongtran0309.vietnam.einvoice`. Model phát
 hành nhận dữ liệu đầu vào để tự tính thành tiền, tiền thuế và làm tròn; read model chỉ lưu số liệu người bán đã ghi,
@@ -23,7 +22,7 @@ không import hoặc chuyển đổi sang `Invoice`, `InvoiceLine`, `Party`, `Ta
 - `InvoiceDocument.extensions` giữ text gốc của thẻ chưa được mô hình hóa. Key là đường dẫn XML đầy đủ bắt đầu
   từ `HDon`. Ở mỗi bước, phần tử có anh em cùng tên mang chỉ số bắt đầu từ 1 theo cú pháp XPath, ví dụ
   `HDon/DLHDon/NDHDon/DSHHDVu/HHDVu[2]/STT`. Phần tử duy nhất mang tên đó trong nhóm anh em được ghi
-  bằng tên thẻ. Parser sau này chịu trách nhiệm điền map.
+  bằng tên thẻ. Parser điền map khi đọc XML.
 - `InvoiceParty.toString()` che tên, mã số thuế, địa chỉ và họ tên người mua. `InvoiceDocument.toString()` chỉ in
   key của `extensions`, không in value chưa biết có chứa dữ liệu cá nhân hay không.
 - Chữ ký chỉ lưu vai trò, thời điểm ký và metadata chứng thư. Model không giữ `X509Certificate`, byte chữ ký hoặc

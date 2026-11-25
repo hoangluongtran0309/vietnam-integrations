@@ -12,6 +12,9 @@
   [ADR-0011](docs/adr/0011-einvoice-read-model.md).
 - E-invoice: `InvoiceXmlParser` đọc XML hóa đơn với giới hạn kích thước và số phần tử, trích metadata chữ ký
   và đã được kiểm bằng fixture tổng hợp. [ADR-0012](docs/adr/0012-einvoice-xml-parser.md).
+- E-invoice: `InvoiceValidator` kiểm tra dữ liệu đã parse và trả báo cáo có mã, mức độ và đường dẫn XML.
+  Ứng dụng có thể cấu hình dung sai số tiền, đồng hồ và bổ sung rule.
+  [Hướng dẫn](docs/einvoice/validation.md) · [ADR-0013](docs/adr/0013-einvoice-validation.md).
 
 ## [0.2.0] - 2026-11-24
 

@@ -1,7 +1,6 @@
 # Cơ sở pháp lý và định dạng XML hóa đơn điện tử
 
-Tài liệu này ghi nhận kết quả đối chiếu tại ngày **24/11/2026**. Mọi URL trong tài liệu đã được truy cập trong
-ngày này. “Chính thức” nghĩa là bản đăng trên Công báo hoặc cổng của cơ quan nhà nước; “thứ cấp” nghĩa là bản sao
+Tài liệu này ghi nhận kết quả đối chiếu từ ngày **24/11/2026**. Ngày đối chiếu bổ sung được ghi ở mục liên quan. “Chính thức” nghĩa là bản đăng trên Công báo hoặc cổng của cơ quan nhà nước; “thứ cấp” nghĩa là bản sao
 trên cơ sở dữ liệu tư nhân và chưa thay thế việc đối chiếu bản gốc.
 
 ## Kết luận ngắn
@@ -125,6 +124,18 @@ thêm trường bắt buộc có điều kiện. Hóa đơn bán hàng của h�
 `NBan/MDDKDoanh`, `NBan/TDDKDoanh`, `NBan/DCDDKDoanh`. Không nên dùng bảng rút gọn này làm schema xác
 thực cho các trường hợp đó.
 
+### Phân loại cho validator
+
+Ngày 25/11/2026, đối chiếu mục 1 và 2 Phụ lục I Thông tư 91/2026/TT-BTC. Ký hiệu mẫu số `1` chỉ hóa đơn
+GTGT, `2` chỉ hóa đơn bán hàng. Ký tự đầu của ký hiệu hóa đơn là `C` khi có mã cơ quan thuế và `K` khi
+không có mã. Phụ lục phân loại riêng hóa đơn tích hợp biên lai với mẫu số `8` và `9`.
+[Công báo][circular-91] · [Bản ký số, trang PDF 34][circular-91-appendix].
+
+`EINV-REQ-003` dùng `KHMSHDon` để áp dụng các trường dành riêng cho GTGT hoặc bán hàng thông thường nêu
+trong bảng trên. `EINV-REQ-004` dùng tiền tố của `KHHDon` để yêu cầu có `MCCQT` theo Điều 10 Nghị định 254.
+Nguồn về tên thẻ XML và các trường bắt buộc riêng cho từng loại vẫn là bản sao thứ cấp của QĐ 1233.
+[Nghị định 254][decree-254] · [Bản sao QĐ 1233][decision-1233].
+
 ## Làm tròn và tính thuế
 
 ### Điều đã xác minh
@@ -243,6 +254,7 @@ quyết định, phụ lục kỹ thuật và gói XSD trước khi dùng làm t
 [law-108]: https://congbao.chinhphu.vn/van-ban/luat-so-108-2025-qh15-468670/61635.htm
 [decree-254]: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-254-2026-nd-cp-469957/66826.htm
 [circular-91]: https://congbao.chinhphu.vn/van-ban/thong-tu-so-91-2026-tt-btc-470171.htm
+[circular-91-appendix]: https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/7/91-btc.signed.pdf#page=34
 [decree-123]: https://congbao.chinhphu.vn/tai-ve-van-ban-so-123-2020-nd-cp-32290-33002?format=pdf
 [decree-41]: https://congbao.chinhphu.vn/van-ban-dang-cong-bao/chinh-phu-c1/trang-140.htm
 [decree-70]: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-70-2025-nd-cp-44623/55799.htm

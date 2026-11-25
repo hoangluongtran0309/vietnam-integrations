@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HDon xmlns="urn:synthetic:invoice" xmlns:mau="urn:synthetic:other">
+  <DLHDon>
+    <TTChung>
+      <PBan>2.1.1</PBan><KHHDon>C26MAU</KHHDon><SHDon>00000002</SHDon><NLap>2026-11-25</NLap>
+    </TTChung>
+    <NDHDon>
+      <NBan>
+        <Ten>Công ty Mẫu C</Ten>
+        <MDDKDoanh><TDDKDoanh>  Điểm mẫu 1  </TDDKDoanh></MDDKDoanh>
+        <mau:MDDKDoanh><TDDKDoanh>Điểm mẫu 2</TDDKDoanh></mau:MDDKDoanh>
+      </NBan>
+      <DSHHDVu>
+        <HHDVu><THHDVu>Dịch vụ mẫu thứ nhất</THHDVu><ThTien>1000.00</ThTien><STCKhau>100.00</STCKhau></HHDVu>
+        <mau:HHDVu><THHDVu>Dịch vụ mẫu thứ hai</THHDVu><ThTien>2000.00</ThTien><STCKhau>200.00</STCKhau></mau:HHDVu>
+      </DSHHDVu>
+      <TToan>
+        <THTTLTSuat><LTSuat><TSuat>10%</TSuat><ThTien>3000.00</ThTien><TThue>300</TThue></LTSuat></THTTLTSuat>
+        <TgTCThue>3000</TgTCThue><TgTThue>300</TgTThue><TgTTTBSo>3300</TgTTTBSo>
+        <TgTTTBChu>Ba nghìn ba trăm đồng</TgTTTBChu>
+      </TToan>
+    </NDHDon>
+  </DLHDon>
+  <DSCKS><STCKhau>Giá trị mẫu bỏ qua</STCKhau></DSCKS>
+</HDon>

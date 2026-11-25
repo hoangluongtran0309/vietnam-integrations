@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HDon>
+  <DLHDon>
+    <TTChung>
+      <PBan>2.1.1</PBan>
+      <THDon>Hóa đơn giá trị gia tăng</THDon>
+      <KHMSHDon>1</KHMSHDon>
+      <KHHDon>C26MAU</KHHDon>
+      <SHDon>00000001</SHDon>
+      <NLap>2026-11-25</NLap>
+      <HDCTTChinh> 0 </HDCTTChinh>
+      <DVTTe>USD</DVTTe>
+      <TGia> 25000.00 </TGia>
+      <HTTToan>Chuyển khoản</HTTToan>
+      <MSTTCGP>MST-MAU-GP</MSTTCGP>
+    </TTChung>
+    <NDHDon>
+      <NBan><Ten>Công ty Mẫu A</Ten><MST>MST-MAU-A</MST><DChi>Địa chỉ mẫu A</DChi></NBan>
+      <NMua>
+        <Ten>Công ty Mẫu B</Ten><MST>MST-MAU-B</MST><DChi>Địa chỉ mẫu B</DChi><HVTNMHang>Người Mua Mẫu</HVTNMHang>
+      </NMua>
+      <DSHHDVu>
+        <HHDVu>
+          <TChat>1</TChat><MHHDVu>MAU-1</MHHDVu><THHDVu>Sổ mẫu</THHDVu><DVTinh>quyển</DVTinh>
+          <SLuong>2.00</SLuong><DGia>10.50</DGia><ThTien>21.000</ThTien><TSuat>5%</TSuat>
+        </HHDVu>
+        <HHDVu>
+          <TChat>1</TChat><MHHDVu>MAU-2</MHHDVu><THHDVu>Bút mẫu</THHDVu><DVTinh>chiếc</DVTinh>
+          <SLuong>3</SLuong><DGia>4.00</DGia><ThTien>12.00</ThTien><TSuat>10%</TSuat>
+        </HHDVu>
+        <HHDVu>
+          <TChat>1</TChat><MHHDVu>MAU-3</MHHDVu><THHDVu>Giấy mẫu</THHDVu><DVTinh>tập</DVTinh>
+          <SLuong>1.0</SLuong><DGia>9.000</DGia><ThTien>9.00</ThTien><TSuat>5%</TSuat>
+        </HHDVu>
+      </DSHHDVu>
+      <TToan>
+        <THTTLTSuat>
+          <LTSuat><TSuat>5%</TSuat><ThTien>30.000</ThTien><TThue>1.50</TThue></LTSuat>
+          <LTSuat><TSuat>10%</TSuat><ThTien>12.00</ThTien><TThue>1.200</TThue></LTSuat>
+        </THTTLTSuat>
+        <TgTCThue>42.000</TgTCThue><TgTThue>2.700</TgTThue><TgTTTBSo>44.7000</TgTTTBSo>
+        <TgTTTBChu>Bốn mươi bốn đô la Mỹ và bảy mươi xu</TgTTTBChu>
+      </TToan>
+    </NDHDon>
+  </DLHDon>
+  <MCCQT>MA-CQT-MAU</MCCQT>
+</HDon>

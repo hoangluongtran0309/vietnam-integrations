@@ -1,10 +1,13 @@
 package io.github.hoangluongtran0309.vietnam.einvoice.xml;
 
+import io.github.hoangluongtran0309.vietnam.einvoice.document.CertificateInfo;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceDocument;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceHeader;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceItem;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceParty;
+import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceSignature;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceTotals;
+import io.github.hoangluongtran0309.vietnam.einvoice.document.SignerRole;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.TaxRateSummary;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -19,10 +22,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +43,7 @@ import java.util.regex.Pattern;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.DOCTYPE_NOT_ALLOWED;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.DUPLICATE_ELEMENT;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INPUT_TOO_LARGE;
+import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_CERTIFICATE;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_DATE;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_INTEGER;
 import static io.github.hoangluongtran0309.vietnam.einvoice.xml.InvoiceXmlErrorCode.INVALID_NUMBER;
@@ -48,6 +58,7 @@ public final class InvoiceXmlParser {
     private static final long DEFAULT_MAX_INPUT_BYTES = 10L * 1024 * 1024;
     private static final int DEFAULT_MAX_ELEMENTS = 100_000;
     private static final Pattern ISSUE_DATE = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}");
+    private static final String XMLDSIG_NAMESPACE = "http://www.w3.org/2000/09/xmldsig#";
 
     private final long maxInputBytes;
     private final int maxElements;
@@ -146,7 +157,7 @@ public final class InvoiceXmlParser {
                 mapChildren(summaries, "LTSuat", InvoiceXmlParser::mapSummary),
                 totals == null ? null : mapTotals(totals),
                 string(root, "MCCQT"),
-                List.of(),
+                signatures(root),
                 extensions(root));
     }
 
@@ -252,7 +263,10 @@ public final class InvoiceXmlParser {
 
     private static <T> T readValue(XmlElement parent, String name, Function<String, T> parse,
                                    InvoiceXmlErrorCode code) {
-        XmlElement element = single(parent, name);
+        return readValue(single(parent, name), parse, code);
+    }
+
+    private static <T> T readValue(XmlElement element, Function<String, T> parse, InvoiceXmlErrorCode code) {
         if (element == null) {
             return null;
         }
@@ -264,6 +278,103 @@ public final class InvoiceXmlParser {
             return parse.apply(text);
         } catch (NumberFormatException | DateTimeParseException ex) {
             throw new InvoiceXmlException(code, element.path());
+        }
+    }
+
+    private static List<InvoiceSignature> signatures(XmlElement root) {
+        List<InvoiceSignature> signatures = new ArrayList<>();
+        for (XmlElement child : root.children) {
+            if (child.name.equals("DSCKS")) {
+                collectSignatures(child, signatures);
+            }
+        }
+        return signatures;
+    }
+
+    private static void collectSignatures(XmlElement container, List<InvoiceSignature> signatures) {
+        for (XmlElement signer : container.children) {
+            SignerRole role = switch (signer.name) {
+                case "NBan" -> SignerRole.SELLER;
+                case "NMua" -> SignerRole.BUYER;
+                case "CQT" -> SignerRole.TAX_AUTHORITY;
+                default -> null;
+            };
+            if (role == null) {
+                continue;
+            }
+            for (XmlElement signature : signer.children) {
+                if (signature.isXmlDsig("Signature")) {
+                    Instant signingTime = readValue(signingTimeElement(signature),
+                            text -> OffsetDateTime.parse(text).toInstant(), INVALID_DATE);
+                    signatures.add(new InvoiceSignature(role, signingTime, certificate(signature)));
+                }
+            }
+        }
+    }
+
+    private static XmlElement signingTimeElement(XmlElement signature) {
+        // TODO(v0.3): verify the XAdES namespace and SigningTime path — official Decision 1233/QD-CT and XSD.
+        XmlElement first = null;
+        Deque<XmlElement> pending = new ArrayDeque<>();
+        for (XmlElement object : signature.children) {
+            if (!object.isXmlDsig("Object")) {
+                continue;
+            }
+            pushChildren(pending, object);
+            while (!pending.isEmpty()) {
+                XmlElement element = pending.pop();
+                if (element.name.equals("SigningTime")) {
+                    if (element.index > 1) {
+                        throw new InvoiceXmlException(DUPLICATE_ELEMENT, element.path());
+                    }
+                    if (first == null) {
+                        first = element;
+                    }
+                }
+                pushChildren(pending, element);
+            }
+        }
+        return first;
+    }
+
+    private static void pushChildren(Deque<XmlElement> pending, XmlElement element) {
+        for (int i = element.children.size() - 1; i >= 0; i--) {
+            pending.push(element.children.get(i));
+        }
+    }
+
+    private static CertificateInfo certificate(XmlElement signature) {
+        for (XmlElement keyInfo : signature.children) {
+            if (!keyInfo.isXmlDsig("KeyInfo")) {
+                continue;
+            }
+            for (XmlElement data : keyInfo.children) {
+                if (!data.isXmlDsig("X509Data")) {
+                    continue;
+                }
+                for (XmlElement element : data.children) {
+                    if (element.isXmlDsig("X509Certificate")) {
+                        return readCertificate(element);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static CertificateInfo readCertificate(XmlElement element) {
+        try {
+            byte[] bytes = Base64.getMimeDecoder().decode(element.text());
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(bytes));
+            return new CertificateInfo(
+                    cert.getSubjectX500Principal().getName(),
+                    cert.getIssuerX500Principal().getName(),
+                    cert.getSerialNumber().toString(16),
+                    cert.getNotBefore().toInstant(),
+                    cert.getNotAfter().toInstant());
+        } catch (IllegalArgumentException | CertificateException ex) {
+            throw new InvoiceXmlException(INVALID_CERTIFICATE, element.path());
         }
     }
 
@@ -354,7 +465,7 @@ public final class InvoiceXmlParser {
             }
             elementsRemaining--;
             // TODO(v0.3): verify business element namespaces — official Decision 1233/QD-CT and official XSD schema.
-            XmlElement element = new XmlElement(localName, current);
+            XmlElement element = new XmlElement(localName, uri, current);
             if (current == null) {
                 root = element;
             } else {
@@ -380,15 +491,21 @@ public final class InvoiceXmlParser {
     private static final class XmlElement {
 
         private final String name;
+        private final String namespace;
         private final XmlElement parent;
         private List<XmlElement> children = List.of();
         private StringBuilder text;
         private int index;
         private boolean mapped;
 
-        private XmlElement(String name, XmlElement parent) {
+        private XmlElement(String name, String namespace, XmlElement parent) {
             this.name = name;
+            this.namespace = namespace;
             this.parent = parent;
+        }
+
+        private boolean isXmlDsig(String localName) {
+            return name.equals(localName) && XMLDSIG_NAMESPACE.equals(namespace);
         }
 
         private void addChild(XmlElement child) {

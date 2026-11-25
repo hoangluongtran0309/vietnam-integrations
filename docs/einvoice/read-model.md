@@ -1,5 +1,7 @@
 # Read model cho hóa đơn điện tử đã phát hành
 
+Xem [hướng dẫn đọc XML vào read model](parser.md).
+
 ## Mục đích
 
 Package `io.github.hoangluongtran0309.vietnam.einvoice.document` biểu diễn dữ liệu đã đọc từ XML hóa đơn do một

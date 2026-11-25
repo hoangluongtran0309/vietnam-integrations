@@ -10,6 +10,8 @@
   `io.github.hoangluongtran0309.vietnam.einvoice.document`. `extensions` giữ text gốc theo đường dẫn XML có chỉ số
   cho các phần tử lặp cùng tên. Xem
   [ADR-0011](docs/adr/0011-einvoice-read-model.md).
+- E-invoice: `InvoiceXmlParser` đọc XML hóa đơn với giới hạn kích thước và số phần tử, trích metadata chữ ký
+  và đã được kiểm bằng fixture tổng hợp. [ADR-0012](docs/adr/0012-einvoice-xml-parser.md).
 
 ## [0.2.0] - 2026-11-24
 

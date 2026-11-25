@@ -112,8 +112,8 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [ ] Xác minh [cơ sở pháp lý và định dạng XML đang có hiệu lực](einvoice/legal-basis.md); còn thiếu bản
   gốc QĐ 1306/QĐ-CT, QĐ 1233/QĐ-CT, gói XSD và điều khoản tái phân phối.
 - [ ] Thu XML hóa đơn thật đã redact làm test vector.
-- [ ] Thiết kế domain model đọc hóa đơn.
-- [ ] Implement parser XML an toàn, hỗ trợ nhiều phiên bản định dạng.
+- [x] Thiết kế domain model đọc hóa đơn. [ADR-0011](adr/0011-einvoice-read-model.md)
+- [x] Implement parser XML an toàn, hỗ trợ nhiều phiên bản định dạng (test bằng XML tổng hợp, chưa có hóa đơn thật).
 - [ ] Kiểm tra cấu trúc và số liệu với mã lỗi ổn định.
 - [ ] Kiểm chữ ký số XMLDSig, không kiểm chuỗi tin cậy tới Root CA.
 - [ ] Thêm starter, demo và release 0.3.0.

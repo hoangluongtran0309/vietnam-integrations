@@ -21,6 +21,9 @@
   Mã `InvoiceXmlErrorCode.DUPLICATE_ID` chỉ dùng trong verifier. `InvoiceXmlException` có thể được khởi tạo
   từ mã và đường dẫn. `SignatureVerification.asRule()` bổ sung các issue `EINV-SIG-*` khi đăng ký vào validator.
   [Hướng dẫn](docs/einvoice/signatures.md) · [ADR-0014](docs/adr/0014-einvoice-signature-verification.md).
+- E-invoice: `InvoiceInspector` đọc XML, xác minh chữ ký tùy cấu hình và trả `InvoiceInspection` gồm tài liệu,
+  kết quả chữ ký và báo cáo. `InvoiceValidator.withRule(InvoiceRule)` tạo validator mới và giữ nguyên cấu hình
+  cùng các rule đã đăng ký.
 
 ### Changed
 

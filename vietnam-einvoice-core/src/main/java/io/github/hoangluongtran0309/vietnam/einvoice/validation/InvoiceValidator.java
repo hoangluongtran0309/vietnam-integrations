@@ -44,6 +44,13 @@ public final class InvoiceValidator {
         return new Builder();
     }
 
+    /** Returns a new validator with the same settings and an additional rule after the existing rules. */
+    public InvoiceValidator withRule(InvoiceRule rule) {
+        Builder builder = builder().clock(clock).amountTolerance(amountTolerance);
+        builder.rules.addAll(rules);
+        return builder.addRule(rule).build();
+    }
+
     /**
      * Applies the default rules, then each application rule in registration order.
      * Exceptions thrown by application rules propagate to the caller.

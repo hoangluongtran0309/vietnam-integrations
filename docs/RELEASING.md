@@ -21,7 +21,6 @@
 2. `git tag v0.3.0 && git push origin v0.3.0`
 3. Workflow `release.yml` sẽ set version theo tag, ký, và publish.
 4. Kiểm tra trên Central Portal; artifact xuất hiện trên search.maven.org sau vài phút đến vài giờ.
-5. Tạo GitHub Release từ tag, dán phần CHANGELOG.
 
 ## Thử local (không publish)
 
@@ -49,3 +48,27 @@ Có thể kiểm một repository đã có artifact 0.3.0 trước khi phiên b�
 ```
 
 Chỉ coi bước này hoàn tất khi script in `SMOKE TEST OK <version>`.
+
+## Sau khi phát hành
+
+1. Tạo GitHub Release từ tag. Lấy mục tương ứng trong `CHANGELOG.md`. Đổi các liên kết tương đối
+   sang `https://github.com/hoangluongtran0309/vietnam-integrations/blob/v<version>/...` vì chúng bị hỏng
+   trên trang Release.
+2. Cập nhật badge, bảng Trạng thái và ví dụ cài đặt trong `README.md`. Cập nhật dependency mẫu trong
+   `docs/*/README.md`.
+3. Đánh dấu dòng Release tương ứng trong `docs/ROADMAP.md`.
+4. Nâng version phát triển lên `<version kế tiếp>-SNAPSHOT`. Ví dụ sau khi phát hành 0.3.0:
+
+   ```bash
+   NEXT_VERSION=0.4.0-SNAPSHOT
+   ./mvnw -B versions:set -DnewVersion="$NEXT_VERSION" -DprocessAllModules -DgenerateBackupPoms=false
+   ./mvnw -B -f vietnam-bom/pom.xml versions:set -DnewVersion="$NEXT_VERSION" -DgenerateBackupPoms=false
+   ```
+
+   Nếu `samples/demo-app/pom.xml` chưa đổi vì nằm trong profile `samples`, sửa version của parent trong file đó.
+5. Chạy lại `git grep` để kiểm tra badge và ví dụ cài đặt còn dùng version cũ. Điều chỉnh mẫu theo các
+   version cũ của từng lần phát hành. Ví dụ sau khi phát hành 0.3.0, lệnh sau phải trả về rỗng:
+
+   ```bash
+   git grep -nE '<version>0\.[12]\.0</version>|status-0\.2\.0' -- '*.md' ':!CHANGELOG.md' ':!docs/adr/'
+   ```

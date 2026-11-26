@@ -116,8 +116,10 @@ EOF
 cat > "$temporary_dir/project/src/main/java/smoke/SmokeTest.java" <<'EOF'
 package smoke;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import io.github.hoangluongtran0309.vietnam.einvoice.inspection.InvoiceInspector;
 import io.github.hoangluongtran0309.vietnam.vietqr.VietQrDecoder;
 import io.github.hoangluongtran0309.vietnam.vietqr.VietQrEncoder;
 import io.github.hoangluongtran0309.vietnam.vietqr.VietQrPayload;
@@ -153,6 +155,27 @@ public final class SmokeTest {
                 List.of(account), new InMemoryZaloTokenStore()).build();
         require("fake-oa".equals(registry.defaultOa().orElseThrow().oaId()),
                 "Zalo registry did not select its only account");
+
+        byte[] invoiceXml = """
+                <HDon>
+                  <DLHDon>
+                    <TTChung>
+                      <PBan>2.1.0</PBan><THDon>Synthetic sales invoice</THDon><KHMSHDon>2</KHMSHDon>
+                      <KHHDon>K20TST</KHHDon><SHDon>1</SHDon><NLap>2020-01-02</NLap>
+                      <HDDCKPTQuan>0</HDDCKPTQuan><DVTTe>VND</DVTTe>
+                      <HTTToan>Cash</HTTToan><MSTTCGP>0000000000</MSTTCGP>
+                    </TTChung>
+                    <NDHDon>
+                      <NBan><Ten>Sample seller</Ten><MST>0000000000</MST><DChi>Sample address</DChi></NBan>
+                      <DSHHDVu><HHDVu><TChat>1</TChat><THHDVu>Sample item</THHDVu><ThTien>90</ThTien></HHDVu></DSHHDVu>
+                      <TToan><TgTTTBSo>90</TgTTTBSo><TgTTTBChu>Ninety dong</TgTTTBChu></TToan>
+                    </NDHDon>
+                  </DLHDon>
+                </HDon>
+                """.getBytes(StandardCharsets.UTF_8);
+        boolean isValid = InvoiceInspector.defaults().inspect(invoiceXml).report().isValid();
+        System.out.println("E-invoice isValid: " + isValid);
+        require(isValid, "Synthetic e-invoice failed validation");
     }
 
     private static void require(boolean condition, String message) {

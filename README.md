@@ -14,7 +14,7 @@
 |---|---|---|
 | `vietnam-vietqr-spring-boot-starter` | 🟢 0.2.0 (QR, decode, đối soát) | 0.2.0 |
 | `vietnam-zalo-oa-spring-boot-starter` | 🟡 Preview 0.2.0, chưa nghiệm thu với OA thật ([mức độ kiểm chứng](docs/zalo/README.md#6-mức-độ-kiểm-chứng)) | 0.2.0 |
-| `vietnam-einvoice-spring-boot-starter` | 🔴 Khung (domain model, SPI) | 0.3.0 |
+| `vietnam-einvoice-spring-boot-starter` | 🟡 Preview 0.3.0: đọc, kiểm tra và xác minh chữ ký XML hóa đơn đã phát hành; phát hành hóa đơn qua nhà cung cấp chưa có ([mức độ kiểm chứng](docs/einvoice/README.md#mức-độ-kiểm-chứng)) | 0.3.0 |
 
 Xem kế hoạch chi tiết tại [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -195,9 +195,8 @@ String payload = new VietQrEncoder().encode(VietQrRequest.builder()
 
 ## Đọc hóa đơn điện tử
 
-Bản phát triển của `vietnam-einvoice-core` cung cấp `InvoiceXmlParser`, `InvoiceValidator` và
-`InvoiceSignatureVerifier` cho XML hóa đơn đã phát hành. [Đọc XML](docs/einvoice/parser.md) ·
-[Kiểm tra hóa đơn](docs/einvoice/validation.md) · [Xác minh chữ ký](docs/einvoice/signatures.md).
+`InvoiceInspector` đọc XML gốc, kiểm tra cấu trúc và số liệu, xác minh chữ ký rồi trả một báo cáo tổng hợp.
+[Hướng dẫn Java thuần, cấu hình Spring Boot và demo HTTP](docs/einvoice/README.md).
 
 ## Chạy thử
 

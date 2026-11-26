@@ -25,7 +25,7 @@ Yêu cầu Java 17+. Với Spring Boot: Spring Boot 4.x.
     <dependency>
       <groupId>io.github.hoangluongtran0309</groupId>
       <artifactId>vietnam-bom</artifactId>
-      <version>0.1.0</version>
+      <version>0.3.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -52,7 +52,7 @@ Yêu cầu Java 17+. Với Spring Boot: Spring Boot 4.x.
 <dependency>
   <groupId>io.github.hoangluongtran0309</groupId>
   <artifactId>vietnam-vietqr-core</artifactId>
-  <version>0.1.0</version>
+  <version>0.3.0</version>
 </dependency>
 ```
 

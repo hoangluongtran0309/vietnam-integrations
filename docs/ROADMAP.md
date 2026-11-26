@@ -119,6 +119,9 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [x] WP-3.5 — Xác minh XMLDSig và hỗ trợ kiểm chuỗi PKIX ngoại tuyến. [Hướng dẫn](einvoice/signatures.md)
 - [x] WP-3.6 — Thêm inspector, starter, demo và chuẩn bị phát hành 0.3.0 ở mức Preview.
   [Hướng dẫn sử dụng và mức độ kiểm chứng](einvoice/README.md).
+- [x] Release 0.3.0 (Preview cho E-invoice, theo [ADR-0010](adr/0010-preview-releases.md)) —
+  [GitHub Release](https://github.com/hoangluongtran0309/vietnam-integrations/releases/tag/v0.3.0),
+  Maven Central ngày 2026-11-26; smoke test từ Maven Central thành công.
 
 Gỡ nhãn Preview khi hoàn tất checklist và nghiệm thu khả năng đọc, kiểm tra cấu trúc/số liệu và xác minh chữ ký
 XMLDSig với mẫu thật.

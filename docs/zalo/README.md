@@ -1,7 +1,7 @@
 # Zalo OA / ZBS
 
 > [!WARNING]
-> Zalo OA/ZBS trong 0.2.0 là **Preview** và chưa được nghiệm thu với OA thật. Xem
+> Zalo OA/ZBS là **Preview** (từ 0.2.0) và chưa được nghiệm thu với OA thật. Xem
 > [mục 6 — Mức độ kiểm chứng](#6-mức-độ-kiểm-chứng) và
 > [ADR-0010](../adr/0010-preview-releases.md) trước khi dùng; test với Zalo giả không thay thế
 > nghiệm thu App/OA, ZBS template, webhook hoặc giao nhận thực tế.
@@ -35,7 +35,7 @@ Nguồn chính thức:
 <dependency>
   <groupId>io.github.hoangluongtran0309</groupId>
   <artifactId>vietnam-zalo-oa-spring-boot-starter</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
 </dependency>
 ```
 

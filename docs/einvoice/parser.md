@@ -58,6 +58,7 @@ Thông báo chỉ gồm mã lỗi, đường dẫn nếu có và mô tả ngắn
 | `MALFORMED_XML` | Đầu vào không phải XML hợp thức. |
 | `DOCTYPE_NOT_ALLOWED` | Có khai báo DOCTYPE, kể cả khai báo nội bộ không có thực thể. |
 | `UNEXPECTED_ROOT` | Local name của phần tử gốc khác `HDon`. |
+| `DUPLICATE_ID` | Giá trị thuộc tính `Id` không namespace bị trùng. Mã này chỉ dùng trong [verifier](signatures.md), vì parser bỏ qua thuộc tính. |
 | `DUPLICATE_ELEMENT` | Thẻ chỉ nhận một giá trị xuất hiện nhiều lần dưới cùng phần tử cha. |
 | `INVALID_NUMBER` | Không chuyển được text của thẻ thành `BigDecimal`. |
 | `INVALID_INTEGER` | Không chuyển được text của thẻ thành `Integer` 32 bit có dấu. |
@@ -68,6 +69,7 @@ Thông báo chỉ gồm mã lỗi, đường dẫn nếu có và mô tả ngắn
 ## Phạm vi xử lý
 
 Sau khi parse, dùng [validator](validation.md) để kiểm tra trường bắt buộc và tính khớp của số tiền.
+Dùng [verifier](signatures.md) trên byte XML gốc để xác minh chữ ký.
 Parser giữ nguyên `PBan` ở mọi phiên bản. Chữ ký được đọc dưới dạng metadata, gồm vai trò, thời điểm ký đã
 đổi sang `Instant` và thông tin từ chứng thư đầu tiên nếu có. Đầu vào là tài liệu `HDon` độc lập.
 Cây `HDon/DSCKS` nằm ngoài phạm vi thu thập `extensions`. Parser bỏ qua thuộc tính XML khi tạo model
@@ -92,12 +94,12 @@ trong `extensions`. Ba thẻ chiết khấu được ánh xạ vào [read model]
 <!-- TODO(v0.3): verify the meaning of the unmapped tags — provider XML format documentation. -->
 
 Để chạy lại, đặt các tệp XML trong một thư mục riêng ngoài repo và trỏ `EINVOICE_REAL_SAMPLES_DIR`
-đến thư mục đó. Test xuất số đếm, scale và đường dẫn thẻ đã chuẩn hóa. Các issue của validator xuất theo mã,
-mức độ, đường dẫn chuẩn hóa và số lần xuất hiện. Khi không đặt biến môi trường,
+đến thư mục đó. Test báo số lần theo trạng thái chữ ký, trạng thái tin cậy và vai trò. Các issue của validator
+được tổng hợp theo mã, mức độ và đường dẫn chuẩn hóa. Khi không đặt biến môi trường,
 JUnit bỏ qua `RealInvoiceSamplesTest`.
 
 ```bash
-EINVOICE_REAL_SAMPLES_DIR="$HOME/einvoice-samples/originals" \
+EINVOICE_REAL_SAMPLES_DIR=/path/to/private/invoice-xml \
   ./mvnw -B -pl vietnam-einvoice-core -am test \
   -Dtest=RealInvoiceSamplesTest -Dsurefire.failIfNoSpecifiedTests=false
 ```

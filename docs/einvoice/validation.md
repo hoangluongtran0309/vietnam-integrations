@@ -68,7 +68,8 @@ Validator ghi `EINV-AMT-900` khi tính chất dòng nằm ngoài phạm vi số 
 
 ## Phạm vi
 
-Validator kiểm tra tính nhất quán của read model cho hóa đơn thông thường. Kiểm XSD, độ dài trường, yêu cầu
-chữ ký, xác minh chữ ký và các trường có điều kiện của người mua nằm ngoài phạm vi. `EINV-DATE-002` chỉ kiểm
+Validator kiểm tra tính nhất quán của read model cho hóa đơn thông thường. Dùng `addRule(verification.asRule())`
+để đưa kết quả [xác minh chữ ký](signatures.md) từ XML gốc vào báo cáo. Kiểm XSD, độ dài trường và các trường có
+điều kiện của người mua nằm ngoài phạm vi. `EINV-DATE-002` chỉ kiểm
 quan hệ ngày dựa trên metadata thời điểm ký đã có. Định dạng MST được kiểm ở mức mẫu ký tự, với chữ số kiểm tra
 và MST cá nhân 12 chữ số còn chờ đối chiếu.

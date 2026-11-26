@@ -15,6 +15,17 @@
 - E-invoice: `InvoiceValidator` kiểm tra dữ liệu đã parse và trả báo cáo có mã, mức độ và đường dẫn XML.
   Ứng dụng có thể cấu hình dung sai số tiền, đồng hồ và bổ sung rule.
   [Hướng dẫn](docs/einvoice/validation.md) · [ADR-0013](docs/adr/0013-einvoice-validation.md).
+- E-invoice: `InvoiceSignatureVerifier` xác minh XMLDSig và phạm vi dữ liệu ký trên XML hóa đơn, hỗ trợ
+  kiểm chuỗi PKIX ngoại tuyến với anchor do ứng dụng cung cấp. Cấu hình giới hạn đầu vào qua `maxInputBytes(long)`
+  và `maxElements(int)`. Việc tìm chuỗi chứng thư có giới hạn độ dài và số lượt mở rộng.
+  Mã `InvoiceXmlErrorCode.DUPLICATE_ID` chỉ dùng trong verifier. `InvoiceXmlException` có thể được khởi tạo
+  từ mã và đường dẫn. `SignatureVerification.asRule()` bổ sung các issue `EINV-SIG-*` khi đăng ký vào validator.
+  [Hướng dẫn](docs/einvoice/signatures.md) · [ADR-0014](docs/adr/0014-einvoice-signature-verification.md).
+
+### Changed
+
+- E-invoice: Breaking với mã nguồn dùng `switch` vét cạn trên `InvoiceXmlErrorCode` của bản chưa phát hành.
+  Cần bổ sung nhánh cho `DUPLICATE_ID` hoặc nhánh mặc định.
 
 ## [0.2.0] - 2026-11-24
 

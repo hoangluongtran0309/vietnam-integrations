@@ -2,7 +2,11 @@ package io.github.hoangluongtran0309.vietnam.einvoice.xml;
 
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceDocument;
 import io.github.hoangluongtran0309.vietnam.einvoice.document.InvoiceParty;
+import io.github.hoangluongtran0309.vietnam.einvoice.signature.InvoiceSignatureVerifier;
+import io.github.hoangluongtran0309.vietnam.einvoice.signature.SignatureVerification;
 import io.github.hoangluongtran0309.vietnam.einvoice.validation.InvoiceValidator;
+import io.github.hoangluongtran0309.vietnam.einvoice.validation.ValidationIssue;
+import io.github.hoangluongtran0309.vietnam.einvoice.validation.ValidationReport;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -13,6 +17,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -60,13 +65,14 @@ class RealInvoiceSamplesTest {
         assertFalse(samples.isEmpty(), "EINVOICE_REAL_SAMPLES_DIR contains no XML files");
         return IntStream.range(0, samples.size()).mapToObj(index -> {
             String name = "sample-" + (index + 1);
-            return dynamicTest(name, () -> checkSample(name, samples.get(index)));
+            return dynamicTest(name, () -> checkSample(samples.get(index)));
         });
     }
 
-    private static void checkSample(String name, Path sample) {
-        var invoice = parseSample(sample);
-        var leaves = leafPaths(readDom(sample));
+    private static void checkSample(Path sample) {
+        byte[] xml = readSample(sample);
+        var invoice = parseSample(xml);
+        var leaves = leafPaths(readDom(xml));
         var mapped = mappedFields(invoice);
         var extensions = new TreeMap<String, Integer>();
         invoice.extensions().keySet().forEach(path -> extensions.merge(normalize(path), 1, Integer::sum));
@@ -74,11 +80,6 @@ class RealInvoiceSamplesTest {
         int leafCount = leaves.values().stream().mapToInt(Integer::intValue).sum();
         int mappedCount = mapped.counts.values().stream().mapToInt(Integer::intValue).sum();
         int accountedFor = mappedCount + invoice.extensions().size();
-        System.out.printf("%s: DOM leaves=%d, mapped fields=%d, extensions=%d, maximum decimal scale=%s%n",
-                name, leafCount, mappedCount, invoice.extensions().size(),
-                mapped.decimalScales.values().stream().max(Integer::compareTo).map(Object::toString).orElse("none"));
-        extensions.forEach((path, count) -> System.out.printf("%s: %s = %d%n", name, path, count));
-
         var header = invoice.header();
         assertAll(
                 () -> assertTrue(header != null, "Invoice header is absent"),
@@ -91,34 +92,67 @@ class RealInvoiceSamplesTest {
                 () -> invoice.extensions().keySet().forEach(path -> assertTrue(
                         path.startsWith("HDon/") && !path.contains("DSCKS"),
                         () -> "Invalid extension path: " + normalize(path))),
-                () -> checkValidation(invoice));
+                () -> assertValid(InvoiceValidator.defaults().validate(invoice)),
+                () -> checkSignatureValidation(xml, invoice));
     }
 
-    private static void checkValidation(InvoiceDocument invoice) {
-        var report = InvoiceValidator.defaults().validate(invoice);
+    private static void checkSignatureValidation(byte[] xml, InvoiceDocument invoice) {
+        SignatureVerification verification = verifySample(xml);
         var counts = new TreeMap<String, Integer>();
-        report.issues().forEach(issue -> counts.merge(
-                issue.code() + " " + issue.severity() + " " + normalize(issue.path()), 1, Integer::sum));
+        verification.checks().forEach(check -> counts.merge(
+                check.status() + " " + check.trust() + " " + check.role(), 1, Integer::sum));
+        counts.forEach((check, count) -> System.out.printf("%s = %d%n", check, count));
+        assertTrue(verification.checks().size() == invoice.signatures().size(),
+                "Signature count differs from parsed signature metadata");
+
+        var report = InvoiceValidator.builder().addRule(verification.asRule()).build().validate(invoice);
+        counts.clear();
+        report.issues().forEach(issue -> counts.merge(issueSummary(issue), 1, Integer::sum));
         counts.forEach((issue, count) -> System.out.printf("%s = %d%n", issue, count));
+        assertValid(report);
+    }
+
+    private static void assertValid(ValidationReport report) {
         assertTrue(report.isValid(), () -> "Validation errors: " + report.errors().stream()
-                .map(issue -> issue.code() + " " + issue.severity() + " " + normalize(issue.path()))
+                .map(RealInvoiceSamplesTest::issueSummary)
                 .distinct()
                 .toList());
     }
 
-    private static InvoiceDocument parseSample(Path sample) {
-        try (var input = Files.newInputStream(sample)) {
-            return InvoiceXmlParser.defaults().parse(input);
-        } catch (InvoiceXmlException ex) {
-            String path = ex.path() == null ? "" : " at " + normalize(ex.path());
-            return fail("Invoice parser failed with " + ex.code() + path);
+    private static String issueSummary(ValidationIssue issue) {
+        return issue.code() + " " + issue.severity() + " " + normalize(issue.path());
+    }
+
+    private static byte[] readSample(Path sample) {
+        try {
+            return Files.readAllBytes(sample);
         } catch (IOException | RuntimeException ex) {
-            return fail("Could not read or parse the sample with InvoiceXmlParser");
+            return fail("Could not read the sample XML");
         }
     }
 
-    private static Element readDom(Path sample) {
-        try (var input = Files.newInputStream(sample)) {
+    private static InvoiceDocument parseSample(byte[] xml) {
+        try {
+            return InvoiceXmlParser.defaults().parse(xml);
+        } catch (InvoiceXmlException ex) {
+            return fail("Invoice parser failed with " + ex.code());
+        } catch (RuntimeException ex) {
+            return fail("Could not parse the sample with InvoiceXmlParser");
+        }
+    }
+
+    private static SignatureVerification verifySample(byte[] xml) {
+        try {
+            return InvoiceSignatureVerifier.defaults().verify(xml);
+        } catch (InvoiceXmlException ex) {
+            return fail("Invoice signature verifier failed with " + ex.code());
+        } catch (RuntimeException ex) {
+            return fail("Could not verify the signatures in the sample XML");
+        }
+    }
+
+    private static Element readDom(byte[] xml) {
+        try (var input = new ByteArrayInputStream(xml)) {
             var factory = DocumentBuilderFactory.newDefaultInstance();
             factory.setNamespaceAware(true);
             factory.setXIncludeAware(false);

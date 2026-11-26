@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic sales invoice for the demo. -->
+<HDon>
+  <DLHDon>
+    <TTChung>
+      <PBan>2.1.0</PBan><THDon>Hóa đơn bán hàng</THDon><KHMSHDon>2</KHMSHDon>
+      <KHHDon>C20TST</KHHDon><SHDon>42</SHDon><NLap>2020-01-02</NLap>
+      <HDDCKPTQuan>0</HDDCKPTQuan><DVTTe>VND</DVTTe>
+      <HTTToan>Tiền mặt</HTTToan><MSTTCGP>0000000000</MSTTCGP>
+    </TTChung>
+    <NDHDon>
+      <NBan><Ten>Người bán mẫu</Ten><MST>0000000000</MST><DChi>Địa chỉ mẫu</DChi></NBan>
+      <DSHHDVu><HHDVu><TChat>1</TChat><THHDVu>Hàng mẫu</THHDVu><ThTien>90</ThTien></HHDVu></DSHHDVu>
+      <TToan><TgTTTBSo>90</TgTTTBSo><TgTTTBChu>Chín mươi đồng</TgTTTBChu></TToan>
+    </NDHDon>
+  </DLHDon>
+  <MCCQT>SYNTHETIC-AUTHORITY-CODE</MCCQT>
+</HDon>

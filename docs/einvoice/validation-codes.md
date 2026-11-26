@@ -40,6 +40,20 @@ Thời điểm ký dùng đường dẫn metadata XAdES tương ứng vai trò t
 AMT-001 đến AMT-006 dùng [cùng một quy tắc dung sai](validation.md#dung-sai-và-điều-kiện-kiểm-tra).
 Sau đây là [các nguồn chính thức và thứ cấp](legal-basis.md).
 
+## Chữ ký số
+
+Các mã dưới đây chỉ xuất hiện khi đăng ký `SignatureVerification.asRule()`. Rule kiểm điều kiện thiếu chữ ký
+cơ quan thuế trước, sau đó duyệt từng chữ ký theo thứ tự XML. [Cách đăng ký rule](signatures.md#dùng-cùng-parser-và-validator).
+
+| Mã | Mức độ | Đường dẫn và điều kiện | Nguồn |
+|---|---|---|---|
+| `EINV-SIG-001` | WARNING | `HDon/DSCKS/CQT` khi `KHHDon` bắt đầu bằng `C` và không có chữ ký cơ quan thuế. | Phụ lục I mục 2 TT 91 nhận diện hóa đơn có mã. Vị trí chữ ký theo phụ lục QĐ 1233, **thứ cấp**. |
+| `EINV-SIG-002` | ERROR | Đường dẫn chữ ký khi trạng thái là `INVALID_SIGNATURE`, `INVALID_REFERENCE`, `REFERENCE_NOT_COVERING_INVOICE`, `MISSING_CERTIFICATE` hoặc `MALFORMED`. | Kết quả verifier. |
+| `EINV-SIG-003` | WARNING | Đường dẫn chữ ký khi trạng thái là `UNSUPPORTED_ALGORITHM`. | Danh sách thuật toán của verifier dựa trên phụ lục QĐ 1233, **thứ cấp**. |
+| `EINV-SIG-004` | ERROR | Đường dẫn chữ ký khi trạng thái là `CERTIFICATE_NOT_VALID_AT_SIGNING_TIME`. | Thời hạn chứng thư và thời điểm ký khai báo. |
+| `EINV-SIG-005` | ERROR | Đường dẫn chữ ký khi kết quả tin cậy là `UNTRUSTED`. | Chính sách PKIX với anchor do ứng dụng cấp. |
+| `EINV-SIG-006` | WARNING | Đường dẫn chữ ký cơ quan thuế có trạng thái `VALID` nhưng không phủ `HDon/MCCQT`. | Vị trí ký theo phụ lục QĐ 1233, **thứ cấp**. |
+
 ## Cần đối chiếu
 
 - TODO(v0.3): verify the meaning of TLCKhau, STCKhau and TTCKTMai — official QD 1233/QD-CT technical appendix.

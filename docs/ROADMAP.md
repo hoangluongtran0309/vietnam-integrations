@@ -115,7 +115,7 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 - [x] Thiết kế domain model đọc hóa đơn. [ADR-0011](adr/0011-einvoice-read-model.md)
 - [x] Implement parser XML an toàn, hỗ trợ nhiều phiên bản định dạng (test bằng XML tổng hợp, chưa có hóa đơn thật).
 - [x] WP-3.4 — Kiểm tra cấu trúc và số liệu với mã lỗi ổn định. [Hướng dẫn](einvoice/validation.md)
-- [ ] Kiểm chữ ký số XMLDSig, không kiểm chuỗi tin cậy tới Root CA.
+- [x] WP-3.5 — Xác minh XMLDSig và hỗ trợ kiểm chuỗi PKIX ngoại tuyến. [Hướng dẫn](einvoice/signatures.md)
 - [ ] Thêm starter, demo và release 0.3.0.
 
 **Done khi:** ứng dụng đọc, kiểm tra cấu trúc/số liệu và xác minh chữ ký XMLDSig của test vector

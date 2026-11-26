@@ -107,19 +107,21 @@ Giả định: làm part-time song song với các dự án khác (~8–12 giờ
 
 **Done khi:** sample gửi được ZBS thật và nhận webhook thật có verify chữ ký.
 
-## Phase 3 — Đọc và kiểm tra XML hóa đơn điện tử 0.3.0
+## Phase 3 — Đọc và kiểm tra XML hóa đơn điện tử 0.3.0 Preview
 
 - [ ] Xác minh [cơ sở pháp lý và định dạng XML đang có hiệu lực](einvoice/legal-basis.md); còn thiếu bản
   gốc QĐ 1306/QĐ-CT, QĐ 1233/QĐ-CT, gói XSD và điều khoản tái phân phối.
-- [ ] Thu XML hóa đơn thật đã redact làm test vector.
+- [ ] Thu XML hóa đơn thật đã redact làm test vector, gồm chữ ký người bán và cơ quan thuế từ ít nhất hai
+  nhà cung cấp. [Checklist nghiệm thu](einvoice/acceptance-checklist.md).
 - [x] Thiết kế domain model đọc hóa đơn. [ADR-0011](adr/0011-einvoice-read-model.md)
-- [x] Implement parser XML an toàn, hỗ trợ nhiều phiên bản định dạng (test bằng XML tổng hợp, chưa có hóa đơn thật).
+- [x] Triển khai parser XML an toàn, giữ nguyên phiên bản định dạng. Kiểm bằng fixture tổng hợp và một mẫu cục bộ.
 - [x] WP-3.4 — Kiểm tra cấu trúc và số liệu với mã lỗi ổn định. [Hướng dẫn](einvoice/validation.md)
 - [x] WP-3.5 — Xác minh XMLDSig và hỗ trợ kiểm chuỗi PKIX ngoại tuyến. [Hướng dẫn](einvoice/signatures.md)
-- [ ] Thêm starter, demo và release 0.3.0.
+- [x] WP-3.6 — Thêm inspector, starter, demo và chuẩn bị phát hành 0.3.0 ở mức Preview.
+  [Hướng dẫn sử dụng và mức độ kiểm chứng](einvoice/README.md).
 
-**Done khi:** ứng dụng đọc, kiểm tra cấu trúc/số liệu và xác minh chữ ký XMLDSig của test vector
-đã redact với kết quả ổn định.
+Gỡ nhãn Preview khi hoàn tất checklist và nghiệm thu khả năng đọc, kiểm tra cấu trúc/số liệu và xác minh chữ ký
+XMLDSig với mẫu thật.
 
 ## Phase 4 — 0.4.0 — Phát hành hóa đơn bất đồng bộ qua một nhà cung cấp (MISA meInvoice) + ký số
 

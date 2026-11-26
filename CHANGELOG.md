@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-26
+
+Tính năng đọc và kiểm tra hóa đơn điện tử trong bản này là **Preview** theo
+[ADR-0010](docs/adr/0010-preview-releases.md). Các điểm còn cần đối chiếu gồm bản gốc quyết định và XSD,
+trường bắt buộc, ngoại tệ, nhiều thuế suất, làm tròn, tính chất dòng, chiết khấu, MST cá nhân, thẻ mở rộng
+và chữ ký thật của người bán và cơ quan thuế, kể cả mẫu ký trước 2025.
+[Checklist nghiệm thu](docs/einvoice/acceptance-checklist.md).
+
 ### Added
 
 - E-invoice: read model cho XML hóa đơn đã phát hành trong package
@@ -25,10 +33,10 @@
   kết quả chữ ký và báo cáo. `InvoiceValidator.withRule(InvoiceRule)` tạo validator mới và giữ nguyên cấu hình
   cùng các rule đã đăng ký.
 
-### Changed
-
-- E-invoice: Breaking với mã nguồn dùng `switch` vét cạn trên `InvoiceXmlErrorCode` của bản chưa phát hành.
-  Cần bổ sung nhánh cho `DUPLICATE_ID` hoặc nhánh mặc định.
+- E-invoice starter: tự cấu hình các bean đọc và kiểm tra XML, gồm giới hạn đầu vào, dung sai, cấu hình
+  chữ ký và chứng thư PEM/DER. Hỗ trợ thay bean, đồng hồ và rule ứng dụng.
+- Demo E-invoice: `POST /einvoice/inspect` nhận multipart XML và trả tóm tắt hóa đơn, issue và kết quả
+  chữ ký. [Hướng dẫn Java, Spring Boot và demo](docs/einvoice/README.md).
 
 ## [0.2.0] - 2026-11-24
 

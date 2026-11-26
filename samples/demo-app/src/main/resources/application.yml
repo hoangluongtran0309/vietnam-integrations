@@ -32,9 +32,10 @@ vietnam:
 spring:
   servlet:
     multipart:
-      # Phone screenshots uploaded to /decode-image are often larger than the 1MB default
+      # Match the invoice XML limit and keep accepted uploads in memory.
       max-file-size: 10MB
       max-request-size: 10MB
+      file-size-threshold: 10MB
 
 demo:
   zalo:

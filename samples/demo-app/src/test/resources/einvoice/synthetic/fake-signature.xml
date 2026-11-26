@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic signature with no SignedInfo. -->
+<HDon xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <DSCKS>
+    <NBan><ds:Signature><ds:SignatureValue>RkFLRQ==</ds:SignatureValue></ds:Signature></NBan>
+  </DSCKS>
+</HDon>

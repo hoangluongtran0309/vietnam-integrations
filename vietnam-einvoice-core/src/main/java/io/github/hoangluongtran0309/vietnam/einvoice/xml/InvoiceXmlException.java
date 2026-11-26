@@ -2,7 +2,7 @@ package io.github.hoangluongtran0309.vietnam.einvoice.xml;
 
 import io.github.hoangluongtran0309.vietnam.einvoice.EInvoiceException;
 
-/** Reports a parse error without exposing element values or the underlying XML reader diagnostic. */
+/** Reports an invoice XML input error without exposing element values or the underlying XML reader diagnostic. */
 public final class InvoiceXmlException extends EInvoiceException {
 
     private static final long serialVersionUID = 1L;
@@ -10,7 +10,13 @@ public final class InvoiceXmlException extends EInvoiceException {
     private final InvoiceXmlErrorCode code;
     private final String path;
 
-    InvoiceXmlException(InvoiceXmlErrorCode code, String path) {
+    /**
+     * Creates an input error from a stable code and a path containing only element names and indices.
+     *
+     * @param code the XML input error code
+     * @param path the element path, or {@code null} when unavailable
+     */
+    public InvoiceXmlException(InvoiceXmlErrorCode code, String path) {
         super(code + (path == null ? "" : " at " + path) + ": " + code.description());
         this.code = code;
         this.path = path;

@@ -1,6 +1,6 @@
 package io.github.hoangluongtran0309.vietnam.einvoice.xml;
 
-/** Stable error codes for applications that parse invoice XML. */
+/** Stable error codes for applications that process invoice XML. */
 public enum InvoiceXmlErrorCode {
     /** The byte array or stream exceeds the configured byte limit. */
     INPUT_TOO_LARGE("XML input exceeds the byte limit"),
@@ -23,7 +23,9 @@ public enum InvoiceXmlErrorCode {
     /** Reading the supplied stream failed. */
     IO_ERROR("Could not read the XML input"),
     /** The document exceeds the configured element count, including its root element. */
-    TOO_MANY_ELEMENTS("XML input exceeds the element limit");
+    TOO_MANY_ELEMENTS("XML input exceeds the element limit"),
+    /** More than one element has the same unnamespaced Id attribute value. */
+    DUPLICATE_ID("Multiple elements have the same Id value");
 
     private final String description;
 

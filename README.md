@@ -5,16 +5,16 @@
 *Integrations with Vietnamese platforms for Java and Spring Boot: VietQR payment QR codes, Zalo Official Account / ZBS messaging, and e-invoices.*
 
 [![CI](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangluongtran0309/vietnam-integrations/actions/workflows/ci.yml)
-![Status](https://img.shields.io/badge/status-0.2.0-brightgreen)
+![Status](https://img.shields.io/badge/status-0.3.0-brightgreen)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 ## Trạng thái
 
 | Module | Trạng thái | Phiên bản mục tiêu |
 |---|---|---|
-| `vietnam-vietqr-spring-boot-starter` | 🟢 0.2.0 (QR, decode, đối soát) | 0.2.0 |
-| `vietnam-zalo-oa-spring-boot-starter` | 🟡 Preview 0.2.0, chưa nghiệm thu với OA thật ([mức độ kiểm chứng](docs/zalo/README.md#6-mức-độ-kiểm-chứng)) | 0.2.0 |
-| `vietnam-einvoice-spring-boot-starter` | 🟡 Preview 0.3.0: đọc, kiểm tra và xác minh chữ ký XML hóa đơn đã phát hành; phát hành hóa đơn qua nhà cung cấp chưa có ([mức độ kiểm chứng](docs/einvoice/README.md#mức-độ-kiểm-chứng)) | 0.3.0 |
+| `vietnam-vietqr-spring-boot-starter` | 🟢 Ổn định: QR, decode, đối soát | 0.3.0 |
+| `vietnam-zalo-oa-spring-boot-starter` | 🟡 Preview, chưa nghiệm thu với OA thật ([mức độ kiểm chứng](docs/zalo/README.md#6-mức-độ-kiểm-chứng)) | 0.3.0 |
+| `vietnam-einvoice-spring-boot-starter` | 🟡 Preview: đọc, kiểm tra và xác minh chữ ký XML hóa đơn đã phát hành; phát hành hóa đơn qua nhà cung cấp chưa có ([mức độ kiểm chứng](docs/einvoice/README.md#mức-độ-kiểm-chứng)) | 0.3.0 |
 
 Xem kế hoạch chi tiết tại [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -33,7 +33,7 @@ Tài liệu Zalo OA/ZBS: [docs/zalo/README.md](docs/zalo/README.md).
     <dependency>
       <groupId>io.github.hoangluongtran0309</groupId>
       <artifactId>vietnam-bom</artifactId>
-      <version>0.2.0</version>
+      <version>0.3.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -57,7 +57,7 @@ Tài liệu Zalo OA/ZBS: [docs/zalo/README.md](docs/zalo/README.md).
 ## Zalo OA / ZBS — dùng nhanh
 
 > [!WARNING]
-> Zalo OA/ZBS trong 0.2.0 là **Preview** và chưa được nghiệm thu với OA thật. Sáu điểm còn
+> Zalo OA/ZBS là **Preview** (từ 0.2.0) và chưa được nghiệm thu với OA thật. Sáu điểm còn
 > phải xác minh là: định dạng số điện thoại ZBS; kiểu giá trị trong `template_data`; cách Zalo đếm
 > giới hạn 2.000 ký tự; vị trí OA ID và phạm vi OA Secret Key trong webhook; `Content-Type` webhook;
 > mã lỗi refresh token hết hạn, bị thu hồi hoặc đã dùng. Xem
